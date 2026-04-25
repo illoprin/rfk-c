@@ -1,0 +1,138 @@
+#include "input.h"
+#include <window.h>
+
+struct keyboard {
+  int keys[GLFW_KEY_LAST];
+};
+
+struct mouse {
+  int btns[GLFW_MOUSE_BUTTON_LAST];
+  double xscr, yscr;
+  double x, y, dx, dy;
+};
+
+static struct mouse mouse;
+static struct keyboard keyboard;
+static GLFWwindow* handle;
+
+void keyCallback(GLFWwindow* _w, int key, int scancode, int action, int mods);
+void mouseButtonCallback(GLFWwindow* _w, int button, int action, int mods);
+void cursorPosCallback(GLFWwindow* _w, double x, double y);
+void scrollCallback(GLFWwindow* _w, double x, double y);
+
+void windowSetupCallbacks() {
+  glfwSetKeyCallback(handle, keyCallback);
+  glfwSetMouseButtonCallback(handle, mouseButtonCallback);
+  glfwSetCursorPosCallback(handle, cursorPosCallback);
+  glfwSetScrollCallback(handle, scrollCallback);
+}
+
+void _inputInit() {
+  memset(keyboard.keys, RFK_NONE, GLFW_KEY_LAST * sizeof(int));
+  memset(mouse.btns, RFK_NONE, GLFW_MOUSE_BUTTON_LAST * sizeof(int));
+  handle = Wnd_GetHandle();
+  windowSetupCallbacks();
+}
+
+bool IsKeyDown(int key) {
+  return keyboard.keys[key] == RFK_DOWN || keyboard.keys[key] == RFK_PRESSED;
+}
+
+bool IsKeyReleased(int key) {
+  return keyboard.keys[key] == RFK_RELEASED;
+}
+
+bool IsKeyPressed(int key) {
+  return keyboard.keys[key] == RFK_PRESSED;
+}
+
+bool IsMouseButtonDown(int btn) {
+  return mouse.btns[btn] == RFK_PRESSED || mouse.btns[btn] == RFK_DOWN;
+}
+
+bool IsMouseButtonPressed(int btn) {
+  return mouse.btns[btn] == RFK_PRESSED;
+}
+
+bool IsMouseButtonReleased(int btn) {
+  return mouse.btns[btn] == RFK_RELEASED;
+}
+
+void MouseGetDelta(double* x, double* y) {
+  *x = mouse.dx;
+  *y = mouse.dy;
+}
+
+void MouseGetPos(double* x, double* y) {
+  *x = mouse.x;
+  *y = mouse.y;
+}
+
+void MouseGetScroll(double* x, double* y) {
+  *x = mouse.xscr;
+  *y = mouse.yscr;
+}
+
+void _inputUpdate() {
+  // keyboard update
+  for (size_t i = 0; i < GLFW_KEY_LAST; i++) {
+    if (keyboard.keys[i] == RFK_PRESSED)
+      keyboard.keys[i] = RFK_DOWN;
+    else if (keyboard.keys[i] == RFK_RELEASED)
+      keyboard.keys[i] = RFK_NONE;
+  }
+
+  // mouse button update
+  for (size_t i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++) {
+    if (mouse.btns[i] == RFK_PRESSED)
+      mouse.btns[i] = RFK_DOWN;
+    else if (mouse.btns[i] == RFK_RELEASED)
+      mouse.btns[i] = RFK_NONE;
+  }
+
+  // mouse delta update
+  mouse.dx = 0;
+  mouse.dy = 0;
+
+  // mouse scroll update
+  mouse.xscr = 0;
+  mouse.yscr = 0;
+}
+
+void keyCallback(GLFWwindow* _w, int key, int scancode, int action, int mods) {
+  if (key < 0) {
+    return;
+  }
+
+  if (action == GLFW_PRESS) {
+    keyboard.keys[key] = RFK_PRESSED;
+  }
+  else if (action == GLFW_RELEASE) {
+    keyboard.keys[key] = RFK_RELEASED;
+  }
+};
+
+void mouseButtonCallback(GLFWwindow* _w, int button, int action, int mods) {
+  if (button < 0) {
+    return;
+  }
+
+  if (action == GLFW_PRESS) {
+    mouse.btns[button] = RFK_PRESSED;
+  }
+  else if (action == GLFW_RELEASE) {
+    mouse.btns[button] = RFK_RELEASED;
+  }
+}
+
+void cursorPosCallback(GLFWwindow* _w, double x, double y) {
+  mouse.dx = x - mouse.x;
+  mouse.dy = y - mouse.y;
+  mouse.x = x;
+  mouse.y = y;
+};
+
+void scrollCallback(GLFWwindow* _w, double x, double y) {
+  mouse.xscr = x;
+  mouse.yscr = y;
+}

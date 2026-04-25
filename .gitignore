@@ -1,0 +1,3 @@
+/build/obj
+/.vscode
+/pkg/include/cglm/*
