@@ -12,4 +12,7 @@ void Plt_Init() {
   dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
   SetConsoleMode(hOut, dwMode);
 #endif
+
+  printf("🩷 rfk invdev 2504261641\n");
+
 }

@@ -1,9 +1,12 @@
-#include <util.h>
+#include "util.h"
 
-#include <window.h>
-#include <input.h>
-#include <log.h>
+#include "window.h"
+#include "input.h"
+#include "log.h"
 #include "platform.h"
+
+#define VECTOR_H_IMPLEMENTATION
+#include <vector/vector.h>
 
 void update() {
   Wnd_Update();
@@ -51,6 +54,7 @@ void render() {
   Wnd_SwapBuffers();
 }
 
+
 int main() {
 
   Plt_Init();
@@ -58,7 +62,6 @@ int main() {
   Wnd_Init(800, 600, "game");
   Wnd_Center();
 
-  printf("📝 created\n");
 
   while (!Wnd_ShouldClose()) {
     update();
@@ -66,4 +69,7 @@ int main() {
   }
 
   Wnd_Destroy();
+
+
+  return EXIT_SUCCESS;
 }
