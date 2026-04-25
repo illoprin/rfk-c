@@ -4,7 +4,7 @@
 
 GLFWwindow* handle;
 ivec2 wnd_Size;
-FuncWindowResize uResizeCallback;
+WindowFnResize uResizeCallback;
 
 void sizeCallback(GLFWwindow* _w, int width, int height) {
   *wnd_Size = width;
@@ -61,7 +61,7 @@ void Wnd_Center() {
   glfwSetWindowPos(handle, pos[0], pos[1]);
 }
 
-void Wnd_SetResizeCallback(FuncWindowResize c) {
+void Wnd_SetResizeCallback(WindowFnResize c) {
   uResizeCallback = c;
 }
 

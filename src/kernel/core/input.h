@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gfx.h>
+#include <kernel/gfx/gfx.h>
 
 enum BtnState {
   RFK_NONE = 0,

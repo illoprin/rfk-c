@@ -1,18 +1,32 @@
-#include "util.h"
+#include "kernel/kernel.h"
 
-#include "window.h"
-#include "input.h"
-#include "log.h"
-#include "platform.h"
+void update(float);
+void render();
+void onExit(void**);
+void onEnter(void*);
+void updateNext(float);
+void renderNext();
 
-#define VECTOR_H_IMPLEMENTATION
-#include <vector/vector.h>
+struct StateVTable s = {
+  .Update = update,
+  .Render = render,
+  .OnExit = onExit,
+};
 
-void update() {
-  Wnd_Update();
+struct StateVTable next = {
+  .Update = updateNext,
+  .Render = renderNext,
+  .OnEnter = onEnter,
+};
+
+void update(float _) {
 
   if (IsKeyPressed(GLFW_KEY_ESCAPE)) {
     Wnd_Close();
+  }
+
+  if (IsKeyPressed(GLFW_KEY_R)) {
+    Game_SetState(next);
   }
 
   if (IsKeyDown(GLFW_KEY_W)) {
@@ -51,25 +65,45 @@ void render() {
   glClearColor(0.486, 0.627, 0.922, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
   // TODO render code here ...
-  Wnd_SwapBuffers();
+}
+
+struct prevStateGive {
+  float x;
+  int val;
+} _give;
+
+void onExit(void** g) {
+  _give.val = 10;
+  _give.x = 0.234f;
+  *g = &_give;
+  printf("state exit\n");
+}
+
+void updateNext(float) {
+  if (IsKeyPressed(GLFW_KEY_S)) {
+    fputs("it is menu\n", stdout);
+  }
+}
+
+void renderNext() {
+  glClearColor(0.91, 0.49, 0.969, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void onEnter(void* r) {
+  struct prevStateGive receive = *((struct prevStateGive*)r);
+  printf("new state enter\n");
+  printf("prev state values\n{ x: %.2f, val: %d }\n",
+    receive.x, receive.val);
 }
 
 
 int main() {
 
-  Plt_Init();
 
-  Wnd_Init(800, 600, "game");
-  Wnd_Center();
-
-
-  while (!Wnd_ShouldClose()) {
-    update();
-    render();
-  }
-
-  Wnd_Destroy();
-
+  Game_Create();
+  Game_SetState(s);
+  Game_Run();
 
   return EXIT_SUCCESS;
 }

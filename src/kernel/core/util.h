@@ -14,6 +14,10 @@
 #include <math.h>
 #include <cglm/ivec2.h>
 
+#ifdef RFK_UTIL_IMPL
+
 int Rand_Uniformi(int min, int max) {
   return (rand() % (max - min + 1)) + min;
 }
+
+#endif

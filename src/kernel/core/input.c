@@ -1,5 +1,5 @@
 #include "input.h"
-#include <window.h>
+#include "window.h"
 
 struct keyboard {
   int keys[GLFW_KEY_LAST];

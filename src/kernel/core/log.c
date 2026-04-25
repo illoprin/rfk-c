@@ -59,5 +59,5 @@ void __assert(const char* cond, const char* file, int line) {
     RFK_MAGENTA "File: " RFK_RESET RFK_BOLDWHITE "%s:%d" RFK_RESET "\n",
     file, line
   );
-  exit(-1);
+  exit(EXIT_FAILURE);
 }
