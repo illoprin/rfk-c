@@ -7,13 +7,13 @@ void onEnter(void*);
 void updateNext(float);
 void renderNext();
 
-struct StateVTable s = {
+struct StateVTable stateA = {
   .Update = update,
   .Render = render,
   .OnExit = onExit,
 };
 
-struct StateVTable next = {
+struct StateVTable stateB = {
   .Update = updateNext,
   .Render = renderNext,
   .OnEnter = onEnter,
@@ -26,7 +26,7 @@ void update(float _) {
   }
 
   if (IsKeyPressed(GLFW_KEY_R)) {
-    Game_SetState(next);
+    Game_SetState(stateB);
   }
 
   if (IsKeyDown(GLFW_KEY_W)) {
@@ -80,6 +80,14 @@ void onExit(void** g) {
 }
 
 void updateNext(float) {
+  if (IsKeyPressed(GLFW_KEY_ESCAPE)) {
+    Wnd_Close();
+  }
+
+  if (IsKeyPressed(GLFW_KEY_R)) {
+    Game_SetState(stateA);
+  }
+
   if (IsKeyPressed(GLFW_KEY_S)) {
     fputs("it is menu\n", stdout);
   }
@@ -102,7 +110,7 @@ int main() {
 
 
   Game_Create();
-  Game_SetState(s);
+  Game_SetState(stateA);
   Game_Run();
 
   return EXIT_SUCCESS;

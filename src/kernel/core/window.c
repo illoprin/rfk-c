@@ -75,6 +75,7 @@ void Wnd_SwapBuffers() {
 }
 
 void Wnd_Destroy() {
+  LogInfo("window destroyed");
   glfwDestroyWindow(handle);
   glfwTerminate();
 }

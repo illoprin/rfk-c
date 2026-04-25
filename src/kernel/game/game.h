@@ -16,6 +16,7 @@ struct StateVTable {
   void* Data;
 };
 
+bool HasStateCollision(struct StateVTable a, struct StateVTable b);
 void Game_Create();
 void Game_Run();
 void Game_SetState(struct StateVTable);

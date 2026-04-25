@@ -1,12 +1,22 @@
 #include "game.h"
 
 #include <kernel/core/platform.h>
+#include <kernel/core/log.h>
 
 static struct StateVTable currentState = {
-  NULL, NULL, NULL, NULL, NULL
+  NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 void onResize(int width, int height);
+
+
+bool HasStateCollision(
+  struct StateVTable a,
+  struct StateVTable b
+) {
+  return (a.OnExit == b.OnExit && a.OnExit != NULL)
+    || (a.OnEnter == b.OnEnter && a.OnEnter != NULL);
+}
 
 void Game_Create() {
   printf("🩷 - rfk - with love\n");
@@ -14,6 +24,12 @@ void Game_Create() {
   Wnd_Init(800, 600, "game");
   Wnd_Center();
   Wnd_SetResizeCallback(onResize);
+  LogInfo("game created");
+}
+
+void Game_destroy() {
+  LogInfo("game exit");
+  Wnd_Destroy();
 }
 
 void Game_Run() {
@@ -23,7 +39,7 @@ void Game_Run() {
     if (currentState.Render) currentState.Render();
     Wnd_SwapBuffers();
   }
-  Wnd_Destroy();
+  Game_destroy();
 }
 
 void onResize(int width, int height) {
@@ -31,6 +47,13 @@ void onResize(int width, int height) {
 }
 
 void Game_SetState(struct StateVTable nextState) {
+
+  // check collision
+  if (HasStateCollision(currentState, nextState)) {
+    LogErr("state collision not allowed!");
+    RFK_ASSERT(false)
+  }
+
   // invalidate current state
   void* prevStateReturn = NULL;
   if (currentState.OnExit) currentState.OnExit(&prevStateReturn);
