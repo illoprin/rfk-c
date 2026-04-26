@@ -8,10 +8,10 @@
 
 // VAO = rule for reading buffer
 struct rhi_VAO {
-  uint32_t ID;
+  uint ID;
 
   // Cached for validation/debug
-  uint32_t ebo_id;
+  uint ebo_id;
 };
 
 // Lifecycle

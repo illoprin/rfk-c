@@ -91,8 +91,6 @@ void stateA_onExit(void** g) {
   printf("state exit\n");
 }
 
-
-
 void stateA_destroy() {
   // release resources
   rhi_Buffer_Invalidate(&bufQuadIndex);

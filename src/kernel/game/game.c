@@ -9,7 +9,6 @@ static struct StateVTable currentState = {
 
 void onResize(int width, int height);
 
-
 bool HasStateCollision(
   struct StateVTable a,
   struct StateVTable b
