@@ -14,13 +14,13 @@ static GLenum getGLUsage(rhi_BufferUsage usage) {
 // --- Create ---
 
 void rhi_Buffer_Create(
-  rhi_Buffer* buf,
+  struct rhi_Buffer* buf,
   size_t size,
   const void* data,
   rhi_BufferType type,
   rhi_BufferUsage usage
 ) {
-  RFK_ASSERT(buf && size > 0);
+  RFK_ASSERT(buf && (size > 0));
 
   glCreateBuffers(1, &buf->ID);
 
@@ -41,7 +41,7 @@ void rhi_Buffer_Create(
 // --- Update (main path) ---
 
 void rhi_Buffer_Update(
-  rhi_Buffer* buf,
+  struct rhi_Buffer* buf,
   size_t offset,
   size_t size,
   const void* data
@@ -56,14 +56,14 @@ void rhi_Buffer_Update(
 
 // --- Bind (vertex/index/etc) ---
 
-void rhi_Buffer_Bind(rhi_Buffer* buf) {
+void rhi_Buffer_Bind(struct rhi_Buffer* buf) {
   RFK_ASSERT(buf && buf->ID);
   glBindBuffer(buf->type, buf->ID);
 }
 
 // --- BindBase (UBO/SSBO) ---
 
-void rhi_Buffer_BindBase(rhi_Buffer* buf, uint32_t slot) {
+void rhi_Buffer_BindBase(struct rhi_Buffer* buf, uint32_t slot) {
   RFK_ASSERT(buf && buf->ID);
 
   if (buf->type == RHI_BUFFER_STORAGE ||
@@ -74,7 +74,7 @@ void rhi_Buffer_BindBase(rhi_Buffer* buf, uint32_t slot) {
 
 // --- Destroy ---
 
-void rhi_Buffer_Invalidate(rhi_Buffer* buf) {
+void rhi_Buffer_Invalidate(struct rhi_Buffer* buf) {
   if (!buf || buf->ID == 0)
     return;
 

@@ -30,7 +30,7 @@ enum LogLevel : uch {
 };
 
 void __log(FILE*, enum LogLevel, const char* file, int line, const char* fmt, ...);
-void __assert(const char* cond, const char* file, int line);
+void __assert(bool condition, const char* condStr, const char* file, int line);
 
 #define FILE_PATH_STR(file) "\"" file "\""
 
@@ -40,4 +40,4 @@ void __assert(const char* cond, const char* file, int line);
 
 #define LogErr(...) __log(stdout, RFK_LOG_ERR, __BASE_FILE__, __LINE__, __VA_ARGS__)
 
-#define RFK_ASSERT(condition) __assert(#condition, __FILE__, __LINE__);
+#define RFK_ASSERT(condition) __assert((condition), #condition, __FILE__, __LINE__);

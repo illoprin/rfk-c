@@ -53,11 +53,13 @@ void __log(
   fprintf(f, " from " RFK_BOLDWHITE FILE_PATH_STR("%s:%d") RFK_RESET "\n", src, line);
 };
 
-void __assert(const char* cond, const char* file, int line) {
-  printf(RFK_BOLDRED "Assertion failed: %s" RFK_RESET "\n", cond);
-  printf(
-    RFK_MAGENTA "File: " RFK_RESET RFK_BOLDWHITE "%s:%d" RFK_RESET "\n",
-    file, line
-  );
-  exit(EXIT_FAILURE);
+void __assert(bool condition, const char* condStr, const char* file, int line) {
+  if (!condition) {
+    printf(RFK_BOLDRED "Assertion failed: %s" RFK_RESET "\n", condStr);
+    printf(
+      RFK_MAGENTA "File: " RFK_RESET RFK_BOLDWHITE "%s:%d" RFK_RESET "\n",
+      file, line
+    );
+    exit(EXIT_FAILURE);
+  }
 }

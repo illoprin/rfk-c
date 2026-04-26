@@ -4,7 +4,7 @@
 #include <kernel/core/log.h>
 
 static struct StateVTable currentState = {
-  NULL, NULL, NULL, NULL, NULL, NULL
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 void onResize(int width, int height);
@@ -29,6 +29,7 @@ void Game_Create() {
 
 void Game_destroy() {
   LogInfo("game exit");
+  if (currentState.Destroy) currentState.Destroy();
   Wnd_Destroy();
 }
 
