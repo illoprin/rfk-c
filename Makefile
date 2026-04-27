@@ -1,9 +1,11 @@
 CC = clang
-CFLAGS = -std=c23 -Wall -ffast-math
-LDFLAGS = -lglfw3dll -lglad
+OPTIMIZATION = -O2
+CPPLIB = -lstdc++ 
+CFLAGS = -std=c23 -Wall -ffast-math $(OPTIMIZATION) 
+LDFLAGS = -lcimgui -lglfw3dll -lglad $(CPPLIB)
 PKG = pkg
 INCLUDE = -I $(PKG)/include -I $(SRC_DIR)
-LIB = -L $(PKG)/lib
+LIB = -L $(PKG)/lib -L $(PKG)/lib/imgui
 
 SRC_DIR = src
 BIN_DIR = build
@@ -12,6 +14,11 @@ TARGET = $(BIN_DIR)/app.exe
 
 SRCS = $(shell find $(SRC_DIR) -name "*.c")
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+
+# extern
+# OBJS += cimgui_impl.o
+# OBJS += imgui_impl_opengl3.o
+# OBJS += imgui_impl_glfw.o
 
 all: $(TARGET)
 	@cp $(PKG)/lib/*.dll $(BIN_DIR)

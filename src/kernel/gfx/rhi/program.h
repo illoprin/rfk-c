@@ -21,7 +21,7 @@ struct rhi_Program {
 void rhi_Prog_Init(struct rhi_Program* prog);
 bool rhi_Prog_AddShader(struct rhi_Program* prog, rhi_ShaderType type, const char* source);
 bool rhi_Prog_Link(struct rhi_Program* prog);
-void rhi_Prog_Bind(const struct rhi_Program* prog);
+void rhi_Prog_Use(struct rhi_Program prog);
 void rhi_Prog_Destroy(struct rhi_Program* prog);
 
 // Uniform Setters

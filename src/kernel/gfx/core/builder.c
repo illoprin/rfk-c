@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <kernel/core/files.h>
 
 bool Prog_QuickLoad(struct rhi_Program* prog, const char* vs_path, const char* fs_path) {
   rhi_Prog_Init(prog);
@@ -11,7 +13,7 @@ bool Prog_QuickLoad(struct rhi_Program* prog, const char* vs_path, const char* f
   char* fs_src = Fls_ReadFile(fs_path, &fs_size);
 
   if (!vs_src || !fs_src) {
-    fprintf(stderr, "[RHI] Failed to read shader files.\n");
+    fprintf(stderr, "failed to load shader\n");
     return false;
   }
 

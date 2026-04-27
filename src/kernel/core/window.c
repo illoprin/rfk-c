@@ -5,8 +5,11 @@
 GLFWwindow* handle;
 ivec2 wnd_Size;
 WindowFnResize uResizeCallback;
+bool rawInputSupport = false;
+bool mouseGrabbed = false;
+bool grabbedBeforeFocusLoss = false;
 
-void sizeCallback(GLFWwindow* _w, int width, int height) {
+void sizeCallback(GLFWwindow* _, int width, int height) {
   *wnd_Size = width;
   *(wnd_Size + 1) = height;
 
@@ -15,6 +18,17 @@ void sizeCallback(GLFWwindow* _w, int width, int height) {
   }
 
   printf("window resized %d %d\n", wnd_Size[0], wnd_Size[1]);
+};
+
+void focusCallback(GLFWwindow* _, int focused) {
+  if (!focused && mouseGrabbed) {
+    Wnd_ToggleMouseGrab();
+    grabbedBeforeFocusLoss = true;
+  }
+  else if (focused && grabbedBeforeFocusLoss) {
+    Wnd_ToggleMouseGrab();
+    grabbedBeforeFocusLoss = false;
+  }
 };
 
 void Wnd_Init(int width, int height, const char* title) {
@@ -41,6 +55,11 @@ void Wnd_Init(int width, int height, const char* title) {
   }
   glfwMakeContextCurrent(handle);
 
+  // check raw input support
+  if (glfwRawMouseMotionSupported()) {
+    rawInputSupport = true;
+  }
+
   // init renderer
   if (!gladLoadGL()) {
     LogErr("failed to init context");
@@ -49,6 +68,7 @@ void Wnd_Init(int width, int height, const char* title) {
 
   // setup callbacks
   glfwSetFramebufferSizeCallback(handle, sizeCallback);
+  glfwSetWindowFocusCallback(handle, focusCallback);
   _inputInit();
 }
 
@@ -63,6 +83,20 @@ void Wnd_Center() {
 
 void Wnd_SetResizeCallback(WindowFnResize c) {
   uResizeCallback = c;
+}
+
+void Wnd_ToggleMouseGrab() {
+  mouseGrabbed = !mouseGrabbed;
+  if (mouseGrabbed) {
+    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if (rawInputSupport)
+      glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+  }
+  else {
+    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if (rawInputSupport)
+      glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+  }
 }
 
 void Wnd_Update() {

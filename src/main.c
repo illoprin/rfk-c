@@ -1,5 +1,10 @@
 #include "kernel/kernel.h"
 
+// WARN shit code
+void goImguiAssertHandler(const char* expr, const char* file, int line) {
+  printf("ImGui Assert: %s at %s:%d\n", expr, file, line);
+}
+
 void stateA_update(float);
 void stateA_render();
 void stateA_onExit(void**);
@@ -8,6 +13,10 @@ void stateB_onEnter(void*);
 void stateB_update(float);
 void stateB_render();
 void stateA_onEnter(void*);
+
+struct Mesh meshQuad;
+
+struct rhi_Program program;
 
 struct StateVTable stateA = {
   .Update = stateA_update,
@@ -23,11 +32,6 @@ struct StateVTable stateB = {
   .OnEnter = stateB_onEnter,
 };
 
-
-static struct rhi_Buffer bufQuadVertex;
-static struct rhi_Buffer bufQuadIndex;
-static struct rhi_VAO vaoQuad;
-
 void stateA_update(float _) {
 
   if (IsKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -36,6 +40,10 @@ void stateA_update(float _) {
 
   if (IsKeyPressed(GLFW_KEY_R)) {
     Game_SetState(stateB);
+  }
+
+  if (IsKeyPressed(GLFW_KEY_G)) {
+    Wnd_ToggleMouseGrab();
   }
 
   if (IsKeyDown(GLFW_KEY_W)) {
@@ -73,14 +81,24 @@ void stateA_update(float _) {
 void stateA_render() {
   glClearColor(0.486, 0.627, 0.922, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
+  rhi_Prog_Use(program);
   rhi_RenderDevice_InvalidateBindings();
-  rhi_RenderDevice_Draw(vaoQuad, 6);
+  rhi_RenderDevice_Draw(meshQuad.VAO, 6);
 }
 
 struct prevStateGive {
   float x;
   int val;
 } _give;
+
+void stateA_onEnter(void*) {
+  Prog_QuickLoad(
+    &program,
+    FLS_SHADER_PATH("basic.vert"),
+    FLS_SHADER_PATH("basic.frag")
+  );
+  Mesh_SetupBasicQuad(&meshQuad);
+}
 
 void stateA_onExit(void** g) {
   stateA_destroy();
@@ -90,57 +108,10 @@ void stateA_onExit(void** g) {
   *g = &_give;
   printf("state exit\n");
 }
-
 void stateA_destroy() {
   // release resources
-  rhi_Buffer_Invalidate(&bufQuadIndex);
-  rhi_Buffer_Invalidate(&bufQuadVertex);
-  rhi_VAO_Destroy(&vaoQuad);
-}
-
-void stateA_onEnter(void*) {
-
-  float basicQuadVertices[] = {
-    -.5f, -.5f,
-    .5f, -.5f,
-    .5f, .5f,
-    -.5f, .5f,
-  };
-  uint basicQuadIndices[] = {
-    0, 1, 2,
-    2, 3, 0,
-  };
-
-  // allocate resources
-  rhi_Buffer_Create(
-    &bufQuadVertex,
-    sizeof(basicQuadVertices),
-    basicQuadVertices,
-    RHI_BUFFER_VERTEX,
-    RHI_USAGE_STATIC
-  );
-  rhi_Buffer_Create(
-    &bufQuadIndex,
-    sizeof(basicQuadIndices),
-    basicQuadIndices,
-    RHI_BUFFER_INDEX,
-    RHI_USAGE_STATIC
-  );
-
-  rhi_VAO_Create(&vaoQuad);
-  rhi_VAO_BindVertexBuffer(&vaoQuad, 0, bufQuadVertex.ID, 0, sizeof(float) * 2);
-  rhi_VAO_SetAttribute(&vaoQuad,
-    (struct rhi_Attribute) {
-    .Location = 0,
-      .BindingIndex = 0,
-      .Components = 2,
-      .Type = RHI_ATTR_FLOAT,
-      .Normalized = false,
-      .Offset = 0,
-  });
-  rhi_VAO_SetIndexBuffer(&vaoQuad, bufQuadIndex.ID);
-
-  RFK_ASSERT(rhi_VAO_IsValid(vaoQuad));
+  Mesh_Invalidate(&meshQuad);
+  rhi_Prog_Destroy(&program);
 }
 
 void stateB_update(float) {
@@ -170,11 +141,8 @@ void stateB_onEnter(void* r) {
 }
 
 int main() {
-
   Game_Create();
-
   Game_SetState(stateA);
-
   Game_Run();
 
   return EXIT_SUCCESS;

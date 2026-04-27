@@ -47,8 +47,8 @@ bool rhi_Prog_Link(struct rhi_Program* prog) {
   return true;
 }
 
-void rhi_Prog_Bind(const struct rhi_Program* prog) {
-  glUseProgram(prog->handle);
+void rhi_Prog_Use(struct rhi_Program prog) {
+  glUseProgram(prog.handle);
 }
 
 // TODO cache uniform locations
@@ -88,4 +88,5 @@ void rhi_Prog_SetMat2f(struct rhi_Program prog, const char* name, float* data) {
 void rhi_Prog_Destroy(struct rhi_Program* prog) {
   glDeleteProgram(prog->handle);
   prog->handle = 0;
+  LogInfo("program [ID = %d] deleted", prog->handle);
 }
