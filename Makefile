@@ -1,7 +1,8 @@
 CC = clang
 OPTIMIZATION = -O2
-CPPLIB = -lstdc++ 
-CFLAGS = -std=c23 -Wall -ffast-math $(OPTIMIZATION) 
+CPPLIB = -lstdc++
+FMS_EXT = -fms-extensions 
+CFLAGS = -std=c23 -Wall -ffast-math $(OPTIMIZATION) $(FMS_EXT)
 LDFLAGS = -lcimgui -lglfw3dll -lglad $(CPPLIB)
 PKG = pkg
 INCLUDE = -I $(PKG)/include -I $(SRC_DIR)

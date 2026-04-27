@@ -1,3 +1,4 @@
 /build/obj
+/test
 /.vscode
 /pkg/include/cglm/*

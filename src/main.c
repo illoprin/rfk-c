@@ -144,6 +144,5 @@ int main() {
   Game_Create();
   Game_SetState(stateA);
   Game_Run();
-
   return EXIT_SUCCESS;
 }
