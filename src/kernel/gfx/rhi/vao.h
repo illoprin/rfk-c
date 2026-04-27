@@ -53,7 +53,6 @@ struct rhi_Attribute {
   uint              BindingIndex;
   uint              Components;
   rhi_AttributeType Type;
-  bool              Normalized;
   uint              Divisor;
 };
 

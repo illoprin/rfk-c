@@ -12,7 +12,7 @@
 // Math
 
 #include <math.h>
-#include <cglm/ivec2.h>
+#include <cglm/cglm.h>
 
 #ifdef RFK_UTIL_IMPL
 

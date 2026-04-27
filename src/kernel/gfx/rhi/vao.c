@@ -119,7 +119,7 @@ void rhi_VAO_SetAttribute(
       attr.Location,
       attr.Components,
       gl_type,
-      attr.Normalized ? GL_TRUE : GL_FALSE,
+      GL_FALSE,
       (GLuint)attr.Offset
     );
   }
