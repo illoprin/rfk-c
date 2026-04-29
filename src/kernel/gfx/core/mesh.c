@@ -50,7 +50,7 @@ void Mesh_SetupFromModel(struct Mesh* mesh, struct Model* model) {
   rhi_VAO_Init(&mesh->VAO);
   rhi_VAO_AddIndexBuffer(&mesh->VAO, mesh->IndexBuf);
   rhi_VAO_AddAttributes(&mesh->VAO, mesh->VertexBuf, attrs, 3);
-  RFK_ASSERT(rhi_VAO_IsValid(mesh->VAO));
+  RFK_ASSERT(rhi_VAO_IsValid(mesh->VAO), "invalid mesh");
 
   mesh->indexNum = model->NumIndices;
 }
@@ -88,7 +88,7 @@ void Mesh_SetupBasicQuad(struct Mesh* m) {
   rhi_VAO_Init(&m->VAO);
   rhi_VAO_AddIndexBuffer(&m->VAO, m->IndexBuf);
   rhi_VAO_AddAttributes(&m->VAO, m->VertexBuf, &position, 1);
-  RFK_ASSERT(rhi_VAO_IsValid(m->VAO));
+  RFK_ASSERT(rhi_VAO_IsValid(m->VAO), "invalid mesh");
 
   m->indexNum = 6;
 }

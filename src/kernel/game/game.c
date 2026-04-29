@@ -40,7 +40,7 @@ void Game_Run() {
   while (!Wnd_ShouldClose()) {
     // update
     Wnd_Update();
-    if (currentState.Update) currentState.Update(0.f);
+    if (currentState.Update) currentState.Update(GetDeltaTime());
 
     // draw
     UI_NewFrame();
@@ -66,10 +66,7 @@ void onResize(int width, int height) {
 void Game_SetState(struct StateVTable nextState) {
 
   // check collision
-  if (hasStateCollision(currentState, nextState)) {
-    LogErr("state collision not allowed!");
-    RFK_ASSERT(false)
-  }
+  RFK_ASSERT(!hasStateCollision(currentState, nextState), "state collision not allowed");
 
   // invalidate current state
   void* prevStateReturn = NULL;

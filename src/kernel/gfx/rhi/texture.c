@@ -1,6 +1,6 @@
 #include "texture.h"
 
-static void rhi_Tex_setTexParameters(
+static void rhi_Tex_setParameters(
   int target,
   rhi_TextureFilter filterMin,
   rhi_TextureFilter filterMag,
@@ -60,9 +60,9 @@ void rhi_Tex2D_Allocate(
   t->sourceType = conf.SourceType;
 
   glBindTexture(GL_TEXTURE_2D, t->ID);
-  rhi_setTexParameters(t->type, conf.FilterMin, conf.FilterMag, conf.Wrap);
+  rhi_Tex_setParameters(t->type, conf.FilterMin, conf.FilterMag, conf.Wrap);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage2D(t->type, 0, t->fmt, conf.Width, conf.Height, 0, rhi_getPixelFormat(t->fmt), t->sourceType, pix);
+  glTexImage2D(t->type, 0, t->fmt, conf.Width, conf.Height, 0, rhi_Util_GetPixelFormat(t->fmt), t->sourceType, pix);
 }
 
 void rhi_Tex2D_Resize(
@@ -77,7 +77,7 @@ void rhi_Tex2D_Resize(
 
   glBindTexture(GL_TEXTURE_2D, t->ID);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage2D(t->type, 0, t->fmt, t->width, t->height, 0, rhi_getPixelFormat(t->fmt), t->sourceType, NULL);
+  glTexImage2D(t->type, 0, t->fmt, t->width, t->height, 0, rhi_Util_GetPixelFormat(t->fmt), t->sourceType, NULL);
 }
 
 void rhi_Tex2D_Update(
@@ -93,7 +93,7 @@ void rhi_Tex2D_Update(
   if (t->type != RHI_TEX_2D) return;
   if (x + width > t->width || y + height > t->height) return;
   glBindTexture(GL_TEXTURE_2D, t->ID);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, rhi_getPixelFormat(t->fmt), t->sourceType, data);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, rhi_Util_GetPixelFormat(t->fmt), t->sourceType, data);
 }
 
 void rhi_Tex3D_Allocate(
@@ -116,7 +116,7 @@ void rhi_Tex3D_Allocate(
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  rhi_setTexParameters(t->type, conf.FilterMin, conf.FilterMag, conf.Wrap);
+  rhi_Tex_setParameters(t->type, conf.FilterMin, conf.FilterMag, conf.Wrap);
 
   glTexImage3D(
     t->type,
@@ -126,7 +126,7 @@ void rhi_Tex3D_Allocate(
     conf.Height,
     depth,
     0,
-    rhi_getPixelFormat(t->fmt),
+    rhi_Util_GetPixelFormat(t->fmt),
     t->sourceType,
     pix
   );
@@ -152,7 +152,7 @@ void rhi_Tex3D_Update(
     0,
     x, y, z,
     width, height, depth,
-    rhi_getPixelFormat(t->fmt),
+    rhi_Util_GetPixelFormat(t->fmt),
     t->sourceType,
     data
   );

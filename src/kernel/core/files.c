@@ -70,8 +70,7 @@ char* Fls_ReadFile(const char* fpath, size_t* out_size) {
   return buffer;
 }
 
-struct Image2D Fls_ReadImage(const char* path) {
-  struct Image2D img = { 0 };
+int Fls_ReadImage(struct Image2D* img, const char* path) {
 
   int w, h, c;
 
@@ -80,17 +79,17 @@ struct Image2D Fls_ReadImage(const char* path) {
   uch* data = stbi_load(path, &w, &h, &c, 0);
   if (!data) {
     LogErr("failed to load image \"%s\"", path);
-    return img;
+    return 1;
   }
 
-  img.Pix = data;
-  img.Width = (int)w;
-  img.Height = (int)h;
-  img.Channels = (int)c;
+  img->Pix = data;
+  img->Width = (int)w;
+  img->Height = (int)h;
+  img->Channels = (int)c;
 
   LogInfo("image \"%s\" loaded (%dx%d, %d channels)", path, w, h, c);
 
-  return img;
+  return 0;
 }
 
 void Img_Free(struct Image2D img) {

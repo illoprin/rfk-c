@@ -32,7 +32,7 @@ char* Fls_ReadFile(const char* fpath, size_t* out_size);
 
 
 /// @brief reads image into structure (allocates memory)
-struct Image2D Fls_ReadImage(const char* path);
+int Fls_ReadImage(struct Image2D*, const char* path);
 
 void Img_Free(struct Image2D);
 void ImgPtr_Free(struct Image2D*);

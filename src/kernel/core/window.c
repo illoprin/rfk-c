@@ -33,10 +33,7 @@ void focusCallback(GLFWwindow* _, int focused) {
 
 void Wnd_Init(int width, int height, const char* title) {
   // init glfw
-  if (!glfwInit()) {
-    LogErr("failed to init glfw");
-    RFK_ASSERT(false);
-  }
+  RFK_ASSERT(glfwInit(), "failed to init glfw");
 
   // set window hints
   glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -49,10 +46,7 @@ void Wnd_Init(int width, int height, const char* title) {
   wnd_Size[0] = width;
   wnd_Size[1] = height;
   handle = glfwCreateWindow(wnd_Size[0], wnd_Size[1], "game", NULL, NULL);
-  if (!handle) {
-    LogErr("failed to init window");
-    RFK_ASSERT(false);
-  }
+  RFK_ASSERT(handle != NULL, "failed to init window");
   glfwMakeContextCurrent(handle);
 
   // check raw input support
@@ -61,10 +55,7 @@ void Wnd_Init(int width, int height, const char* title) {
   }
 
   // init renderer
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    LogErr("failed to init context");
-    RFK_ASSERT(false);
-  }
+  RFK_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "failed to init context");
 
   // setup callbacks
   glfwSetFramebufferSizeCallback(handle, sizeCallback);

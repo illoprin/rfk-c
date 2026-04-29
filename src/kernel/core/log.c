@@ -53,9 +53,9 @@ void __log(
   fprintf(f, " from " RFK_BOLDWHITE FILE_PATH_STR("%s:%d") RFK_RESET "\n", src, line);
 };
 
-void __assert(bool condition, const char* condStr, const char* file, int line) {
+void __assert(bool condition, const char* str, const char* file, int line) {
   if (!condition) {
-    printf(RFK_BOLDRED "Assertion failed: %s" RFK_RESET "\n", condStr);
+    printf(RFK_BOLDRED "Assertion failed: %s" RFK_RESET "\n", str);
     printf(
       RFK_MAGENTA "File: " RFK_RESET RFK_BOLDWHITE "%s:%d" RFK_RESET "\n",
       file, line

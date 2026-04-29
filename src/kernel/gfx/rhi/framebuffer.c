@@ -1,5 +1,7 @@
 #include "framebuffer.h"
 
+#include <stdlib.h>
+
 void rhi_Fbo_Init(struct rhi_Fbo* fbo, uint width, uint height) {
   if (fbo == NULL) return;
   *fbo = (struct rhi_Fbo){ 0 };

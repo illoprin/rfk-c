@@ -48,12 +48,11 @@ struct ECSContext {
   uint32_t systems_count;
 };
 
-// API
 void ECS_Init(struct ECSContext* ctx);
 EntityID ECS_EntityCreate(struct ECSContext* ctx);
 
 /// @brief register component
-/// @param ctx esc instance
+/// @param ctx ecs instance
 /// @param comp_id index of component in global pool
 /// @param size size of single component element
 /// @return component mask

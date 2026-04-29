@@ -38,6 +38,11 @@ clear:
 	@echo "🧹 Cleanup"
 	@rm -drf $(BIN_DIR)
 
+?TEST_SRC =
+.PHONY:
+tst:
+	$(CXX) test/$(TEST_SRC) -o test.exe && ./test.exe
+
 .PHONY:
 info:
 	@echo "🧾 Inputs  $(SRCS)"

@@ -34,10 +34,14 @@ void __assert(bool condition, const char* condStr, const char* file, int line);
 
 #define FILE_PATH_STR(file) "\"" file "\""
 
-#define LogInfo(...) __log(stdout, RFK_LOG_INFO, __BASE_FILE__, __LINE__, __VA_ARGS__)
+#define LogInfo(...) \
+  __log(stdout, RFK_LOG_INFO, __BASE_FILE__, __LINE__, __VA_ARGS__)
 
-#define LogWarn(...) __log(stdout, RFK_LOG_WARN, __BASE_FILE__, __LINE__, __VA_ARGS__)
+#define LogWarn(...) \
+  __log(stdout, RFK_LOG_WARN, __BASE_FILE__, __LINE__, __VA_ARGS__)
 
-#define LogErr(...) __log(stdout, RFK_LOG_ERR, __BASE_FILE__, __LINE__, __VA_ARGS__)
+#define LogErr(...) \
+  __log(stdout, RFK_LOG_ERR, __BASE_FILE__, __LINE__, __VA_ARGS__)
 
-#define RFK_ASSERT(condition) __assert((condition), #condition, __FILE__, __LINE__);
+#define RFK_ASSERT(condition, msg) \
+  __assert((condition), (msg), __FILE__, __LINE__);
