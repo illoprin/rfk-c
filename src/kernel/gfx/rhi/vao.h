@@ -1,61 +1,26 @@
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <kernel/core/types.h>
-#include <glad/glad.h>
-
+#include "util.h"
 #include "buffer.h"
-
-// VAO = rule for reading buffer
-struct rhi_VAO {
-  uint ID;
-
-  // Cached for validation/debug
-  uint ebo_id;
-};
-
-// Lifecycle
-
-void rhi_VAO_Create(struct rhi_VAO* vao);
-void rhi_VAO_Destroy(struct rhi_VAO* vao);
-
-// Binding
-
-void rhi_VAO_Bind(struct rhi_VAO* vao);
-
-// REQUIRED INDEX BUFFER (EBO)
-
-void rhi_VAO_SetIndexBuffer(
-  struct rhi_VAO* vao,
-  uint32_t ebo_id
-);
-
-// Data source
-void rhi_VAO_BindVertexBuffer(
-  struct rhi_VAO* vao,
-  uint32_t binding_index,
-  uint32_t vbo_id,
-  size_t offset,
-  size_t stride
-);
 
 // Attribute description
 struct rhi_Attribute {
-  size_t       Offset;
   uint         Location;
-  uint         BindingIndex;
   uint         Components;
   rhi_DataType Type;
+  size_t       Offset;
+  size_t       Stride;
   uint         Divisor;
 };
 
-void rhi_VAO_SetAttribute(
-  struct rhi_VAO* vao,
-  struct rhi_Attribute attr
-);
+struct rhi_VAO {
+  GLuint ID;
+  GLuint eboId;
+};
 
-// Validation / safety
-
-bool rhi_VAO_IsValid(const struct rhi_VAO vao);
+void rhi_VAO_Init(struct rhi_VAO*);
+void rhi_VAO_AddIndexBuffer(struct rhi_VAO*, struct rhi_Buffer);
+void rhi_VAO_AddAttributes(struct rhi_VAO*, struct rhi_Buffer, struct rhi_Attribute*, int numAttrs);
+void rhi_VAO_Bind(struct rhi_VAO*);
+bool rhi_VAO_IsValid(struct rhi_VAO);
+void rhi_VAO_Invalidate(struct rhi_VAO*);

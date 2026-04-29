@@ -1,86 +1,51 @@
 #include "buffer.h"
 
-#include <string.h>
-#include <kernel/core/log.h>
+void rhi_Buf_Init(struct rhi_Buffer* buf, rhi_BufferType type, rhi_BufferUsage usage) {
+  if (buf == NULL) return;
+  *buf = (struct rhi_Buffer){ 0 };
 
-static GLenum getGLUsage(rhi_BufferUsage usage) {
-  switch (usage) {
-    case RHI_USAGE_STATIC:  return 0;
-    case RHI_USAGE_DYNAMIC: return GL_DYNAMIC_STORAGE_BIT;
-  }
-  return GL_STATIC_DRAW;
-}
-
-// --- Create ---
-
-void rhi_Buffer_Create(
-  struct rhi_Buffer* buf,
-  size_t size,
-  const void* data,
-  rhi_BufferType type,
-  rhi_BufferUsage usage
-) {
-  RFK_ASSERT(buf && (size > 0));
-
-  glCreateBuffers(1, &buf->ID);
-
-  buf->size = size;
   buf->type = type;
   buf->usage = usage;
 
-  glNamedBufferStorage(
-    buf->ID,
-    size,
-    data,
-    getGLUsage(usage)
-  );
+  glGenBuffers(1, &buf->ID);
+  glBindBuffer(type, buf->ID);
 
-  LogInfo("buffer created [ID: %u, size: %zu]", buf->ID, size);
+  LogInfo("buffer [ID = %d] created", buf->ID);
 }
 
-// --- Update (main path) ---
+void rhi_Buf_Allocate(struct rhi_Buffer* buf, const void* data, size_t size) {
+  if (buf == NULL) return;
+  if (buf->ID == 0) return;
 
-void rhi_Buffer_Update(
-  struct rhi_Buffer* buf,
-  size_t offset,
-  size_t size,
-  const void* data
-) {
-  RFK_ASSERT(buf && buf->ID);
-  RFK_ASSERT(offset + size <= buf->size);
-  RFK_ASSERT(buf->type >= RHI_USAGE_DYNAMIC);
-
-  // update classical way
-  glNamedBufferSubData(buf->ID, offset, size, data);
-}
-
-// --- Bind (vertex/index/etc) ---
-
-void rhi_Buffer_Bind(struct rhi_Buffer* buf) {
-  RFK_ASSERT(buf && buf->ID);
   glBindBuffer(buf->type, buf->ID);
+  glBufferData(buf->type, size, data, buf->usage);
+  buf->size = size;
 }
 
-// --- BindBase (UBO/SSBO) ---
-
-void rhi_Buffer_BindBase(struct rhi_Buffer* buf, uint32_t slot) {
-  RFK_ASSERT(buf && buf->ID);
-
-  if (buf->type == RHI_BUFFER_STORAGE ||
-    buf->type == RHI_BUFFER_UNIFORM) {
-    glBindBufferBase(buf->type, slot, buf->ID);
-  }
-}
-
-// --- Destroy ---
-
-void rhi_Buffer_Invalidate(struct rhi_Buffer* buf) {
-  if (!buf || buf->ID == 0)
+void rhi_Buf_Update(struct rhi_Buffer* buf, size_t offset, const void* data, size_t size) {
+  if (buf == NULL) return;
+  if (buf->ID == 0) return;
+  if (buf->size < size + offset) {
+    LogWarn("buffer [ID = %d] can't update more than allocated", buf->ID);
     return;
+  }
 
-  glDeleteBuffers(1, &buf->ID);
+  glBindBuffer(buf->type, buf->ID);
+  glBufferSubData(buf->type, offset, size, data);
+}
+
+void rhi_Buf_Clear(struct rhi_Buffer* buf, size_t size) {
+  if (buf == NULL) return;
+  if (buf->ID == 0) return;
+
+  rhi_Buf_Allocate(buf, NULL, size);
+}
+
+void rhi_Buf_Invalidate(struct rhi_Buffer* buf) {
+  if (buf == NULL) return;
+  if (buf->ID == 0) return;
+
+  glDeleteBuffers(1, buf->ID);
   LogInfo("buffer [ID = %d] deleted", buf->ID);
-
-  buf->ID = 0;
-  buf->size = 0;
+  *buf = (struct rhi_Buffer){ 0 };
 }

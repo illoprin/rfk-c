@@ -1,67 +1,19 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <kernel/core/types.h>
-#include "buffer.h"
+#include "util.h"
 
-typedef enum {
-  RHI_TEX_FILTER_LINEAR = GL_LINEAR,
-  RHI_TEX_FILTER_NEAREST = GL_NEAREST,
-  RHI_TEX_FILTER_LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
-  RHI_TEX_FILTER_LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
-  RHI_TEX_FILTER_NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
-  RHI_TEX_FILTER_NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST
-} rhi_TextureFilter;
-
-typedef enum {
-  RHI_TEX_WRAP_REPEAT = GL_REPEAT,
-  RHI_TEX_WRAP_CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
-  RHI_TEX_WRAP_CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
-  RHI_TEX_WRAP_MIRRORED_REPEAT = GL_MIRRORED_REPEAT
-} rhi_TextureWrap;
-
-typedef enum {
-  RHI_TEX_FORMAT_RGBA8 = GL_RGBA8,
-  RHI_TEX_FORMAT_RGBA16F = GL_RGBA16F,
-  RHI_TEX_FORMAT_RGBA32F = GL_RGBA32F,
-  RHI_TEX_FORMAT_RGB8 = GL_RGB8,
-  RHI_TEX_FORMAT_RGB16F = GL_RGB16F,
-  RHI_TEX_FORMAT_RGB32F = GL_RGB32F,
-  RHI_TEX_FORMAT_R8 = GL_R8,
-  RHI_TEX_FORMAT_R16F = GL_R16F,
-  RHI_TEX_FORMAT_R32F = GL_R32F,
-  RHI_TEX_FORMAT_DEPTH16 = GL_DEPTH_COMPONENT16,
-  RHI_TEX_FORMAT_DEPTH24 = GL_DEPTH_COMPONENT24,
-  RHI_TEX_FORMAT_DEPTH32F = GL_DEPTH_COMPONENT32F,
-  RHI_TEX_FORMAT_DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8
-} rhi_TextureFormat;
-
-/**
- * @brief rhi texture types for internal validation
- */
-typedef enum {
-  RHI_TEXTURE_2D = GL_TEXTURE_2D,
-  RHI_TEXTURE_2D_ARRAY = GL_TEXTURE_2D_ARRAY,
-  RHI_TEXTURE_CUBE_MAP = GL_TEXTURE_CUBE_MAP
-
-} rhi_TextureType;
-
-/**
- * @brief container for immutable storage parameters
- */
 struct rhi_TextureConfig {
   rhi_TextureFormat Format;
   rhi_TextureFilter FilterMin;
   rhi_TextureFilter FilterMag;
   rhi_TextureWrap Wrap;
+  uint Width, Height;
 };
 
-/**
- * @brief texture handle and type descriptor
- */
 struct rhi_Texture {
-  uint32_t handle;
+  GLuint ID;
   rhi_TextureType type;
+  uint width, height, depth;
 };
 
 /// @brief binds texture into sampler unit
@@ -69,76 +21,45 @@ struct rhi_Texture {
 /// @param unit index of sampler unit
 void rhi_Tex_BindToUnit(struct rhi_Texture tex, uint unit);
 
-/**
- * @brief creates an immutable 2d texture storage
- * @param w texture width
- * @param h texture height
- * @param conf storage and sampler configuration
- * @returns initialized rhi_Texture object
- */
-struct rhi_Texture rhi_Tex2D_Create(int w, int h, struct rhi_TextureConfig conf);
+/// @brief create texture object
+/// @param type sampler type (2d, array, cube)
+void rhi_Tex_Init(struct rhi_Texture* t, rhi_TextureType type);
 
-/**
- * @brief updates a sub-region of a 2d texture
- * @param tex target texture object
- * @param x offset x
- * @param y offset y
- * @param w region width
- * @param h region height
- * @param pixel_format source data format (e.g. GL_RGBA)
- * @param pixel_type source data type (e.g. GL_UNSIGNED_BYTE)
- * @param data pointer to pixel data
- */
-void rhi_Tex2D_Update(struct rhi_Texture tex, int x, int y, int w, int h, uint p_fmt, rhi_DataType p_type, const void* data);
+void rhi_Tex_GenMipmaps(struct rhi_Texture t);
 
-/**
- * @brief creates an immutable 2d array texture storage
- * @param w texture width
- * @param h texture height
- * @param layers number of slices in array
- * @param conf storage and sampler configuration
- * @returns initialized rhi_Texture object
- */
-struct rhi_Texture rhi_Tex2DArray_Create(int w, int h, int layers, struct rhi_TextureConfig conf);
+/// @brief deletes texture object
+void rhi_Tex_Invalidate(struct rhi_Texture* t);
 
-/**
- * @brief updates a slice of a 2d array texture using 3d dsa call
- * @param tex target texture object
- * @param x offset x
- * @param y offset y
- * @param layer slice index
- * @param w region width
- * @param h region height
- * @param p_fmt source data format
- * @param p_type source data type
- * @param data pointer to pixel data
- */
-void rhi_Tex2DArray_Update(struct rhi_Texture tex, int x, int y, int layer, int w, int h, uint p_fmt, rhi_DataType p_type, const void* data);
+/// @brief allocates memory for texture 2D storage
+/// @param t handle
+/// @param conf sampler config
+/// @param pixFormat source data format (e.g. RHI_RGBA)
+/// @param sourceType source data type (e. g. RHI_UNSIGNED_BYTE)
+/// @param data source data (if null - only allocate)
+void rhi_Tex2D_Allocate(
+  struct rhi_Texture* t,
+  struct rhi_TextureConfig conf,
+  uint pixFormat,
+  uint sourceType,
+  void* data
+);
 
-/**
- * @brief creates an immutable cube map storage
- * @param size width and height of each face
- * @param conf storage and sampler configuration
- * @returns initialized rhi_Texture object
- */
-struct rhi_Texture rhi_TexCube_Create(int size, struct rhi_TextureConfig conf);
-
-/**
- * @brief updates cube map faces using glTextureSubImage3D where depth represents faces
- * @param tex target cube map object
- * @param x offset x
- * @param y offset y
- * @param face starting face index (0-5)
- * @param w region width
- * @param h region height
- * @param count number of faces to update
- * @param p_fmt source data format
- * @param p_type source data type
- * @param data pointer to pixel data
- */
-void rhi_TexCube_Update(struct rhi_Texture tex, int x, int y, int face, int w, int h, int count, uint p_fmt, rhi_DataType p_type, const void* data);
-
-/**
- * @brief releases gpu texture resource
- */
-void rhi_Tex_Destroy(struct rhi_Texture tex);
+/// @brief updates data in texture 2d storage
+/// @param t handle
+/// @param x offset x
+/// @param y offset y
+/// @param width update region width
+/// @param height update region height
+/// @param pixFormat source data format (e.g. RHI_RGBA)
+/// @param sourceType source data type (e. g. RHI_UNSIGNED_BYTE)
+/// @param data source data (cannot be null)
+void rhi_Tex2D_Update(
+  struct rhi_Texture* t,
+  uint x,
+  uint y,
+  uint width,
+  uint height,
+  uint pixFormat,
+  uint sourceType,
+  void* data
+);

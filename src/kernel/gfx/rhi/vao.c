@@ -1,123 +1,82 @@
 #include "vao.h"
-#include <kernel/core/log.h>
 
-// -----------------------------
-// Create / Destroy
-// -----------------------------
+void rhi_VAO_Init(struct rhi_VAO* o) {
+  if (o == NULL) return;
+  *o = (struct rhi_VAO){ 0 };
 
-void rhi_VAO_Create(struct rhi_VAO* vao) {
-  RFK_ASSERT(vao != NULL);
-
-  glCreateVertexArrays(1, &vao->ID);
-
-  vao->ebo_id = 0;
-
-  LogInfo("VAO [ID: %u] created", vao->ID);
+  glGenVertexArrays(1, &o->ID);
+  glBindVertexArray(o->ID);
+  LogInfo("vao [ID = %d] created", o->ID);
 }
 
-void rhi_VAO_Destroy(struct rhi_VAO* vao) {
-  if (!vao || vao->ID == 0)
+void rhi_VAO_AddIndexBuffer(struct rhi_VAO* o, struct rhi_Buffer buf) {
+  if (o == NULL) return;
+  if (o->ID == 0) return;
+
+  if (buf.type != RHI_BUF_INDEX) {
+    LogErr("vao [ID = %d] AddIndexBuffer - you cannot assign non index buffer");
     return;
-
-  glDeleteVertexArrays(1, &vao->ID);
-  LogInfo("VAO [ID: %u] deleted", vao->ID);
-
-  vao->ID = 0;
-  vao->ebo_id = 0;
-}
-
-// -----------------------------
-// Bind
-// -----------------------------
-
-void rhi_VAO_Bind(struct rhi_VAO* vao) {
-  RFK_ASSERT(vao && vao->ID);
-  glBindVertexArray(vao->ID);
-}
-
-// -----------------------------
-// REQUIRED EBO
-// -----------------------------
-
-void rhi_VAO_SetIndexBuffer(struct rhi_VAO* vao, uint32_t ebo_id) {
-  RFK_ASSERT(vao && vao->ID);
-  RFK_ASSERT(ebo_id != 0);
-
-  glVertexArrayElementBuffer(vao->ID, ebo_id);
-
-  vao->ebo_id = ebo_id;
-}
-
-// -----------------------------
-// Vertex buffer binding
-// -----------------------------
-
-void rhi_VAO_BindVertexBuffer(
-  struct rhi_VAO* vao,
-  uint32_t bindingIdx,
-  uint32_t vbo_id,
-  size_t offset,
-  size_t stride
-) {
-  RFK_ASSERT(vao && vao->ID);
-  RFK_ASSERT(vbo_id != 0);
-
-  glVertexArrayVertexBuffer(
-    vao->ID,
-    bindingIdx,
-    vbo_id,
-    offset,
-    stride
-  );
-}
-
-// -----------------------------
-// Attribute setup
-// -----------------------------
-
-void rhi_VAO_SetAttribute(
-  struct rhi_VAO* vao,
-  struct rhi_Attribute attr
-) {
-  RFK_ASSERT(vao && vao->ID);
-
-  glEnableVertexArrayAttrib(vao->ID, attr.Location);
-
-  if (attr.Type != RHI_FLOAT) {
-    // for integer (has no normalization)
-    glVertexArrayAttribIFormat(
-      vao->ID,
-      attr.Location,
-      attr.Components,
-      (GLenum)attr.Type,
-      (GLuint)attr.Offset
-    );
-  }
-  else {
-    // for floats (with normalization)
-    glVertexArrayAttribFormat(
-      vao->ID,
-      attr.Location,
-      attr.Components,
-      (GLenum)attr.Type,
-      GL_FALSE,
-      (GLuint)attr.Offset
-    );
   }
 
-  glVertexArrayAttribBinding(
-    vao->ID,
-    attr.Location,
-    attr.BindingIndex
-  );
-
-  glVertexArrayBindingDivisor(vao->ID, attr.BindingIndex, attr.Divisor);
+  glBindVertexArray(o->ID);
+  glBindBuffer(buf.type, buf.ID);
+  o->eboId = buf.ID;
 }
 
-// -----------------------------
-// Validation
-// -----------------------------
+void rhi_VAO_AddAttributes(struct rhi_VAO* o, struct rhi_Buffer buf, struct rhi_Attribute* attrs, int numAttrs) {
+  if (o == NULL) return;
+  if (o->ID == 0) return;
 
-bool rhi_VAO_IsValid(const struct rhi_VAO vao) {
-  return vao.ID != 0 && vao.ebo_id > 0;
+  if (buf.type != RHI_BUF_VERTEX) {
+    LogErr("vao [ID = %d] AddVertexAttribute - you cannot assign non vertex buffer");
+    return;
+  }
+
+  glBindVertexArray(o->ID);
+  glBindBuffer(GL_ARRAY_BUFFER, buf.ID);
+
+  for (int i = 0; i < numAttrs; i++) {
+    struct rhi_Attribute attr = *(attrs + i);
+
+    glEnableVertexAttribArray(attr.Location);
+    if (attr.Type == RHI_FLOAT) {
+      glVertexAttribPointer(
+        attr.Location,
+        attr.Components,
+        attr.Type,
+        GL_FALSE,
+        attr.Stride,
+        (void*)attr.Offset
+      );
+    }
+    else {
+      glVertexAttribIPointer(
+        attr.Location,
+        attr.Components,
+        attr.Type,
+        attr.Stride,
+        (void*)attr.Offset
+      );
+    }
+    glVertexAttribDivisor(attr.Location, attr.Divisor);
+  }
+
+}
+
+void rhi_VAO_Bind(struct rhi_VAO* o) {
+  if (o == NULL) return;
+  if (o->ID == 0) return;
+  glBindVertexArray(o->ID);
+}
+
+bool rhi_VAO_IsValid(struct rhi_VAO o) {
+  return o.eboId != 0 && o.ID != 0;
+}
+
+void rhi_VAO_Invalidate(struct rhi_VAO* o) {
+  if (o == NULL) return;
+  if (o->ID == 0) return;
+  glDeleteVertexArrays(1, &o->ID);
+  LogInfo("vao [ID = %d] deleted", o->ID);
+  *o = (struct rhi_VAO){ 0 };
 }

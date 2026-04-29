@@ -1,102 +1,80 @@
 #include "texture.h"
 
-#include <kernel/core/log.h>
-
 static void rhi_setTexParameters(
-  uint32_t handle,
+  uint target,
   rhi_TextureFilter filterMin,
   rhi_TextureFilter filterMag,
   rhi_TextureWrap wrap
 ) {
-  glTextureParameteri(handle, GL_TEXTURE_MIN_FILTER, filterMin);
-  glTextureParameteri(handle, GL_TEXTURE_MAG_FILTER, filterMag);
-  glTextureParameteri(handle, GL_TEXTURE_WRAP_S, wrap);
-  glTextureParameteri(handle, GL_TEXTURE_WRAP_T, wrap);
-  glTextureParameteri(handle, GL_TEXTURE_WRAP_R, wrap);
+  glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filterMin);
+  glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filterMag);
+  glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap);
+  glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap);
+  glTexParameteri(target, GL_TEXTURE_WRAP_R, wrap);
 }
 
 void rhi_Tex_BindToUnit(struct rhi_Texture tex, uint unit) {
-  glBindTextureUnit(unit, tex.handle);
+  if (tex.ID == 0) return;
+  glActiveTexture(GL_TEXTURE0 + unit);
+  glBindTexture(tex.type, tex.ID);
 }
 
-struct rhi_Texture rhi_Tex2D_Create(
-  int w, int h,
-  struct rhi_TextureConfig conf
+void rhi_Tex_Init(struct rhi_Texture* t, rhi_TextureType type) {
+  if (t == NULL) return;
+  *t = (struct rhi_Texture){ 0 };
+
+  t->type = type;
+  glGenTextures(1, &t->ID);
+  glBindTexture(t->type, t->ID);
+  LogInfo("texture [ID = %d, Type = %x] created ", t->ID, t->type);
+}
+
+void rhi_Tex_Invalidate(struct rhi_Texture* t) {
+  if (t == NULL) return;
+  if (t->ID == 0) return;
+  glDeleteTextures(1, &t->ID);
+  LogInfo("texture [ID = %d, Type = %x] deleted", t->ID, t->type);
+  *t = (struct rhi_Texture){ 0 };
+}
+
+void rhi_Tex2D_Allocate(
+  struct rhi_Texture* t,
+  struct rhi_TextureConfig conf,
+  uint pixFormat,
+  uint sourceType,
+  void* pix
 ) {
-  struct rhi_Texture tex;
-  tex.type = RHI_TEXTURE_2D;
-  glCreateTextures(GL_TEXTURE_2D, 1, &tex.handle);
-  glTextureStorage2D(tex.handle, 1, conf.Format, w, h);
-  rhi_setTexParameters(tex.handle, conf.FilterMin, conf.FilterMag, conf.Wrap);
-  LogInfo("texture 2d [ID = %d] created", tex.handle);
-  return tex;
+  if (t == NULL) return;
+  if (t->ID == 0) return;
+  if (t->type != RHI_TEX_2D) return;
+  t->width = conf.Width, t->height = conf.Height;
+  glBindTexture(GL_TEXTURE_2D, t->ID);
+  rhi_setTexParameters(t->type, conf.FilterMin, conf.FilterMag, conf.Wrap);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(t->type, 0, conf.Format, conf.Width, conf.Height, 0, pixFormat, sourceType, pix);
+}
+
+void rhi_Tex_GenMipmaps(struct rhi_Texture t) {
+  if (t.ID == 0) return;
+
+  glBindTexture(t.type, t.ID);
+  glGenerateMipmap(t.type);
 }
 
 void rhi_Tex2D_Update(
-  struct rhi_Texture tex,
-  int x, int y, int w, int h,
-  uint pixel_format, rhi_DataType pixel_type,
-  const void* data
+  struct rhi_Texture* t,
+  uint x,
+  uint y,
+  uint width,
+  uint height,
+  uint pixFormat,
+  uint sourceType,
+  void* data
 ) {
-  if (tex.type != RHI_TEXTURE_2D) {
-    LogErr("texture 2d [ID = %d] type mismatch in rhi_Tex2D_Update", tex.handle);
-    return;
-  }
-  glTextureSubImage2D(tex.handle, 0, x, y, w, h, pixel_format, (GLenum)pixel_type, data);
-}
-
-struct rhi_Texture rhi_Tex2DArray_Create(int w, int h, int layers, struct rhi_TextureConfig conf) {
-  struct rhi_Texture tex;
-  tex.type = RHI_TEXTURE_2D_ARRAY;
-  glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &tex.handle);
-
-  glTextureStorage3D(tex.handle, 1, conf.Format, w, h, layers);
-
-  rhi_setTexParameters(tex.handle, conf.FilterMin, conf.FilterMag, conf.Wrap);
-  LogInfo("texture 2d array [ID = %d] created", tex.handle);
-  return tex;
-}
-
-void rhi_Tex2DArray_Update(
-  struct rhi_Texture tex,
-  int x, int y, int layer,
-  int w, int h,
-  uint p_fmt, rhi_DataType p_type,
-  const void* data
-) {
-  if (tex.type != RHI_TEXTURE_2D_ARRAY) {
-    LogErr("texture array [ID = %d] type mismatch in rhi_Tex2DArray_Update", tex.handle);
-    return;
-  }
-  glTextureSubImage3D(tex.handle, 0, x, y, layer, w, h, 0, p_fmt, (GLenum)p_type, data);
-}
-
-struct rhi_Texture rhi_TexCube_Create(int size, struct rhi_TextureConfig conf) {
-  struct rhi_Texture tex;
-  tex.type = RHI_TEXTURE_CUBE_MAP;
-  glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &tex.handle);
-  glTextureStorage2D(tex.handle, 1, conf.Format, size, size);
-  rhi_setTexParameters(tex.handle, conf.FilterMin, conf.FilterMag, conf.Wrap);
-  LogInfo("texture cube [ID = %d] created", tex.handle);
-  return tex;
-}
-
-void rhi_TexCube_Update(
-  struct rhi_Texture tex, int x, int y, int face,
-  int w, int h, int count,
-  uint p_fmt, rhi_DataType p_type,
-  const void* data
-) {
-  if (tex.type != RHI_TEXTURE_CUBE_MAP) {
-    LogErr("texture cube [ID = %d] type mismatch in rhi_TexCube_Update", tex.handle);
-    return;
-  }
-  // face - zoffset, count - depth
-  glTextureSubImage3D(tex.handle, 0, x, y, face, w, h, count, p_fmt, (GLenum)p_type, data);
-}
-
-void rhi_Tex_Destroy(struct rhi_Texture tex) {
-  glDeleteTextures(1, &tex.handle);
-  tex.handle = 0;
-  LogInfo("texture [ID = %d] deleted");
+  if (t == NULL) return;
+  if (t->ID == 0) return;
+  if (t->type != RHI_TEX_2D) return;
+  if (x + width > t->width || y + height > t->height) return;
+  glBindTexture(GL_TEXTURE_2D, t->ID);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, pixFormat, sourceType, data);
 }

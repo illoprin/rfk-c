@@ -10,110 +10,91 @@ void Mesh_SetupFromModel(struct Mesh* mesh, struct Model* model) {
   size_t sizeOfVertices = sizeof(struct ModelVertex) * model->NumVertices;
   size_t sizeOfIndices = sizeof(uint) * model->NumIndices;
 
-  // create buffer
-  rhi_Buffer_Create(
-    &mesh->VertexBuf,
-    sizeOfVertices,
-    model->Vertices,
-    RHI_BUFFER_VERTEX,
-    RHI_USAGE_STATIC
-  );
-  rhi_Buffer_Create(
-    &mesh->IndexBuf,
-    sizeOfIndices,
-    model->Indices,
-    RHI_BUFFER_INDEX,
-    RHI_USAGE_STATIC
-  );
+  // allocate vertices
+  rhi_Buf_Init(&mesh->VertexBuf, RHI_BUF_VERTEX, RHI_USAGE_STATIC);
+  rhi_Buf_Allocate(&mesh->VertexBuf, model->Vertices, sizeOfVertices);
 
-  // setup attributes
+  // allocate indices
+  rhi_Buf_Init(&mesh->IndexBuf, RHI_BUF_INDEX, RHI_USAGE_STATIC);
+  rhi_Buf_Allocate(&mesh->IndexBuf, model->Indices, sizeOfIndices);
+
+  // init attributes
+  struct rhi_Attribute pos = { 0 };
+  struct rhi_Attribute tex = { 0 };
+  struct rhi_Attribute nrm = { 0 };
 
   // position
-  struct rhi_Attribute positionAttr = { 0 };
-  positionAttr.Location = 0;
-  positionAttr.BindingIndex = 0;
-  positionAttr.Components = 3;
-  positionAttr.Type = RHI_FLOAT;
-  positionAttr.Offset = 0;
+  pos.Location = 0;
+  pos.Type = RHI_FLOAT;
+  pos.Components = 3;
+  pos.Offset = 0;
+  pos.Stride = sizeof(struct ModelVertex);
 
   // texcoord
-  struct rhi_Attribute texcoordAttr = { 0 };
-  texcoordAttr.Location = 1;
-  texcoordAttr.BindingIndex = 0;
-  texcoordAttr.Components = 2;
-  texcoordAttr.Type = RHI_FLOAT;
-  texcoordAttr.Offset = sizeof(float) * 3;
+  tex.Location = 1;
+  tex.Components = 2;
+  tex.Type = RHI_FLOAT;
+  tex.Offset = offsetof(struct ModelVertex, Texcoords[0]);
+  tex.Stride = sizeof(struct ModelVertex);
 
   // normal
-  struct rhi_Attribute normalAttr = { 0 };
-  normalAttr.Location = 2;
-  normalAttr.BindingIndex = 0;
-  normalAttr.Components = 3;
-  normalAttr.Type = RHI_FLOAT;
-  normalAttr.Offset = sizeof(float) * 5;
+  nrm.Location = 2;
+  nrm.Components = 3;
+  nrm.Type = RHI_FLOAT;
+  nrm.Offset = offsetof(struct ModelVertex, Normal[0]);
+  nrm.Stride = sizeof(struct ModelVertex);
+
+  struct rhi_Attribute attrs[] = { pos, tex, nrm };
 
   // create vao
-  rhi_VAO_Create(&mesh->VAO);
-  rhi_VAO_BindVertexBuffer(&mesh->VAO, 0, mesh->VertexBuf.ID, 0, 8 * sizeof(float));
-  rhi_VAO_SetAttribute(&mesh->VAO, positionAttr);
-  rhi_VAO_SetAttribute(&mesh->VAO, texcoordAttr);
-  rhi_VAO_SetAttribute(&mesh->VAO, normalAttr);
-  rhi_VAO_SetIndexBuffer(&mesh->VAO, mesh->IndexBuf.ID);
+  rhi_VAO_Init(&mesh->VAO);
+  rhi_VAO_AddIndexBuffer(&mesh->VAO, mesh->IndexBuf);
+  rhi_VAO_AddAttributes(&mesh->VAO, mesh->VertexBuf, attrs, 3);
+  RFK_ASSERT(rhi_VAO_IsValid(mesh->VAO));
 
   mesh->indexNum = model->NumIndices;
-
-  RFK_ASSERT(rhi_VAO_IsValid(mesh->VAO));
 }
 void Mesh_SetupBasicQuad(struct Mesh* m) {
   if (m->VAO.ID > 0) {
     return;
   }
-  float basicQuadVertices[] = {
+  float verts[] = {
     -.5f, -.5f,
     .5f, -.5f,
     .5f, .5f,
     -.5f, .5f,
   };
-  uint basicQuadIndices[] = {
+  uint indices[] = {
     0, 1, 2,
     2, 3, 0,
   };
 
-  // allocate resources
-  rhi_Buffer_Create(
-    &m->VertexBuf,
-    sizeof(basicQuadVertices),
-    basicQuadVertices,
-    RHI_BUFFER_VERTEX,
-    RHI_USAGE_STATIC
-  );
-  rhi_Buffer_Create(
-    &m->IndexBuf,
-    sizeof(basicQuadIndices),
-    basicQuadIndices,
-    RHI_BUFFER_INDEX,
-    RHI_USAGE_STATIC
-  );
+  // allocate vertices
+  rhi_Buf_Init(&m->VertexBuf, RHI_BUF_VERTEX, RHI_USAGE_STATIC);
+  rhi_Buf_Allocate(&m->VertexBuf, verts, sizeof(verts));
 
-  rhi_VAO_Create(&m->VAO);
-  rhi_VAO_BindVertexBuffer(&m->VAO, 0, m->VertexBuf.ID, 0, sizeof(float) * 2);
-  rhi_VAO_SetAttribute(&m->VAO,
-    (struct rhi_Attribute) {
-    .Location = 0,
-      .BindingIndex = 0,
-      .Components = 2,
-      .Type = RHI_FLOAT,
-      .Offset = 0,
-  });
-  rhi_VAO_SetIndexBuffer(&m->VAO, m->IndexBuf.ID);
+  // allocate indices
+  rhi_Buf_Init(&m->IndexBuf, RHI_BUF_INDEX, RHI_USAGE_STATIC);
+  rhi_Buf_Allocate(&m->IndexBuf, indices, sizeof(indices));
+
+  struct rhi_Attribute position = { 0 };
+  position.Location = 0;
+  position.Components = 2;
+  position.Offset = 0;
+  position.Stride = 2 * sizeof(float);
+  position.Type = RHI_FLOAT;
+
+  // create vao
+  rhi_VAO_Init(&m->VAO);
+  rhi_VAO_AddIndexBuffer(&m->VAO, m->IndexBuf);
+  rhi_VAO_AddAttributes(&m->VAO, m->VertexBuf, &position, 1);
+  RFK_ASSERT(rhi_VAO_IsValid(m->VAO));
 
   m->indexNum = 6;
-
-  RFK_ASSERT(rhi_VAO_IsValid(m->VAO));
 }
 
 void Mesh_Invalidate(struct Mesh* m) {
-  rhi_VAO_Destroy(&m->VAO);
-  rhi_Buffer_Invalidate(&m->VertexBuf);
-  rhi_Buffer_Invalidate(&m->IndexBuf);
+  rhi_VAO_Invalidate(&m->VAO);
+  rhi_Buf_Invalidate(&m->VertexBuf);
+  rhi_Buf_Invalidate(&m->IndexBuf);
 }

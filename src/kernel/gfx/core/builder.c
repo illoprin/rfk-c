@@ -2,12 +2,7 @@
 
 #include <stdio.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
 #include <kernel/core/files.h>
-#include <vector/vector.h>
 
 int Prog_QuickLoad(struct rhi_Program* prog, const char* vs_path, const char* fs_path) {
   rhi_Prog_Init(prog);

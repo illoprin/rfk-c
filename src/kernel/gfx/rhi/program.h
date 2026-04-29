@@ -1,17 +1,8 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <kernel/core/types.h>
-#include <stdbool.h>
+#include "util.h"
 
-// Shader types
-typedef enum {
-  RHI_SHADER_VERTEX = GL_VERTEX_SHADER,
-  RHI_SHADER_FRAGMENT = GL_FRAGMENT_SHADER,
-  RHI_SHADER_GEOMETRY = GL_GEOMETRY_SHADER,
-  RHI_SHADER_COMPUTE = GL_COMPUTE_SHADER
-} rhi_ShaderType;
-
+// Program object handle
 struct rhi_Program {
   uint32_t handle;
   bool is_linked;
@@ -22,7 +13,7 @@ void rhi_Prog_Init(struct rhi_Program* prog);
 bool rhi_Prog_AddShader(struct rhi_Program* prog, rhi_ShaderType type, const char* source);
 bool rhi_Prog_Link(struct rhi_Program* prog);
 void rhi_Prog_Use(struct rhi_Program prog);
-void rhi_Prog_Destroy(struct rhi_Program* prog);
+void rhi_Prog_Invalidate(struct rhi_Program* prog);
 
 // Uniform Setters
 void rhi_Prog_SetInt(struct rhi_Program prog, const char* name, int value);
