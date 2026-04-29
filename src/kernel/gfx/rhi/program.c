@@ -2,8 +2,6 @@
 
 #include <stdlib.h>
 
-uint progBinding = 0;
-
 void rhi_Prog_Init(struct rhi_Program* prog) {
   if (prog == NULL) return;
   *prog = (struct rhi_Program){ 0 };
@@ -44,12 +42,11 @@ bool rhi_Prog_AddShader(struct rhi_Program* prog, rhi_ShaderType type, const cha
 }
 
 bool rhi_Prog_Link(struct rhi_Program* prog) {
-  if (prog == NULL) return;
-  if (prog->handle == 0) return;
+  if (prog == NULL) return false;
+  if (prog->handle == 0) return false;
   glLinkProgram(prog->handle);
 
-  int success;
-  uint logLen;
+  int success, logLen;
   glGetProgramiv(prog->handle, GL_LINK_STATUS, &success);
   if (!success) {
     glGetProgramiv(prog->handle, GL_INFO_LOG_LENGTH, &logLen);
@@ -64,66 +61,51 @@ bool rhi_Prog_Link(struct rhi_Program* prog) {
   return true;
 }
 
-void rhi_Prog_Use(struct rhi_Program prog) {
-  if (prog.handle == 0) return;
-  if (progBinding == prog.handle) return;
-  glUseProgram(prog.handle);
-  progBinding = prog.handle;
-}
-
 // TODO cache uniform locations
 
 void rhi_Prog_SetInt(struct rhi_Program prog, const char* name, int value) {
-  rhi_Prog_Use(prog);
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniform1i(loc, value);
 }
 
-void rhi_Prog_SetUInt(struct rhi_Program prog, const char* name, uint value) {
-  rhi_Prog_Use(prog);
+void rhi_Prog_SetUInt(struct rhi_Program prog, const char* name, int value) {
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniform1ui(loc, value);
 }
 
 void rhi_Prog_SetVec2f(struct rhi_Program prog, const char* name, float* v) {
-  rhi_Prog_Use(prog);
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniform2fv(loc, 1, v);
 }
 
 void rhi_Prog_SetVec3f(struct rhi_Program prog, const char* name, float* v) {
-  rhi_Prog_Use(prog);
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniform3fv(loc, 1, v);
 }
 
 void rhi_Prog_SetVec4f(struct rhi_Program prog, const char* name, float* v) {
-  rhi_Prog_Use(prog);
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniform4fv(loc, 1, v);
 }
 
 void rhi_Prog_SetVec2i(struct rhi_Program prog, const char* name, int* v) {
-  rhi_Prog_Use(prog);
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniform2iv(loc, 1, v);
 }
 
 void rhi_Prog_SetMat4f(struct rhi_Program prog, const char* name, float* data) {
-  rhi_Prog_Use(prog);
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniformMatrix4fv(loc, 1, GL_FALSE, data);
 }
 
 void rhi_Prog_SetMat2f(struct rhi_Program prog, const char* name, float* data) {
-  rhi_Prog_Use(prog);
   int loc = rhi_Prog_getUniformLoc(prog, name);
   if (loc < 0) return;
   glUniformMatrix2fv(loc, 1, GL_FALSE, data);

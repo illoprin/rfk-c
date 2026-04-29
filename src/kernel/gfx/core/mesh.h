@@ -7,7 +7,7 @@ struct Mesh {
   struct rhi_VAO VAO;
   struct rhi_Buffer VertexBuf;
   struct rhi_Buffer IndexBuf;
-  uint indexNum;
+  int indexNum;
 };
 
 void Mesh_SetupBasicQuad(struct Mesh*);

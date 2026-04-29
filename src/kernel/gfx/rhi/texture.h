@@ -4,22 +4,25 @@
 
 struct rhi_TextureConfig {
   rhi_TextureFormat Format;
+  rhi_DataType SourceType;
   rhi_TextureFilter FilterMin;
   rhi_TextureFilter FilterMag;
   rhi_TextureWrap Wrap;
-  uint Width, Height;
+  int Width, Height;
 };
 
 struct rhi_Texture {
   GLuint ID;
   rhi_TextureType type;
-  uint width, height, depth;
+  rhi_TextureFormat fmt;
+  rhi_DataType sourceType;
+  int width, height, depth;
 };
 
 /// @brief binds texture into sampler unit
 /// @param tex target texture object
 /// @param unit index of sampler unit
-void rhi_Tex_BindToUnit(struct rhi_Texture tex, uint unit);
+void rhi_Tex_BindToUnit(struct rhi_Texture tex, int unit);
 
 /// @brief create texture object
 /// @param type sampler type (2d, array, cube)
@@ -39,8 +42,6 @@ void rhi_Tex_Invalidate(struct rhi_Texture* t);
 void rhi_Tex2D_Allocate(
   struct rhi_Texture* t,
   struct rhi_TextureConfig conf,
-  uint pixFormat,
-  uint sourceType,
   void* data
 );
 
@@ -55,11 +56,29 @@ void rhi_Tex2D_Allocate(
 /// @param data source data (cannot be null)
 void rhi_Tex2D_Update(
   struct rhi_Texture* t,
-  uint x,
-  uint y,
-  uint width,
-  uint height,
-  uint pixFormat,
-  uint sourceType,
+  int x,
+  int y,
+  int width,
+  int height,
+  void* data
+);
+
+/// @brief allocates new memory for texture 2d
+/// object and fills null
+void rhi_Tex2D_Resize(struct rhi_Texture* t, uint width, uint height);
+
+/// @brief allocates memory for 3D texture or 2D Array
+void rhi_Tex3D_Allocate(
+  struct rhi_Texture* t,
+  struct rhi_TextureConfig conf,
+  uint depth,
+  void* pix
+);
+
+/// @brief updates data in 3D/Array texture storage
+void rhi_Tex3D_Update(
+  struct rhi_Texture* t,
+  uint x, uint y, uint z,
+  uint width, uint height, uint depth,
   void* data
 );

@@ -3,3 +3,5 @@
 #include "buffer.h"
 #include "program.h"
 #include "vao.h"
+#include "texture.h"
+#include "render_device.h"

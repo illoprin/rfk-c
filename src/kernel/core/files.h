@@ -19,9 +19,9 @@
 
 struct Image2D {
   uch* Pix;
-  uint Channels;
-  uint Width;
-  uint Height;
+  int Channels;
+  int Width;
+  int Height;
 };
 
 /// @brief reads file to string (allocates memory)

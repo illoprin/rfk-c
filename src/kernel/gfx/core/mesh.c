@@ -8,7 +8,7 @@ void Mesh_SetupFromModel(struct Mesh* mesh, struct Model* model) {
   }
 
   size_t sizeOfVertices = sizeof(struct ModelVertex) * model->NumVertices;
-  size_t sizeOfIndices = sizeof(uint) * model->NumIndices;
+  size_t sizeOfIndices = sizeof(int) * model->NumIndices;
 
   // allocate vertices
   rhi_Buf_Init(&mesh->VertexBuf, RHI_BUF_VERTEX, RHI_USAGE_STATIC);
@@ -64,7 +64,7 @@ void Mesh_SetupBasicQuad(struct Mesh* m) {
     .5f, .5f,
     -.5f, .5f,
   };
-  uint indices[] = {
+  int indices[] = {
     0, 1, 2,
     2, 3, 0,
   };

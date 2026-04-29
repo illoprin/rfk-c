@@ -20,7 +20,8 @@ struct Mesh handgunMesh;
 struct Model handgunModel;
 struct rhi_Texture handgunTexture;
 struct rhi_Program geomProg;
-struct Camera cam = { 0 };
+
+struct Camera cam;
 bool sprint = false;
 #define PLAYER_SPEED 6.3 // unit per second
 #define PLAYER_SPRINT_MUL 1.75
@@ -118,15 +119,15 @@ void stateA_drawUi() {
 }
 
 void stateA_render() {
-  glEnable(GL_DEPTH_TEST);
   int* screen = Wnd_GetSize();
   glViewport(0, 0, screen[0], screen[1]);
   glClearColor(0.486, 0.627, 0.922, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  rhi_Prog_Use(geomProg);
+  rhi_RenderDevice_UseProgram(geomProg);
   rhi_Prog_SetMat4f(geomProg, "u_projection", cam.Proj[0]);
   rhi_Prog_SetMat4f(geomProg, "u_view", cam.View[0]);
   rhi_Tex_BindToUnit(handgunTexture, 0);
+  // rhi_Prog_SetInt(geomProg, "u_diffuse", 0);
   rhi_RenderDevice_Draw(handgunMesh.VAO, handgunMesh.indexNum);
 }
 
@@ -136,32 +137,38 @@ struct prevStateGive {
 } _give;
 
 void stateA_onEnter(void*) {
-  Prog_QuickLoad(
+  if (!Prog_QuickLoad(
     &geomProg,
     FLS_SHADER_PATH("g_basic.vert"),
     FLS_SHADER_PATH("g_basic.frag")
-  );
+  )) exit(EXIT_FAILURE);
   Mdl_InitFromObj(&handgunModel, FLS_MODEL_PATH("handgun.obj"));
   Mesh_SetupFromModel(&handgunMesh, &handgunModel);
 
   struct Image2D img = Fls_ReadImage(FLS_TEXTURE_PATH("handgun.png"));
-  handgunTexture = rhi_Tex2D_Create(img.Width, img.Height, (struct rhi_TextureConfig) {
+
+  rhi_Tex_Init(&handgunTexture, RHI_TEX_2D);
+  struct rhi_TextureConfig conf = {
     .FilterMag = RHI_TEX_FILTER_NEAREST,
-      .FilterMin = RHI_TEX_FILTER_NEAREST_MIPMAP_LINEAR,
-      .Format = RHI_TEX_FORMAT_RGBA8,
-      .Wrap = RHI_TEX_WRAP_CLAMP_TO_EDGE,
-  });
-  rhi_Tex2D_Update(handgunTexture,
-    0, 0, img.Width, img.Height, GL_RGBA, RHI_UNSIGNED_BYTE, img.Pix
-  );
-  glGenerateTextureMipmap(handgunTexture.handle);
+    .FilterMin = RHI_TEX_FILTER_LINEAR_MIPMAP_LINEAR,
+    .Format = RHI_TEX_FORMAT_RGBA8,
+    .SourceType = RHI_UNSIGNED_BYTE,
+    .Wrap = RHI_TEX_WRAP_CLAMP_TO_EDGE,
+    .Width = img.Width,
+    .Height = img.Height,
+  };
+  rhi_Tex2D_Allocate(&handgunTexture, conf, img.Pix);
+  rhi_Tex_GenMipmaps(handgunTexture);
 
   Img_Free(img);
 
+  cam = (struct Camera){ 0 };
   cam.Position[2] = 3.f;
   cam.Rotation[1] = -90.f;
-  cam.Fov = 90.f;
+  cam.Fov = 80.f;
   Cam_Update(&cam, Wnd_GetSize());
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
 }
 
 void stateA_onExit(void** g) {
@@ -172,12 +179,14 @@ void stateA_onExit(void** g) {
   *g = &_give;
   printf("state exit\n");
 }
+
 void stateA_destroy() {
   // release resources
+  fputc('\n', stdout);
   Mesh_Invalidate(&handgunMesh);
   Mdl_Free(handgunModel);
-  rhi_Tex_Destroy(handgunTexture);
-  rhi_Prog_Destroy(&geomProg);
+  rhi_Tex_Invalidate(&handgunTexture);
+  rhi_Prog_Invalidate(&geomProg);
 }
 
 void stateB_update(float) {
@@ -200,6 +209,7 @@ void stateB_render() {
 }
 
 void stateB_onEnter(void* r) {
+  if (r == NULL) return;
   struct prevStateGive receive = *((struct prevStateGive*)r);
   printf("new state enter\n");
   printf("prev state values\n{ x: %.2f, val: %d }\n",

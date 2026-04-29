@@ -12,12 +12,11 @@ struct rhi_Program {
 void rhi_Prog_Init(struct rhi_Program* prog);
 bool rhi_Prog_AddShader(struct rhi_Program* prog, rhi_ShaderType type, const char* source);
 bool rhi_Prog_Link(struct rhi_Program* prog);
-void rhi_Prog_Use(struct rhi_Program prog);
 void rhi_Prog_Invalidate(struct rhi_Program* prog);
 
 // Uniform Setters
 void rhi_Prog_SetInt(struct rhi_Program prog, const char* name, int value);
-void rhi_Prog_SetUInt(struct rhi_Program prog, const char* name, uint value);
+void rhi_Prog_SetUInt(struct rhi_Program prog, const char* name, int value);
 void rhi_Prog_SetVec2f(struct rhi_Program prog, const char* name, float*);
 void rhi_Prog_SetVec3f(struct rhi_Program prog, const char* name, float*);
 void rhi_Prog_SetVec4f(struct rhi_Program prog, const char* name, float*);

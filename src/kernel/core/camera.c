@@ -42,8 +42,8 @@ void Cam_Update(struct Camera* cam, ivec2 screen) {
   // compute matrices
   vec3 center;
   glm_vec3_add(cam->Position, cam->Front, center);
-  glm_lookat(cam->Position, center, cam->Up, cam->View[0]);
+  glm_lookat(cam->Position, center, cam->Up, cam->View);
 
   float aspect = (float)screen[0] / (float)screen[1];
-  glm_perspective(glm_rad(cam->Fov), aspect, CAM_NEAR, CAM_FAR, cam->Proj[0]);
+  glm_perspective(glm_rad(cam->Fov), aspect, CAM_NEAR, CAM_FAR, cam->Proj);
 }

@@ -9,10 +9,10 @@ struct MonitorStats {
   double Time;
   float DeltaTime;
   float SmoothedDeltaTime;
-  uint FPS;
-  uint LastDrawCalls;
-  uint LastVertices;
-  uint LastTriangles;
+  int FPS;
+  int LastDrawCalls;
+  int LastVertices;
+  int LastTriangles;
 };
 
 void Mon_Update();

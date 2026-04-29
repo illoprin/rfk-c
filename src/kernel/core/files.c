@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <limits.h>
 #include <stb/stb_image.h>
 #include "log.h"
@@ -34,7 +35,7 @@ char* Fls_ReadFile(const char* fpath, size_t* out_size) {
   }
 
   // защита от переполнения
-  if ((unsigned long)size > SIZE_MAX - 1) {
+  if ((uint64_t)size >= SIZE_MAX - 1) {
     LogErr("file too large \"%s\"", fpath);
     fclose(file);
     return NULL;
@@ -83,9 +84,9 @@ struct Image2D Fls_ReadImage(const char* path) {
   }
 
   img.Pix = data;
-  img.Width = (uint)w;
-  img.Height = (uint)h;
-  img.Channels = (uint)c;
+  img.Width = (int)w;
+  img.Height = (int)h;
+  img.Channels = (int)c;
 
   LogInfo("image \"%s\" loaded (%dx%d, %d channels)", path, w, h, c);
 

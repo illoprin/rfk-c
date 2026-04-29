@@ -5,12 +5,12 @@
 
 // Attribute description
 struct rhi_Attribute {
-  uint         Location;
-  uint         Components;
+  int         Location;
+  int         Components;
   rhi_DataType Type;
   size_t       Offset;
   size_t       Stride;
-  uint         Divisor;
+  int         Divisor;
 };
 
 struct rhi_VAO {

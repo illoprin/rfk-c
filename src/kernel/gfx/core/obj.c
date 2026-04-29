@@ -12,13 +12,13 @@ struct ObjRawData {
 };
 
 struct FaceIndices {
-  uint VertexIndex;
-  uint TexcoordIndex;
-  uint NormalIndex;
+  int VertexIndex;
+  int TexcoordIndex;
+  int NormalIndex;
 };
 
 // parse 'v' string
-void ObjParseVertices(uint lineNum, char* line, struct ObjRawData* obj) {
+void ObjParseVertices(int lineNum, char* line, struct ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y, z;
@@ -33,7 +33,7 @@ void ObjParseVertices(uint lineNum, char* line, struct ObjRawData* obj) {
 }
 
 // parse 'vt' string
-void ObjParseTexcoords(uint lineNum, char* line, struct ObjRawData* obj) {
+void ObjParseTexcoords(int lineNum, char* line, struct ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y;
@@ -47,7 +47,7 @@ void ObjParseTexcoords(uint lineNum, char* line, struct ObjRawData* obj) {
 }
 
 // parse 'vn' string
-void ObjParseNormals(uint lineNum, char* line, struct ObjRawData* obj) {
+void ObjParseNormals(int lineNum, char* line, struct ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y, z;
@@ -64,7 +64,7 @@ void ObjParseNormals(uint lineNum, char* line, struct ObjRawData* obj) {
 // parse 'f' string
 // adds vertices and indices to final array
 int ObjParseFace(
-  uint line,
+  int line,
   char* lineStr,
   struct ObjRawData* obj,
   Vector* modelVertices,
@@ -76,11 +76,11 @@ int ObjParseFace(
 
   // parse face entry
   struct FaceIndices face[4];
-  uint idx = 0;
+  int idx = 0;
   while (token != NULL) {
     if (idx >= 4) return 1;
 
-    uint vi, vti, vni;
+    int vi, vti, vni;
     if (sscanf(token, "%u/%u/%u", &vi, &vti, &vni) != 3) {
       LogErr("failed parse face indices on line %d", line);
       return 1;
@@ -118,7 +118,7 @@ int ObjParseFace(
     float nz = Vec_At(&obj->Normals, float, f.NormalIndex * 3 + 2);
 
     // add model vertex
-    uint index = modelVertices->Len; // current index is len of vertices array
+    int index = modelVertices->Len; // current index is len of vertices array
     struct ModelVertex v = {
       .Position = { vx, vy, vz },
       .Texcoords = { tu, tv },
@@ -159,10 +159,10 @@ int Mdl_InitFromObj(struct Model* mdl, const char* path) {
 
   // final indices array
   Vector indices;
-  Vec_Init(&indices, uint);
+  Vec_Init(&indices, int);
 
   char lineStr[MAX_LINE_LEN];
-  uint line = 0;
+  int line = 0;
 
   while (fgets(lineStr, sizeof(lineStr), f)) {
     // skip spaces and comments

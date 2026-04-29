@@ -2,12 +2,13 @@
 
 #include <kernel/core/log.h>
 
-uint _currentBinding = 0u;
+uint vao_binding = 0u;
+uint program_binding = 0u;
 static struct rhi_RenderStats stats = { 0 };
 
 bool vaoValidate(struct rhi_VAO t) {
 
-  if (_currentBinding == t.ID) {
+  if (vao_binding == t.ID) {
     return true;
   }
 
@@ -15,8 +16,8 @@ bool vaoValidate(struct rhi_VAO t) {
     return false;
   }
 
-  _currentBinding = t.ID;
-  glBindVertexArray(_currentBinding);
+  vao_binding = t.ID;
+  glBindVertexArray(vao_binding);
   return true;
 }
 
@@ -25,11 +26,20 @@ void rhi_RenderDevice_NewFrame() {
   stats = (struct rhi_RenderStats){ 0 };
 
   // invalidate bindings
-  _currentBinding = 0;
+  vao_binding = 0;
+  program_binding = 0;
   glBindVertexArray(0);
+  glUseProgram(0);
 }
 
-void rhi_RenderDevice_Draw(struct rhi_VAO t, uint count) {
+void rhi_RenderDevice_UseProgram(struct rhi_Program p) {
+  if (p.handle != program_binding) {
+    glUseProgram(p.handle);
+    program_binding = p.handle;
+  }
+}
+
+void rhi_RenderDevice_Draw(struct rhi_VAO t, int count) {
   // validate vao
   if (!vaoValidate(t)) {
     return;
@@ -44,7 +54,7 @@ void rhi_RenderDevice_Draw(struct rhi_VAO t, uint count) {
   stats.DrawCalls++;
 }
 
-void rhi_RenderDevice_DrawInstanced(struct rhi_VAO t, uint count, uint instances) {
+void rhi_RenderDevice_DrawInstanced(struct rhi_VAO t, int count, int instances) {
   // validate vao
   if (!vaoValidate(t)) {
     return;

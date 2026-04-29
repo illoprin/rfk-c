@@ -48,7 +48,7 @@ void Wnd_Init(int width, int height, const char* title) {
   // create window and setup context
   wnd_Size[0] = width;
   wnd_Size[1] = height;
-  handle = glfwCreateWindow(800, 600, "game", NULL, NULL);
+  handle = glfwCreateWindow(wnd_Size[0], wnd_Size[1], "game", NULL, NULL);
   if (!handle) {
     LogErr("failed to init window");
     RFK_ASSERT(false);
@@ -61,7 +61,7 @@ void Wnd_Init(int width, int height, const char* title) {
   }
 
   // init renderer
-  if (!gladLoadGL()) {
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     LogErr("failed to init context");
     RFK_ASSERT(false);
   }

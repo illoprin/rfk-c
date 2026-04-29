@@ -20,12 +20,11 @@ bool hasStateCollision(
 void Game_Create() {
   printf("🩷 - rfk - with love\n");
   Plt_Init();
-  Wnd_Init(800, 600, "game");
+  Wnd_Init(1500, 650, "game");
   glBindVertexArray(0);
   UI_Init(Wnd_GetHandle());
   Wnd_Center();
   Wnd_SetResizeCallback(onResize);
-  rhi_RenderDevice_SetupErrorCallback();
 
   LogInfo("game created");
 }

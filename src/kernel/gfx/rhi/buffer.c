@@ -45,7 +45,7 @@ void rhi_Buf_Invalidate(struct rhi_Buffer* buf) {
   if (buf == NULL) return;
   if (buf->ID == 0) return;
 
-  glDeleteBuffers(1, buf->ID);
+  glDeleteBuffers(1, &buf->ID);
   LogInfo("buffer [ID = %d] deleted", buf->ID);
   *buf = (struct rhi_Buffer){ 0 };
 }
