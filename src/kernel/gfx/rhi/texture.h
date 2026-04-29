@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <kernel/core/types.h>
+#include "buffer.h"
 
 typedef enum {
   RHI_TEX_FILTER_LINEAR = GL_LINEAR,
@@ -62,7 +64,10 @@ struct rhi_Texture {
   rhi_TextureType type;
 };
 
-void rhi_Tex_Destroy(struct rhi_Texture tex);
+/// @brief binds texture into sampler unit
+/// @param tex target texture object
+/// @param unit index of sampler unit
+void rhi_Tex_BindToUnit(struct rhi_Texture tex, uint unit);
 
 /**
  * @brief creates an immutable 2d texture storage
@@ -84,7 +89,7 @@ struct rhi_Texture rhi_Tex2D_Create(int w, int h, struct rhi_TextureConfig conf)
  * @param pixel_type source data type (e.g. GL_UNSIGNED_BYTE)
  * @param data pointer to pixel data
  */
-void rhi_Tex2D_Update(struct rhi_Texture tex, int x, int y, int w, int h, uint32_t pixel_format, uint32_t pixel_type, const void* data);
+void rhi_Tex2D_Update(struct rhi_Texture tex, int x, int y, int w, int h, uint p_fmt, rhi_DataType p_type, const void* data);
 
 /**
  * @brief creates an immutable 2d array texture storage
@@ -108,7 +113,7 @@ struct rhi_Texture rhi_Tex2DArray_Create(int w, int h, int layers, struct rhi_Te
  * @param p_type source data type
  * @param data pointer to pixel data
  */
-void rhi_Tex2DArray_Update(struct rhi_Texture tex, int x, int y, int layer, int w, int h, uint32_t p_fmt, uint32_t p_type, const void* data);
+void rhi_Tex2DArray_Update(struct rhi_Texture tex, int x, int y, int layer, int w, int h, uint p_fmt, rhi_DataType p_type, const void* data);
 
 /**
  * @brief creates an immutable cube map storage
@@ -131,10 +136,9 @@ struct rhi_Texture rhi_TexCube_Create(int size, struct rhi_TextureConfig conf);
  * @param p_type source data type
  * @param data pointer to pixel data
  */
-void rhi_TexCube_Update(struct rhi_Texture tex, int x, int y, int face, int w, int h, int count, uint32_t p_fmt, uint32_t p_type, const void* data);
+void rhi_TexCube_Update(struct rhi_Texture tex, int x, int y, int face, int w, int h, int count, uint p_fmt, rhi_DataType p_type, const void* data);
 
 /**
  * @brief releases gpu texture resource
- * @param tex texture object to destroy
  */
 void rhi_Tex_Destroy(struct rhi_Texture tex);

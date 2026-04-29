@@ -41,7 +41,6 @@ void Vec_RemoveAt(Vector* vec, size_t index);
         Vec_InsertRaw((vec), (index), &tmp); \
     } while(0)
 
-#define VECTOR_H_IMPLEMENTATION // !!!
 #ifdef VECTOR_H_IMPLEMENTATION
 
 #define VEC_BASE_CAPACITY 4

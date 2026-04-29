@@ -22,7 +22,15 @@ typedef enum {
   RHI_USAGE_STREAM   // Persistent Mapping (Coherent)
 } rhi_BufferUsage;
 
-// storage_buffer_arb
+// --- Format ---
+typedef enum : uint {
+  RHI_UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+  RHI_UNSIGNED_INT = GL_UNSIGNED_INT,
+  RHI_INTEGER = GL_INT,
+  RHI_FLOAT = GL_FLOAT,
+} rhi_DataType;
+
+// storage_buffer_ARB
 struct rhi_Buffer {
   uint ID;
   size_t size;
@@ -38,14 +46,12 @@ void rhi_Buffer_Create(
   rhi_BufferType usage,
   rhi_BufferUsage lifetime
 );
-
 void rhi_Buffer_Update(
   struct rhi_Buffer* buf,
   size_t offset,
   size_t size,
   const void* data
 );
-
 void rhi_Buffer_Bind(struct rhi_Buffer* buf);
 void rhi_Buffer_BindBase(struct rhi_Buffer* buf, uint32_t slot);
 void rhi_Buffer_Invalidate(struct rhi_Buffer* buf);

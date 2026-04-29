@@ -6,6 +6,8 @@
 #include <kernel/core/types.h>
 #include <glad/glad.h>
 
+#include "buffer.h"
+
 // VAO = rule for reading buffer
 struct rhi_VAO {
   uint ID;
@@ -40,20 +42,13 @@ void rhi_VAO_BindVertexBuffer(
 );
 
 // Attribute description
-
-typedef enum {
-  RHI_ATTR_FLOAT,
-  RHI_ATTR_INT,
-  RHI_ATTR_UNSIGNED_INT
-} rhi_AttributeType;
-
 struct rhi_Attribute {
-  size_t            Offset;
-  uint              Location;
-  uint              BindingIndex;
-  uint              Components;
-  rhi_AttributeType Type;
-  uint              Divisor;
+  size_t       Offset;
+  uint         Location;
+  uint         BindingIndex;
+  uint         Components;
+  rhi_DataType Type;
+  uint         Divisor;
 };
 
 void rhi_VAO_SetAttribute(

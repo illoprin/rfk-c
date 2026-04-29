@@ -1,8 +1,8 @@
-#version 460 core
+#version 330 core
 
 layout (location = 0) in vec2 in_position;
 
-layout (location = 0) out vec2 texcoord;
+out vec2 texcoord;
 
 void main() {
   texcoord = ((in_position * 2.0) + 1.0) / 2.0;

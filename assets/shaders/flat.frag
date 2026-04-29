@@ -1,6 +1,6 @@
-#version 460 core
+#version 330 core
 
-layout (location = 0) in vec2 texcoord;
+in vec2 texcoord;
 
 layout (location = 0) out vec4 out_fragcolor;
 

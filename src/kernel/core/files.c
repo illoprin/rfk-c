@@ -91,3 +91,17 @@ struct Image2D Fls_ReadImage(const char* path) {
 
   return img;
 }
+
+void Img_Free(struct Image2D img) {
+  if (img.Pix) {
+    free(img.Pix);
+  }
+}
+
+void ImgPtr_Free(struct Image2D* img) {
+  if (!img) return;
+  if (img->Pix) {
+    free(img->Pix);
+  }
+  free(img);
+}

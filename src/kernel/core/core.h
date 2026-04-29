@@ -7,3 +7,5 @@
 #include "window.h"
 #include "platform.h"
 #include "files.h"
+#include "monitor.h"
+#include "camera.h"

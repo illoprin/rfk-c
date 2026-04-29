@@ -10,6 +10,7 @@ typedef void (*GameFnUpdate)(float deltaTime);
 struct StateVTable {
   GameFnVoid Render;
   GameFnVoid Destroy;
+  GameFnVoid DrawUI;
   GameFnExit OnExit;
   GameFnEnter OnEnter;
   GameFnUpdate Update;

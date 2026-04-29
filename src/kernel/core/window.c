@@ -39,7 +39,7 @@ void Wnd_Init(int width, int height, const char* title) {
   }
 
   // set window hints
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -97,6 +97,10 @@ void Wnd_ToggleMouseGrab() {
     if (rawInputSupport)
       glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
   }
+}
+
+bool Wnd_Grabbed() {
+  return mouseGrabbed;
 }
 
 void Wnd_Update() {

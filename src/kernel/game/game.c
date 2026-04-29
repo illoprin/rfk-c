@@ -1,11 +1,10 @@
 #include "game.h"
 
-#include <kernel/core/platform.h>
-#include <kernel/core/log.h>
 #include <kernel/game/defaults/ui.h>
+#include <kernel/core/core.h>
 
 static struct StateVTable currentState = {
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 void onResize(int width, int height);
@@ -22,9 +21,11 @@ void Game_Create() {
   printf("🩷 - rfk - with love\n");
   Plt_Init();
   Wnd_Init(800, 600, "game");
+  glBindVertexArray(0);
   UI_Init(Wnd_GetHandle());
   Wnd_Center();
   Wnd_SetResizeCallback(onResize);
+  rhi_RenderDevice_SetupErrorCallback();
 
   LogInfo("game created");
 }
@@ -38,13 +39,23 @@ void Game_destroy() {
 
 void Game_Run() {
   while (!Wnd_ShouldClose()) {
+    // update
     Wnd_Update();
     if (currentState.Update) currentState.Update(0.f);
+
+    // draw
     UI_NewFrame();
     UI_DrawDemoWindow();
+    if (currentState.DrawUI) currentState.DrawUI();
+
+    // render
+    rhi_RenderDevice_NewFrame();
     if (currentState.Render) currentState.Render();
     UI_EndFrame();
     Wnd_SwapBuffers();
+
+    // update monitor
+    Mon_Update();
   }
   Game_destroy();
 }

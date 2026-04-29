@@ -2,28 +2,15 @@
 #include <kernel/core/log.h>
 #include <stddef.h>
 
-static void printAttr(struct rhi_Attribute attr) {
-  printf("{\n"
-    "\tLocation: %d\n"
-    "\tBinding Index: %d\n"
-    "\tComponents: %d\n"
-    "\tOffset: %d\n"
-    "\tDivisor:%d\n"
-    "}\n",
-    attr.Location,
-    attr.BindingIndex,
-    attr.Components,
-    attr.Offset,
-    attr.Divisor
-  );
-}
+void Mesh_SetupFromModel(struct Mesh* mesh, struct Model* model) {
+  if (mesh->VAO.ID > 0) {
+    return;
+  }
 
-void Mesh_FromModel(struct Mesh* mesh, struct Model* model) {
+  size_t sizeOfVertices = sizeof(struct ModelVertex) * model->NumVertices;
+  size_t sizeOfIndices = sizeof(uint) * model->NumIndices;
 
-  size_t sizeOfVertices = sizeof(struct ModelVertex) * model->NVertices;
-  size_t sizeOfIndices = sizeof(uint32_t) * model->NIndices;
-
-  // create buffers
+  // create buffer
   rhi_Buffer_Create(
     &mesh->VertexBuf,
     sizeOfVertices,
@@ -46,39 +33,41 @@ void Mesh_FromModel(struct Mesh* mesh, struct Model* model) {
   positionAttr.Location = 0;
   positionAttr.BindingIndex = 0;
   positionAttr.Components = 3;
-  positionAttr.Type = RHI_ATTR_FLOAT;
+  positionAttr.Type = RHI_FLOAT;
   positionAttr.Offset = 0;
-
-  printAttr(positionAttr);
 
   // texcoord
   struct rhi_Attribute texcoordAttr = { 0 };
   texcoordAttr.Location = 1;
   texcoordAttr.BindingIndex = 0;
   texcoordAttr.Components = 2;
-  texcoordAttr.Type = RHI_ATTR_FLOAT;
-  texcoordAttr.Offset = offsetof(struct ModelVertex, Texcoords);
+  texcoordAttr.Type = RHI_FLOAT;
+  texcoordAttr.Offset = sizeof(float) * 3;
 
   // normal
   struct rhi_Attribute normalAttr = { 0 };
   normalAttr.Location = 2;
   normalAttr.BindingIndex = 0;
   normalAttr.Components = 3;
-  normalAttr.Type = RHI_ATTR_FLOAT;
-  normalAttr.Offset = offsetof(struct ModelVertex, Normal);
+  normalAttr.Type = RHI_FLOAT;
+  normalAttr.Offset = sizeof(float) * 5;
 
   // create vao
   rhi_VAO_Create(&mesh->VAO);
-  rhi_VAO_BindVertexBuffer(&mesh->VAO, 0, mesh->VertexBuf.ID, 0, sizeof(struct ModelVertex));
+  rhi_VAO_BindVertexBuffer(&mesh->VAO, 0, mesh->VertexBuf.ID, 0, 8 * sizeof(float));
   rhi_VAO_SetAttribute(&mesh->VAO, positionAttr);
   rhi_VAO_SetAttribute(&mesh->VAO, texcoordAttr);
   rhi_VAO_SetAttribute(&mesh->VAO, normalAttr);
   rhi_VAO_SetIndexBuffer(&mesh->VAO, mesh->IndexBuf.ID);
 
+  mesh->indexNum = model->NumIndices;
+
   RFK_ASSERT(rhi_VAO_IsValid(mesh->VAO));
 }
-
 void Mesh_SetupBasicQuad(struct Mesh* m) {
+  if (m->VAO.ID > 0) {
+    return;
+  }
   float basicQuadVertices[] = {
     -.5f, -.5f,
     .5f, -.5f,
@@ -113,10 +102,12 @@ void Mesh_SetupBasicQuad(struct Mesh* m) {
     .Location = 0,
       .BindingIndex = 0,
       .Components = 2,
-      .Type = RHI_ATTR_FLOAT,
+      .Type = RHI_FLOAT,
       .Offset = 0,
   });
   rhi_VAO_SetIndexBuffer(&m->VAO, m->IndexBuf.ID);
+
+  m->indexNum = 6;
 
   RFK_ASSERT(rhi_VAO_IsValid(m->VAO));
 }

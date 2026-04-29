@@ -1,4 +1,5 @@
 #include "kernel/kernel.h"
+#include <kernel/game/defaults/util.h>
 
 // WARN shit code
 void goImguiAssertHandler(const char* expr, const char* file, int line) {
@@ -7,6 +8,7 @@ void goImguiAssertHandler(const char* expr, const char* file, int line) {
 
 void stateA_update(float);
 void stateA_render();
+void stateA_drawUi();
 void stateA_onExit(void**);
 void stateA_destroy();
 void stateB_onEnter(void*);
@@ -14,9 +16,15 @@ void stateB_update(float);
 void stateB_render();
 void stateA_onEnter(void*);
 
-struct Mesh meshQuad;
-
-struct rhi_Program program;
+struct Mesh handgunMesh;
+struct Model handgunModel;
+struct rhi_Texture handgunTexture;
+struct rhi_Program geomProg;
+struct Camera cam = { 0 };
+bool sprint = false;
+#define PLAYER_SPEED 6.3 // unit per second
+#define PLAYER_SPRINT_MUL 1.75
+#define PLAYER_SENS 0.07
 
 struct StateVTable stateA = {
   .Update = stateA_update,
@@ -24,6 +32,7 @@ struct StateVTable stateA = {
   .Destroy = stateA_destroy,
   .OnExit = stateA_onExit,
   .OnEnter = stateA_onEnter,
+  .DrawUI = stateA_drawUi,
 };
 
 struct StateVTable stateB = {
@@ -32,58 +41,93 @@ struct StateVTable stateB = {
   .OnEnter = stateB_onEnter,
 };
 
+void playerMovement() {
+  // sprint
+  if (IsKeyPressed(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
+  if (IsKeyReleased(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
+
+  vec3 dir = { 0.f };
+  vec3 move = { 0.f };
+
+  float s = PLAYER_SPEED * GetDeltaTime();
+  s *= sprint ? PLAYER_SPRINT_MUL : 1.0;
+
+  // move
+  if (IsKeyDown(GLFW_KEY_W)) {
+    glm_vec3_add(dir, cam.Front, dir);
+  }
+  if (IsKeyDown(GLFW_KEY_S)) {
+    glm_vec3_sub(dir, cam.Front, dir);
+  }
+
+  // strafe
+  if (IsKeyDown(GLFW_KEY_D)) {
+    glm_vec3_add(dir, cam.Right, dir);
+  }
+  if (IsKeyDown(GLFW_KEY_A)) {
+    glm_vec3_sub(dir, cam.Right, dir);
+  }
+
+  // up
+  if (IsKeyDown(GLFW_KEY_SPACE)) {
+    glm_vec3_add(dir, (vec3) { 0.f, 1.f, 0.f }, dir);
+  }
+  if (IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+    glm_vec3_add(dir, (vec3) { 0.f, -1.f, 0.f }, dir);
+  }
+
+  // apply to camera
+  glm_vec3_scale(dir, s, move);
+  glm_vec3_add(cam.Position, move, cam.Position);
+
+}
+
+void playerLookAround() {
+  double dx, dy;
+  MouseGetDelta(&dx, &dy);
+  cam.Rotation[0] = glm_clamp(cam.Rotation[0] - dy * PLAYER_SENS, -89.0, 89.0);
+  cam.Rotation[1] += dx * PLAYER_SENS;
+}
+
 void stateA_update(float _) {
 
   if (IsKeyPressed(GLFW_KEY_ESCAPE)) {
     Wnd_Close();
   }
-
   if (IsKeyPressed(GLFW_KEY_R)) {
     Game_SetState(stateB);
   }
-
   if (IsKeyPressed(GLFW_KEY_G)) {
     Wnd_ToggleMouseGrab();
   }
 
-  if (IsKeyDown(GLFW_KEY_W)) {
-    fputs("forward\n", stdout);
+  if (Wnd_Grabbed()) {
+    playerMovement();
+    playerLookAround();
   }
-  if (IsKeyDown(GLFW_KEY_S)) {
-    fputs("backward\n", stdout);
-  }
-  if (IsKeyDown(GLFW_KEY_A)) {
-    fputs("strafe left\n", stdout);
-  }
-  if (IsKeyDown(GLFW_KEY_D)) {
-    fputs("strafe right\n", stdout);
-  }
-  if (IsKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-    fputs("sprint start\n", stdout);
-  }
-  if (IsKeyReleased(GLFW_KEY_LEFT_SHIFT)) {
-    fputs("sprint end\n", stdout);
-  }
-  if (IsMouseButtonPressed(RFK_LMB)) {
-    fputs("selection start \n", stdout);
-  }
-  if (IsMouseButtonReleased(RFK_LMB)) {
-    fputs("selection end\n", stdout);
-  }
-  if (IsMouseButtonDown(RFK_RMB)) {
-    double dx, dy, x, y;
-    MouseGetDelta(&dx, &dy);
-    MouseGetPos(&x, &y);
-    printf("mouse x:%.2f y:%.2f dx:%.2f dy:%.2f\n", x, y, dx, dy);
-  }
+  Cam_Update(&cam, Wnd_GetSize());
+}
+
+void stateA_drawUi() {
+  igBegin("Camera", NULL, 0);
+
+  igDragFloat3("Position", cam.Position, 0, 0, 0, "%.2f", ImGuiDragDropFlags_None);
+  igDragFloat3("Rotation", cam.Rotation, 0, 0, 0, "%.2f", ImGuiDragDropFlags_None);
+
+  igEnd();
 }
 
 void stateA_render() {
+  glEnable(GL_DEPTH_TEST);
+  int* screen = Wnd_GetSize();
+  glViewport(0, 0, screen[0], screen[1]);
   glClearColor(0.486, 0.627, 0.922, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-  rhi_Prog_Use(program);
-  rhi_RenderDevice_InvalidateBindings();
-  rhi_RenderDevice_Draw(meshQuad.VAO, 6);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  rhi_Prog_Use(geomProg);
+  rhi_Prog_SetMat4f(geomProg, "u_projection", cam.Proj[0]);
+  rhi_Prog_SetMat4f(geomProg, "u_view", cam.View[0]);
+  rhi_Tex_BindToUnit(handgunTexture, 0);
+  rhi_RenderDevice_Draw(handgunMesh.VAO, handgunMesh.indexNum);
 }
 
 struct prevStateGive {
@@ -93,11 +137,31 @@ struct prevStateGive {
 
 void stateA_onEnter(void*) {
   Prog_QuickLoad(
-    &program,
-    FLS_SHADER_PATH("basic.vert"),
-    FLS_SHADER_PATH("basic.frag")
+    &geomProg,
+    FLS_SHADER_PATH("g_basic.vert"),
+    FLS_SHADER_PATH("g_basic.frag")
   );
-  Mesh_SetupBasicQuad(&meshQuad);
+  Mdl_InitFromObj(&handgunModel, FLS_MODEL_PATH("handgun.obj"));
+  Mesh_SetupFromModel(&handgunMesh, &handgunModel);
+
+  struct Image2D img = Fls_ReadImage(FLS_TEXTURE_PATH("handgun.png"));
+  handgunTexture = rhi_Tex2D_Create(img.Width, img.Height, (struct rhi_TextureConfig) {
+    .FilterMag = RHI_TEX_FILTER_NEAREST,
+      .FilterMin = RHI_TEX_FILTER_NEAREST_MIPMAP_LINEAR,
+      .Format = RHI_TEX_FORMAT_RGBA8,
+      .Wrap = RHI_TEX_WRAP_CLAMP_TO_EDGE,
+  });
+  rhi_Tex2D_Update(handgunTexture,
+    0, 0, img.Width, img.Height, GL_RGBA, RHI_UNSIGNED_BYTE, img.Pix
+  );
+  glGenerateTextureMipmap(handgunTexture.handle);
+
+  Img_Free(img);
+
+  cam.Position[2] = 3.f;
+  cam.Rotation[1] = -90.f;
+  cam.Fov = 90.f;
+  Cam_Update(&cam, Wnd_GetSize());
 }
 
 void stateA_onExit(void** g) {
@@ -110,8 +174,10 @@ void stateA_onExit(void** g) {
 }
 void stateA_destroy() {
   // release resources
-  Mesh_Invalidate(&meshQuad);
-  rhi_Prog_Destroy(&program);
+  Mesh_Invalidate(&handgunMesh);
+  Mdl_Free(handgunModel);
+  rhi_Tex_Destroy(handgunTexture);
+  rhi_Prog_Destroy(&geomProg);
 }
 
 void stateB_update(float) {

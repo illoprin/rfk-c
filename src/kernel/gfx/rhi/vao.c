@@ -83,32 +83,13 @@ void rhi_VAO_SetAttribute(
 
   glEnableVertexArrayAttrib(vao->ID, attr.Location);
 
-  GLenum gl_type = 0;
-
-  switch (attr.Type) {
-    case RHI_ATTR_FLOAT:
-      gl_type = GL_FLOAT;
-      break;
-
-    case RHI_ATTR_INT:
-      gl_type = GL_INT;
-      break;
-
-    case RHI_ATTR_UNSIGNED_INT:
-      gl_type = GL_UNSIGNED_INT;
-      break;
-
-    default:
-      RFK_ASSERT(false && "Unknown attribute type");
-  }
-
-  if (attr.Type == RHI_ATTR_INT || attr.Type == RHI_ATTR_UNSIGNED_INT) {
+  if (attr.Type != RHI_FLOAT) {
     // for integer (has no normalization)
     glVertexArrayAttribIFormat(
       vao->ID,
       attr.Location,
       attr.Components,
-      gl_type,
+      (GLenum)attr.Type,
       (GLuint)attr.Offset
     );
   }
@@ -118,7 +99,7 @@ void rhi_VAO_SetAttribute(
       vao->ID,
       attr.Location,
       attr.Components,
-      gl_type,
+      (GLenum)attr.Type,
       GL_FALSE,
       (GLuint)attr.Offset
     );
@@ -130,7 +111,7 @@ void rhi_VAO_SetAttribute(
     attr.BindingIndex
   );
 
-  glVertexBindingDivisor(attr.BindingIndex, attr.Divisor);
+  glVertexArrayBindingDivisor(vao->ID, attr.BindingIndex, attr.Divisor);
 }
 
 // -----------------------------

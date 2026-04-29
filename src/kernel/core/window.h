@@ -14,6 +14,7 @@ void Wnd_SwapBuffers();
 void Wnd_Close();
 void Wnd_Destroy();
 void Wnd_ToggleMouseGrab();
+bool Wnd_Grabbed();
 
 GLFWwindow* Wnd_GetHandle();
 bool Wnd_ShouldClose();

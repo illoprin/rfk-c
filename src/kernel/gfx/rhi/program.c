@@ -87,6 +87,6 @@ void rhi_Prog_SetMat2f(struct rhi_Program prog, const char* name, float* data) {
 
 void rhi_Prog_Destroy(struct rhi_Program* prog) {
   glDeleteProgram(prog->handle);
-  prog->handle = 0;
   LogInfo("program [ID = %d] deleted", prog->handle);
+  prog->handle = 0;
 }
