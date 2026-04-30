@@ -3,3 +3,5 @@
 /test
 /.vscode
 /pkg/include/cglm/*
+/test.exe
+/atlas.png

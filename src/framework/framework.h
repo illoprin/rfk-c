@@ -5,6 +5,7 @@
 #include "app/ecs.h"
 
 #include "assets/image.h"
+#include "assets/texture_atlas.h"
 #include "assets/model.h"
 #include "assets/obj.h"
 

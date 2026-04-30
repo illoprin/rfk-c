@@ -120,7 +120,7 @@ void bs_onEnter(void* _) {
   rhi_Tex2D_Allocate(&handgunTexture, conf, img.Pix);
   rhi_Tex_GenMipmaps(handgunTexture);
 
-  Img_Free(img);
+  Img_Destroy(img);
 
   Cam_Update(&cam, Wnd_GetSize());
   glEnable(GL_DEPTH_TEST);

@@ -17,16 +17,16 @@ int Img_FromFile(struct Image2D* img, const char* path) {
   }
 
   img->Pix = data;
-  img->Width = (int)w;
-  img->Height = (int)h;
-  img->Channels = (int)c;
+  img->Width = (uint)w;
+  img->Height = (uint)h;
+  img->Channels = (uint)c;
 
   LogInfo("image \"%s\" loaded (%dx%d, %d channels)", path, w, h, c);
 
   return 0;
 }
 
-void Img_Free(struct Image2D img) {
+void Img_Destroy(struct Image2D img) {
   if (img.Pix) {
     free(img.Pix);
   }
