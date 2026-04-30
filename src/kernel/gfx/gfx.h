@@ -5,6 +5,5 @@
 #include <GLFW/glfw3.h>
 
 #include "rhi/rhi.h"
-#include "core/core.h"
 
 #endif // __GFX_H__

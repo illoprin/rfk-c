@@ -1,6 +1,6 @@
-#include "game.h"
+#include "app.h"
 
-#include <kernel/game/defaults/ui.h>
+#include "ui/initial_ui.h"
 #include <kernel/core/core.h>
 
 static struct StateVTable currentState = {
@@ -17,8 +17,9 @@ bool hasStateCollision(
     || (a.OnEnter == b.OnEnter && a.OnEnter != NULL);
 }
 
-void Game_Create() {
+void App_Create() {
   printf("🩷 - rfk - with love\n");
+  printf("🇷🇺 сделано в России 🇷🇺\n");
   Plt_Init();
   Wnd_Init(1500, 650, "game");
   glBindVertexArray(0);
@@ -29,14 +30,14 @@ void Game_Create() {
   LogInfo("game created");
 }
 
-void Game_destroy() {
+void App_destroy() {
   LogInfo("game exit");
   if (currentState.Destroy) currentState.Destroy();
   UI_Destroy();
   Wnd_Destroy();
 }
 
-void Game_Run() {
+void App_Run() {
   while (!Wnd_ShouldClose()) {
     // update
     Wnd_Update();
@@ -56,14 +57,14 @@ void Game_Run() {
     // update monitor
     Mon_Update();
   }
-  Game_destroy();
+  App_destroy();
 }
 
 void onResize(int width, int height) {
   if (currentState.OnResize) currentState.OnResize(width, height);
 }
 
-void Game_SetState(struct StateVTable nextState) {
+void App_SetState(struct StateVTable nextState) {
 
   // check collision
   RFK_ASSERT(!hasStateCollision(currentState, nextState), "state collision not allowed");

@@ -2,7 +2,8 @@
 
 #include <kernel/core/core.h>
 #include <toolkit/state/pink_state.h>
-#include <kernel/game/defaults/util.h>
+#include <kernel/gfx/gfx.h>
+#include <framework/framework.h>
 
 struct Camera cam = {
   .Position = { 0, 0, 3.f },
@@ -80,7 +81,7 @@ void bs_update(float deltaTime) {
     Wnd_Close();
   }
   if (IsKeyPressed(GLFW_KEY_R)) {
-    Game_SetState(PinkState_GetVTable());
+    App_SetState(PinkState_GetVTable());
   }
   if (IsKeyPressed(GLFW_KEY_G)) {
     Wnd_ToggleMouseGrab();
@@ -104,7 +105,7 @@ void bs_onEnter(void* _) {
   Mesh_SetupFromModel(&handgunMesh, &handgunModel);
 
   struct Image2D img;
-  RFK_ASSERT(!Fls_ReadImage(&img, FLS_TEXTURE_PATH("handgun.png")), "failed read handgun texture");
+  RFK_ASSERT(!Img_FromFile(&img, FLS_TEXTURE_PATH("handgun.png")), "failed read handgun texture");
 
   rhi_Tex_Init(&handgunTexture, RHI_TEX_2D);
   struct rhi_TextureConfig conf = {

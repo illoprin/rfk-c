@@ -8,7 +8,7 @@ void ps_update(float _) {
   }
 
   if (IsKeyPressed(GLFW_KEY_R)) {
-    Game_SetState(BlueState_GetVTable());
+    App_SetState(BlueState_GetVTable());
   }
 
   if (IsKeyPressed(GLFW_KEY_S)) {

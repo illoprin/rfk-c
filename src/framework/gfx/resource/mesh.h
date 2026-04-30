@@ -1,7 +1,7 @@
 #pragma once
 
 #include <kernel/gfx/rhi/rhi.h>
-#include <kernel/gfx/core/model.h>
+#include <framework/assets/model.h>
 
 struct Mesh {
   struct rhi_VAO VAO;

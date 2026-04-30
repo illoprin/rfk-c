@@ -2,6 +2,7 @@
 
 #include <vector/vector.h>
 #include <kernel/core/log.h>
+#include <kernel/core/defs.h>
 #include <stdio.h>
 #include <string.h>
 

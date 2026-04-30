@@ -27,14 +27,14 @@ void rhi_Tex_Init(struct rhi_Texture* t, rhi_TextureType type) {
   t->type = type;
   glGenTextures(1, &t->ID);
   glBindTexture(t->type, t->ID);
-  LogInfo("texture [ID = %d, Type = 0x%08x] created ", t->ID, t->type);
+  LogInfo("texture [ID = %d, Type = 0x%04x] created ", t->ID, t->type);
 }
 
 void rhi_Tex_Invalidate(struct rhi_Texture* t) {
   if (t == NULL) return;
   if (t->ID == 0) return;
   glDeleteTextures(1, &t->ID);
-  LogInfo("texture [ID = %d, Type = 0x%08x] deleted", t->ID, t->type);
+  LogInfo("texture [ID = %d, Type = 0x%04x] deleted", t->ID, t->type);
   *t = (struct rhi_Texture){ 0 };
 }
 

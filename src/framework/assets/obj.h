@@ -1,7 +1,6 @@
 #pragma once
 
-#include <kernel/gfx/core/mesh.h>
-#include <kernel/core/defs.h>
+#include "model.h"
 
 /// @brief parse obj into Model struct
 /// allows only obj with: vertices, texcoords, normals

@@ -1,5 +1,5 @@
 #pragma once
 
-#include <kernel/game/game.h>
+#include <framework/app/app.h>
 
 struct StateVTable PinkState_GetVTable();

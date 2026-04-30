@@ -1,4 +1,4 @@
-#include "ui.h"
+#include "initial_ui.h"
 
 bool demoOpen = true;
 

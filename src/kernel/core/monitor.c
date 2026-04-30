@@ -1,6 +1,7 @@
 #include "monitor.h"
 
 #include <kernel/gfx/gfx.h>
+#include <kernel/core/defs.h>
 
 struct MonitorStats stats = { 0 };
 

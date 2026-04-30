@@ -10,7 +10,8 @@ void rhi_Buf_Init(struct rhi_Buffer* buf, rhi_BufferType type, rhi_BufferUsage u
   glGenBuffers(1, &buf->ID);
   glBindBuffer(type, buf->ID);
 
-  LogInfo("buffer [ID = %d] created", buf->ID);
+  LogInfo("buffer [ID = %d, Type = 0x%04x, Usage = 0x%04x] created",
+    buf->ID, buf->type, buf->usage);
 }
 
 void rhi_Buf_Allocate(struct rhi_Buffer* buf, const void* data, size_t size) {
@@ -25,6 +26,10 @@ void rhi_Buf_Allocate(struct rhi_Buffer* buf, const void* data, size_t size) {
 void rhi_Buf_Update(struct rhi_Buffer* buf, size_t offset, const void* data, size_t size) {
   if (buf == NULL) return;
   if (buf->ID == 0) return;
+  if (buf->usage != RHI_USAGE_DYNAMIC || buf->usage != RHI_USAGE_STREAM) {
+    LogWarn("buf [ID = %d] can't update buffer with NON dynamic usage", buf->ID);
+    return;
+  }
   if (buf->size < size + offset) {
     LogWarn("buffer [ID = %d] can't update more than allocated", buf->ID);
     return;
@@ -46,6 +51,8 @@ void rhi_Buf_Invalidate(struct rhi_Buffer* buf) {
   if (buf->ID == 0) return;
 
   glDeleteBuffers(1, &buf->ID);
-  LogInfo("buffer [ID = %d] deleted", buf->ID);
+
+  LogInfo("buffer [ID = %d, Type = 0x%04x, Usage = 0x%04x] deleted",
+    buf->ID, buf->type, buf->usage);
   *buf = (struct rhi_Buffer){ 0 };
 }

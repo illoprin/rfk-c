@@ -1,9 +1,7 @@
-#include "builder.h"
+#include "program_loader.h"
 
-#include <stdio.h>
-#include <stddef.h>
-#include <stdlib.h>
 #include <kernel/core/files.h>
+#include <stdlib.h>
 
 int Prog_QuickLoad(struct rhi_Program* prog, const char* vs_path, const char* fs_path) {
   rhi_Prog_Init(prog);
