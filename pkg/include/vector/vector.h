@@ -67,9 +67,7 @@ void Vec_Destroy(Vector* vec) {
   if (vec->Data) {
     free(vec->Data);
   }
-  vec->Data = NULL;
-  vec->_capacity = 0;
-  vec->Len = 0;
+  *vec = (Vector){ 0 };
 }
 
 size_t getNewVecCapacity(Vector* vec) {

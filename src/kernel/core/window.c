@@ -54,9 +54,6 @@ void Wnd_Init(int width, int height, const char* title) {
     rawInputSupport = true;
   }
 
-  // init renderer
-  RFK_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "failed to init context");
-
   // setup callbacks
   glfwSetFramebufferSizeCallback(handle, sizeCallback);
   glfwSetWindowFocusCallback(handle, focusCallback);

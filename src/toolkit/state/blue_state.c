@@ -20,6 +20,8 @@ struct Model handgunModel;
 struct rhi_Texture handgunTexture;
 struct rhi_Program geomProg;
 
+bool initialized = false;
+
 void playerMovement(float dt) {
   // sprint
   if (IsKeyPressed(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
@@ -68,6 +70,8 @@ void playerLookAround() {
 }
 
 void bs_drawUI() {
+  if (!initialized) return;
+
   igBegin("Camera", NULL, 0);
 
   igDragFloat3("Position", cam.Position, 0, 0, 0, "%.2f", ImGuiDragDropFlags_None);
@@ -87,14 +91,37 @@ void bs_update(float deltaTime) {
     Wnd_ToggleMouseGrab();
   }
 
+  if (!initialized) return;
+
+  ImGuiIO* io = igGetIO();
+
+
   if (Wnd_Grabbed()) {
     playerMovement(deltaTime);
     playerLookAround();
+    igSetNextFrameWantCaptureKeyboard(false);
+    igSetNextFrameWantCaptureMouse(false);
   }
   Cam_Update(&cam, Wnd_GetSize());
 }
 
-void bs_onEnter(void* _) {
+void bs_render() {
+  int* screen = Wnd_GetSize();
+  glViewport(0, 0, screen[0], screen[1]);
+  glClearColor(0.31, 0.68, 0.9, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  if (!initialized) return;
+
+  rhi_Device_UseProgram(geomProg);
+  rhi_Prog_SetMat4f(geomProg, "u_projection", cam.Proj[0]);
+  rhi_Prog_SetMat4f(geomProg, "u_view", cam.View[0]);
+  rhi_Tex_BindToUnit(handgunTexture, 0);
+  rhi_Prog_SetInt(geomProg, "u_diffuse", 0);
+  rhi_Device_Draw(handgunMesh.VAO, handgunMesh.indexNum);
+}
+
+void bs_init() {
   fputc('\n', stdout);
   if (!Prog_QuickLoad(
     &geomProg,
@@ -123,23 +150,8 @@ void bs_onEnter(void* _) {
   Img_Destroy(img);
 
   Cam_Update(&cam, Wnd_GetSize());
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_CULL_FACE);
-}
 
-void bs_render() {
-  int* screen = Wnd_GetSize();
-  glViewport(0, 0, screen[0], screen[1]);
-
-  glClearColor(0.486, 0.627, 0.922, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  rhi_RenderDevice_UseProgram(geomProg);
-  rhi_Prog_SetMat4f(geomProg, "u_projection", cam.Proj[0]);
-  rhi_Prog_SetMat4f(geomProg, "u_view", cam.View[0]);
-  rhi_Tex_BindToUnit(handgunTexture, 0);
-  rhi_Prog_SetInt(geomProg, "u_diffuse", 0);
-  rhi_RenderDevice_Draw(handgunMesh.VAO, handgunMesh.indexNum);
+  initialized = true;
 }
 
 void bs_destroy() {
@@ -152,7 +164,17 @@ void bs_destroy() {
 };
 
 void bs_onExit(void** _) {
-  bs_destroy();
+  printf("state change\n");
+}
+
+void bs_onEnter(void*) {
+  if (!initialized) {
+    bs_init();
+  }
+
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+  glFrontFace(GL_CCW);
 }
 
 struct StateVTable BlueState_GetVTable() {
@@ -163,5 +185,6 @@ struct StateVTable BlueState_GetVTable() {
       .OnEnter = bs_onEnter,
       .OnExit = bs_onExit,
       .Destroy = bs_destroy,
+      .Init = bs_init,
   };
 }

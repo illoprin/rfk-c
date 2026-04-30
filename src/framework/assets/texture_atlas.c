@@ -4,67 +4,46 @@
 #include <stb/stb_image_write.h>
 #include <string.h>
 
+// internal error codes for image validation during atlas packing
 typedef enum : uch {
-  ATLAS_IMG_LOAD_FAIL,
-  ATLAS_IMG_NOT_SQUARE,
+  ATLAS_IMG_NOT_SQUARE = 1,
   ATLAS_IMG_BASE_MISMATCH,
   ATLAS_IMG_INVALID_COMPS,
-} TexAtlas_imgLoadError;
+} TexAtlas_ValidationResult;
 
-const uch comp = 4;
+// fixed component count (rgba)
+const uch comp = 4u;
 
-TexAtlas_imgLoadError TexAtlas_loadImage(
-  struct TextureAtlas* handle, size_t index, Vector* images, const char* fileName
+TexAtlas_ValidationResult TexAtlas_validateImage(
+  struct TextureAtlas* handle, struct Image2D* img
 ) {
-  struct Image2D img = { 0 };
 
-  char filePath[_MAX_PATH] = FLS_TEXTURE_PATH("");
-  strcat(filePath, fileName);
-
-  if (Img_FromFile(&img, filePath)) {
-    // TODO load null
-    return ATLAS_IMG_LOAD_FAIL;
-  }
-
-  if (img.Width != img.Height) {
-    Img_Destroy(img);
+  if (img->Width != img->Height) {
     return ATLAS_IMG_NOT_SQUARE;
   }
 
-  if (img.Channels != comp) {
-    Img_Destroy(img);
+  if (img->Channels != comp) {
     return ATLAS_IMG_INVALID_COMPS;
   }
 
   if (handle->UnitSize == 0) {
-    handle->UnitSize = img.Width;
+    handle->UnitSize = img->Width;
   }
   else {
-    if (img.Width != handle->UnitSize || img.Height != handle->UnitSize) {
-      Img_Destroy(img);
+    if (img->Width != handle->UnitSize || img->Height != handle->UnitSize) {
       return ATLAS_IMG_BASE_MISMATCH;
     }
   }
 
-  Vec_Push(images, img);
-
   return 0;
-};
-
-static void TexAtlas_freeImagesVector(Vector* images) {
-  for (size_t i = 0; i < images->Len; ++i) {
-    struct Image2D* img = (struct Image2D*)Vec_AtRaw(images, i);
-    if (!img) continue;
-    Img_Destroy(*img);
-  }
-  Vec_Destroy(images);
 }
 
 static void TexAtlas_findAtlasSize(struct TextureAtlas* handle, size_t len) {
-  // find size of array
   uint arrayWidth = 2;
   uint arrayHeight = 2;
-  bool horizontal = false;
+  bool horizontal = true;
+
+  // expand grid dimensions until all images fit
   while (arrayWidth * arrayHeight < len) {
     if (horizontal)
       arrayWidth <<= 1;
@@ -74,7 +53,6 @@ static void TexAtlas_findAtlasSize(struct TextureAtlas* handle, size_t len) {
     horizontal = !horizontal;
   }
 
-  // set params
   handle->Width = arrayWidth;
   handle->Height = arrayHeight;
 }
@@ -83,25 +61,29 @@ static void TexAtlas_createArray(struct TextureAtlas* handle, Vector images) {
   uint totalPixelWidth = handle->Width * handle->UnitSize;
   uint totalPixelHeight = handle->Height * handle->UnitSize;
 
+  // allocate memory for the entire atlas
   size_t totalBytes = (size_t)totalPixelWidth * totalPixelHeight * comp;
   uch* pix = (uch*)malloc(totalBytes);
   RFK_ASSERT(pix != NULL, "failed to allocate atlas buffer");
 
+  // initialize with empty pixels
   memset(pix, 0, totalBytes);
 
   for (uint i = 0; i < images.Len; ++i) {
     struct Image2D* img = Vec_AtRaw(&images, i);
     if (!img || !img->Pix) continue;
 
+    // determine unit coordinates in the grid
     uint gridX = i % handle->Width;
     uint gridY = i / handle->Width;
 
+    // determine pixel offsets in the atlas
     uint startOffsetX = gridX * handle->UnitSize;
     uint startOffsetY = gridY * handle->UnitSize;
 
+    // copy image rows into atlas buffer
     for (uint row = 0; row < handle->UnitSize; ++row) {
       uch* srcRow = &img->Pix[row * handle->UnitSize * comp];
-
       size_t atlasRowIndex = (size_t)(startOffsetY + row) * totalPixelWidth;
       uch* dstRow = &pix[(atlasRowIndex + startOffsetX) * comp];
 
@@ -112,72 +94,71 @@ static void TexAtlas_createArray(struct TextureAtlas* handle, Vector images) {
   handle->Pix = pix;
 }
 
-int TexAtlas_InitFromFiles(struct TextureAtlas* handle, Vector names, const char* nullImage) {
+int TexAtlas_InitFromImages(struct TextureAtlas* handle, Vector images) {
   *(handle) = (struct TextureAtlas){ 0 };
-  Vector images; // Vector<struct Image2D>
-  Vec_Init(&images, struct Image2D);
+  Vector validated;
+  Vec_Init(&validated, struct Image2D);
 
-  // load images to vector
-  for (size_t i = 0; i < names.Len; ++i) {
-    const char* file = Vec_AtRaw(&names, i);
+  // validation
+  for (size_t i = 0; i < images.Len; ++i) {
+    struct Image2D* img = Vec_AtRaw(&images, i);
+    if (!img) continue;
 
-    if (file == NULL) {
-      LogWarn("empty file string at index %d", i);
-      continue;
-    };
+    // check image
+    TexAtlas_ValidationResult r = TexAtlas_validateImage(handle, img);
 
-    TexAtlas_imgLoadError res = TexAtlas_loadImage(handle, i, &images, file);
-    if (!res) {
+    if (!r) {
+      Vec_PushRaw(&validated, img);
       continue;
     }
 
-    switch (res) {
-      case ATLAS_IMG_LOAD_FAIL:
-        LogWarn("failed to load image [Path = %s, Index = %d]", file, i);
-        break;
+    // log specific errors for failed image
+    switch (r) {
       case ATLAS_IMG_NOT_SQUARE:
-        LogWarn("non square images not allowed");
+        LogWarn("non square images not allowed [index = %d]", i);
         break;
       case ATLAS_IMG_BASE_MISMATCH:
-        LogWarn("size of image [Name = \"%s\", Index = %d] does not match base size",
-          file, i);
+        LogWarn("size mismatch for image [index = %d]", i);
         break;
       default:
-        LogWarn("image format not allowed [Name = \"%s\", Index = %d], png RGBA8 only", file, i);
+        LogWarn("unsupported format [index = %d]", i);
         break;
     }
-  };
+  }
 
-  // check array size
-  if (images.Len == 0) {
-    Vec_Destroy(&images);
-    LogInfo("empty set");
+  if (validated.Len == 0) {
+    LogErr("empty set");
+    Vec_Destroy(&validated);
     return 1;
   }
 
-  // find atlas size
-  TexAtlas_findAtlasSize(handle, images.Len);
+  TexAtlas_findAtlasSize(handle, validated.Len);
+  TexAtlas_createArray(handle, validated);
+  Vec_Destroy(&validated);
 
-  // create array
-  TexAtlas_createArray(handle, images);
-
-  // free images
-  TexAtlas_freeImagesVector(&images);
-
+  LogInfo("atlas created { W: %d H: %d }",
+    handle->Width * handle->UnitSize,
+    handle->Height * handle->UnitSize
+  );
   return 0;
 }
 
 int TexAtlas_WriteToFile(const struct TextureAtlas* handle, const char* path) {
-  size_t W = handle->Width * handle->UnitSize;
-  if (!stbi_write_png(path, W, handle->Height * handle->UnitSize, 4, handle->Pix, W * comp)) {
-    LogErr("failed to write atlas to image");
+  size_t W = (size_t)handle->Width * handle->UnitSize;
+  size_t H = (size_t)handle->Height * handle->UnitSize;
+
+  // export buffer to png via stb_image_write
+  if (!stbi_write_png(path, (int)W, (int)H, 4, handle->Pix, (int)(W * comp))) {
+    LogErr("failed to write atlas to file: \"%s\"", path);
     return 1;
   };
+  LogInfo("atlas written to file: \"%s\"", path);
+
   return 0;
 }
 
-void TexAtlas_Free(struct TextureAtlas handle) {
-  if (handle.Pix) {
-    free(handle.Pix);
+void TexAtlas_Free(struct TextureAtlas* handle) {
+  if (handle->Pix) {
+    free(handle->Pix);
   }
 }

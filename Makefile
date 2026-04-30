@@ -1,9 +1,10 @@
 CXX = clang
 OPTIMIZATION = -O2
-CPPLIB = -lstdc++ # what the fuck???
+SANITIZE = -fsanitize=address # catching memory leak
+CPPLIB = -lstdc++ # what the fuck c++???
 FMS_EXT = -fms-extensions # nested structs
 CFLAGS = -std=c23 -Wall -ffast-math $(OPTIMIZATION) $(FMS_EXT)
-LDFLAGS = -lcimgui -lglfw3dll -lglad $(CPPLIB)
+LDFLAGS = -lcimgui -lglad -lglfw3dll $(CPPLIB)
 PKG = pkg
 INCLUDE = -I $(PKG)/include -I $(SRC_DIR)
 LIB = -L $(PKG)/lib -L $(PKG)/lib/imgui

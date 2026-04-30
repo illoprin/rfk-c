@@ -8,12 +8,13 @@ typedef void (*AppFnEnter)(void* receive);
 typedef void (*AppFnUpdate)(float deltaTime);
 
 struct StateVTable {
+  AppFnVoid Init;
+  AppFnUpdate Update;
+  AppFnVoid DrawUI;
   AppFnVoid Render;
   AppFnVoid Destroy;
-  AppFnVoid DrawUI;
   AppFnExit OnExit;
   AppFnEnter OnEnter;
-  AppFnUpdate Update;
   WindowFnResize OnResize;
   void* Data;
 };

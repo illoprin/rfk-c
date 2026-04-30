@@ -9,3 +9,4 @@
 #include "files.h"
 #include "monitor.h"
 #include "camera.h"
+#include "defs.h"

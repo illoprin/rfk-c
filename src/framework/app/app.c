@@ -3,9 +3,7 @@
 #include "ui/initial_ui.h"
 #include <kernel/core/core.h>
 
-static struct StateVTable currentState = {
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-};
+static struct StateVTable currentState = { 0 };
 
 void onResize(int width, int height);
 
@@ -18,12 +16,22 @@ bool hasStateCollision(
 }
 
 void App_Create() {
-  printf("🩷 - rfk - with love\n");
-  printf("🇷🇺 сделано в России 🇷🇺\n");
+  // init platform
   Plt_Init();
+
+  // hello string
+  printf(HELLO_STR);
+
+  // create window
   Wnd_Init(1500, 650, "game");
-  glBindVertexArray(0);
+
+  // init glad
+  rhi_Device_Init();
+
+  // init imgui
   UI_Init(Wnd_GetHandle());
+
+  // configure window
   Wnd_Center();
   Wnd_SetResizeCallback(onResize);
 
@@ -49,7 +57,7 @@ void App_Run() {
     if (currentState.DrawUI) currentState.DrawUI();
 
     // render
-    rhi_RenderDevice_NewFrame();
+    rhi_Device_NewFrame();
     if (currentState.Render) currentState.Render();
     UI_EndFrame();
     Wnd_SwapBuffers();
