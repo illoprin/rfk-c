@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-void MdlPtr_Free(struct Model* m) {
+void mdl_ptr_free(Model* m) {
   if (!m) {
     return;
   }
@@ -11,7 +11,7 @@ void MdlPtr_Free(struct Model* m) {
   free(m);
 }
 
-void Mdl_Free(struct Model m) {
+void mdl_free(Model m) {
   if (m.Vertices) free(m.Vertices);
   if (m.Indices) free(m.Indices);
 }

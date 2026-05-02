@@ -1,15 +1,15 @@
 #include "vao.h"
 
-void rhi_VAO_Init(struct rhi_VAO* o) {
+void rhi_vao_init(rhi_VAO* o) {
   if (o == NULL) return;
-  *o = (struct rhi_VAO){ 0 };
+  *o = (rhi_VAO){ 0 };
 
   glGenVertexArrays(1, &o->ID);
   glBindVertexArray(o->ID);
   LogInfo("vao [ID = %d] created", o->ID);
 }
 
-void rhi_VAO_AddIndexBuffer(struct rhi_VAO* o, struct rhi_Buffer buf) {
+void rhi_vao_add_index_buf(rhi_VAO* o, rhi_Buffer buf) {
   if (o == NULL) return;
   if (o->ID == 0) return;
 
@@ -23,7 +23,7 @@ void rhi_VAO_AddIndexBuffer(struct rhi_VAO* o, struct rhi_Buffer buf) {
   o->eboId = buf.ID;
 }
 
-void rhi_VAO_AddAttributes(struct rhi_VAO* o, struct rhi_Buffer buf, struct rhi_Attribute* attrs, int numAttrs) {
+void rhi_vao_add_attrs(rhi_VAO* o, rhi_Buffer buf, rhi_Attribute* attrs, int numAttrs) {
   if (o == NULL) return;
   if (o->ID == 0) return;
 
@@ -36,7 +36,7 @@ void rhi_VAO_AddAttributes(struct rhi_VAO* o, struct rhi_Buffer buf, struct rhi_
   glBindBuffer(GL_ARRAY_BUFFER, buf.ID);
 
   for (int i = 0; i < numAttrs; i++) {
-    struct rhi_Attribute attr = *(attrs + i);
+    rhi_Attribute attr = *(attrs + i);
 
     glEnableVertexAttribArray(attr.Location);
     if (attr.Type == RHI_FLOAT) {
@@ -48,8 +48,7 @@ void rhi_VAO_AddAttributes(struct rhi_VAO* o, struct rhi_Buffer buf, struct rhi_
         attr.Stride,
         (void*)attr.Offset
       );
-    }
-    else {
+    } else {
       glVertexAttribIPointer(
         attr.Location,
         attr.Components,
@@ -63,20 +62,20 @@ void rhi_VAO_AddAttributes(struct rhi_VAO* o, struct rhi_Buffer buf, struct rhi_
 
 }
 
-void rhi_VAO_Bind(struct rhi_VAO* o) {
+void rhi_vao_bind(rhi_VAO* o) {
   if (o == NULL) return;
   if (o->ID == 0) return;
   glBindVertexArray(o->ID);
 }
 
-bool rhi_VAO_IsValid(struct rhi_VAO o) {
+bool rhi_vao_is_valid(rhi_VAO o) {
   return o.eboId != 0 && o.ID != 0;
 }
 
-void rhi_VAO_Invalidate(struct rhi_VAO* o) {
+void rhi_vao_invalidate(rhi_VAO* o) {
   if (o == NULL) return;
   if (o->ID == 0) return;
   glDeleteVertexArrays(1, &o->ID);
   LogInfo("vao [ID = %d] deleted", o->ID);
-  *o = (struct rhi_VAO){ 0 };
+  *o = (rhi_VAO){ 0 };
 }

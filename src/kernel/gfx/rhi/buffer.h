@@ -2,16 +2,16 @@
 
 #include "util.h"
 
-struct rhi_Buffer {
+typedef struct {
   GLuint ID;
   size_t size;
   rhi_BufferType type;
   rhi_BufferUsage usage;
   void* mapping;
-};
+} rhi_Buffer;
 
-void rhi_Buf_Init(struct rhi_Buffer*, rhi_BufferType type, rhi_BufferUsage usage);
-void rhi_Buf_Allocate(struct rhi_Buffer*, const void* data, size_t size);
-void rhi_Buf_Update(struct rhi_Buffer*, size_t offset, const void* data, size_t size);
-void rhi_Buf_Clear(struct rhi_Buffer*, size_t size);
-void rhi_Buf_Invalidate(struct rhi_Buffer*);
+void rhi_buf_init(rhi_Buffer*, rhi_BufferType type, rhi_BufferUsage usage);
+void rhi_buf_allocate(rhi_Buffer*, const void* data, size_t size);
+void rhi_buf_update(rhi_Buffer*, size_t offset, const void* data, size_t size);
+void rhi_buf_clear(rhi_Buffer*, size_t size);
+void rhi_buf_invalidate(rhi_Buffer*);

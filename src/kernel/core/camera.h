@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kernel/core/util.h> 
+#include <cglm/cglm.h> 
 
 #define CAM_NEAR (.01f)
 #define CAM_FAR (100.f)
@@ -8,7 +8,7 @@
 
 #define DIR_UP (vec3){0.f, 1.f, 0.f}
 
-struct Camera {
+typedef struct {
   // transforms
   vec3 Position;
   vec3 Rotation;
@@ -22,6 +22,6 @@ struct Camera {
   float Fov;
   mat4 Proj;
   mat4 View;
-};
+} Camera;
 
-void Cam_Update(struct Camera*, ivec2 screen);
+void cam_update(Camera*, ivec2 screen);

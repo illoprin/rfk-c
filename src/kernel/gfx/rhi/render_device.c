@@ -1,6 +1,6 @@
 #include "render_device.h"
 
-#include <kernel/core/log.h>
+#include <rfklib/log.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -10,22 +10,22 @@ uint vao_binding = 0u;
 uint program_binding = 0u;
 
 // stats
-static struct rhi_RenderStats stats = { 0 };
+static rhi_RenderStats stats = { 0 };
 
 // --------------------------------------
 //       Init and state management
 // --------------------------------------
 
-void rhi_Device_Init() {
+void rhi_device_init() {
   // init renderer
   RFK_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "failed to init context");
 }
 
-void rhi_PushState() {
+void rhi_push_state() {
 
 }
 
-void rhi_PopState() {
+void rhi_pop_state() {
 
 }
 
@@ -38,19 +38,19 @@ void rhi_Device_Clear(vec4 color, uint bufferMask) {
 //            Drawing
 // --------------------------------------
 
-bool vaoValidate(struct rhi_VAO t) {
+bool vaoValidate(rhi_VAO t) {
   if (vao_binding == t.ID) return true;
 
-  if (!rhi_VAO_IsValid(t)) return false;
+  if (!rhi_vao_is_valid(t)) return false;
 
   vao_binding = t.ID;
   glBindVertexArray(vao_binding);
   return true;
 }
 
-void rhi_Device_NewFrame() {
+void rhi_device_begin_frame() {
   // reset stats
-  stats = (struct rhi_RenderStats){ 0 };
+  stats = (rhi_RenderStats){ 0 };
 
   // invalidate bindings
   vao_binding = 0;
@@ -59,14 +59,14 @@ void rhi_Device_NewFrame() {
   glUseProgram(0);
 }
 
-void rhi_Device_UseProgram(struct rhi_Program p) {
+void rhi_device_use_program(rhi_Program p) {
   if (p.handle != program_binding) {
     glUseProgram(p.handle);
     program_binding = p.handle;
   }
 }
 
-void rhi_Device_Draw(struct rhi_VAO t, int count) {
+void rhi_device_draw(rhi_VAO t, int count) {
   // validate vao
   if (!vaoValidate(t)) {
     return;
@@ -81,7 +81,7 @@ void rhi_Device_Draw(struct rhi_VAO t, int count) {
   stats.DrawCalls++;
 }
 
-void rhi_Device_DrawInstanced(struct rhi_VAO t, int count, int instances) {
+void rhi_device_draw_instanced(rhi_VAO t, int count, int instances) {
   // validate vao
   if (!vaoValidate(t)) {
     return;
@@ -96,6 +96,6 @@ void rhi_Device_DrawInstanced(struct rhi_VAO t, int count, int instances) {
   stats.DrawCalls++;
 }
 
-struct rhi_RenderStats rhi_GetStats() {
+rhi_RenderStats rhi_get_stats() {
   return stats;
 }

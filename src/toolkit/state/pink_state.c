@@ -3,15 +3,15 @@
 #include <toolkit/state/blue_state.h>
 
 void ps_update(float _) {
-  if (IsKeyPressed(GLFW_KEY_ESCAPE)) {
-    Wnd_Close();
+  if (hid_key_pressed(GLFW_KEY_ESCAPE)) {
+    wnd_close();
   }
 
-  if (IsKeyPressed(GLFW_KEY_R)) {
-    App_SetState(BlueState_GetVTable());
+  if (hid_key_pressed(GLFW_KEY_R)) {
+    app_set_state(bs_get_vtable());
   }
 
-  if (IsKeyPressed(GLFW_KEY_S)) {
+  if (hid_key_pressed(GLFW_KEY_S)) {
     fputs("it is menu\n", stdout);
   }
 }
@@ -21,8 +21,8 @@ void ps_render() {
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-struct StateVTable PinkState_GetVTable() {
-  return (struct StateVTable) {
+StateVTable ps_get_vtable() {
+  return (StateVTable) {
     .Update = ps_update,
       .Render = ps_render,
   };

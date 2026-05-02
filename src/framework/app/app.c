@@ -3,19 +3,19 @@
 #include "ui/initial_ui.h"
 #include <kernel/core/core.h>
 
-static struct StateVTable currentState = { 0 };
+static StateVTable currentState = { 0 };
 
 void onResize(int width, int height);
 
-bool hasStateCollision(
-  struct StateVTable a,
-  struct StateVTable b
+bool app_has_state_collision(
+  StateVTable a,
+  StateVTable b
 ) {
   return (a.OnExit == b.OnExit && a.OnExit != NULL)
     || (a.OnEnter == b.OnEnter && a.OnEnter != NULL);
 }
 
-void App_Create() {
+void app_create() {
   // init platform
   Plt_Init();
 
@@ -23,17 +23,17 @@ void App_Create() {
   printf(HELLO_STR);
 
   // create window
-  Wnd_Init(1500, 650, "game");
+  wnd_init(1500, 650, "game");
 
   // init glad
-  rhi_Device_Init();
+  rhi_device_init();
 
   // init imgui
-  UI_Init(Wnd_GetHandle());
+  UI_Init(wnd_get_handle());
 
   // configure window
-  Wnd_Center();
-  Wnd_SetResizeCallback(onResize);
+  wnd_center();
+  wnd_set_resize_callback(onResize);
 
   LogInfo("game created");
 }
@@ -42,14 +42,14 @@ void App_destroy() {
   LogInfo("game exit");
   if (currentState.Destroy) currentState.Destroy();
   UI_Destroy();
-  Wnd_Destroy();
+  wnd_destroy();
 }
 
-void App_Run() {
-  while (!Wnd_ShouldClose()) {
+void app_run() {
+  while (!wnd_should_close()) {
     // update
-    Wnd_Update();
-    if (currentState.Update) currentState.Update(GetDeltaTime());
+    wnd_update();
+    if (currentState.Update) currentState.Update(prof_dt());
 
     // draw
     UI_NewFrame();
@@ -57,13 +57,13 @@ void App_Run() {
     if (currentState.DrawUI) currentState.DrawUI();
 
     // render
-    rhi_Device_NewFrame();
+    rhi_device_begin_frame();
     if (currentState.Render) currentState.Render();
     UI_EndFrame();
-    Wnd_SwapBuffers();
+    wnd_swap_buffers();
 
     // update monitor
-    Mon_Update();
+    prof_update();
   }
   App_destroy();
 }
@@ -72,10 +72,10 @@ void onResize(int width, int height) {
   if (currentState.OnResize) currentState.OnResize(width, height);
 }
 
-void App_SetState(struct StateVTable nextState) {
+void app_set_state(StateVTable nextState) {
 
   // check collision
-  RFK_ASSERT(!hasStateCollision(currentState, nextState), "state collision not allowed");
+  RFK_ASSERT(!app_has_state_collision(currentState, nextState), "state collision not allowed");
 
   // invalidate current state
   void* prevStateReturn = NULL;

@@ -2,36 +2,36 @@
 
 #include "util.h"
 
-struct rhi_TextureConfig {
-  rhi_TextureFormat Format;
-  rhi_DataType SourceType;
-  rhi_TextureFilter FilterMin;
-  rhi_TextureFilter FilterMag;
+typedef struct {
+  rhi_TextureFormat Fmt;
+  rhi_DataType SrcType;
+  rhi_TextureFilter MinFilter;
+  rhi_TextureFilter MagFilter;
   rhi_TextureWrap Wrap;
   int Width, Height;
-};
+} rhi_TextureConfig;
 
-struct rhi_Texture {
+typedef struct {
   GLuint ID;
   rhi_TextureType type;
   rhi_TextureFormat fmt;
-  rhi_DataType sourceType;
+  rhi_DataType src_type;
   int width, height, depth;
-};
+} rhi_Texture;
 
 /// @brief binds texture into sampler unit
 /// @param tex target texture object
 /// @param unit index of sampler unit
-void rhi_Tex_BindToUnit(struct rhi_Texture tex, int unit);
+void rhi_tex_bind_to_unit(rhi_Texture tex, int unit);
 
 /// @brief create texture object
 /// @param type sampler type (2d, array, cube)
-void rhi_Tex_Init(struct rhi_Texture* t, rhi_TextureType type);
+void rhi_tex_init(rhi_Texture* t, rhi_TextureType type);
 
-void rhi_Tex_GenMipmaps(struct rhi_Texture t);
+void rhi_tex_gen_mips(rhi_Texture t);
 
 /// @brief deletes texture object
-void rhi_Tex_Invalidate(struct rhi_Texture* t);
+void rhi_tex_invalidate(rhi_Texture* t);
 
 /// @brief allocates memory for texture 2D storage
 /// @param t handle
@@ -39,9 +39,9 @@ void rhi_Tex_Invalidate(struct rhi_Texture* t);
 /// @param pixFormat source data format (e.g. RHI_RGBA)
 /// @param sourceType source data type (e. g. RHI_UNSIGNED_BYTE)
 /// @param data source data (if null - only allocate)
-void rhi_Tex2D_Allocate(
-  struct rhi_Texture* t,
-  struct rhi_TextureConfig conf,
+void rhi_tex2d_alloc(
+  rhi_Texture* t,
+  rhi_TextureConfig conf,
   void* data
 );
 
@@ -51,11 +51,10 @@ void rhi_Tex2D_Allocate(
 /// @param y offset y
 /// @param width update region width
 /// @param height update region height
-/// @param pixFormat source data format (e.g. RHI_RGBA)
 /// @param sourceType source data type (e. g. RHI_UNSIGNED_BYTE)
 /// @param data source data (cannot be null)
-void rhi_Tex2D_Update(
-  struct rhi_Texture* t,
+void rhi_tex2d_update(
+  rhi_Texture* t,
   int x,
   int y,
   int width,
@@ -65,19 +64,19 @@ void rhi_Tex2D_Update(
 
 /// @brief allocates new memory for texture 2d
 /// object and fills null
-void rhi_Tex2D_Resize(struct rhi_Texture* t, uint width, uint height);
+void rhi_tex2d_resize(rhi_Texture* t, uint width, uint height);
 
 /// @brief allocates memory for 3D texture or 2D Array
-void rhi_Tex3D_Allocate(
-  struct rhi_Texture* t,
-  struct rhi_TextureConfig conf,
+void rhi_tex3d_alloc(
+  rhi_Texture* t,
+  rhi_TextureConfig conf,
   uint depth,
   void* pix
 );
 
 /// @brief updates data in 3D/Array texture storage
-void rhi_Tex3D_Update(
-  struct rhi_Texture* t,
+void rhi_tex3d_update(
+  rhi_Texture* t,
   uint x, uint y, uint z,
   uint width, uint height, uint depth,
   void* data

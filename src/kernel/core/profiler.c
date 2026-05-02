@@ -1,14 +1,14 @@
-#include "monitor.h"
+#include "profiler.h"
 
 #include <kernel/gfx/gfx.h>
 #include <kernel/core/defs.h>
 
-struct MonitorStats stats = { 0 };
+SystemStats stats = { 0 };
 
 float elapsedTime = .0;
 float lastDeltaTime = .0;
 
-void Mon_Update() {
+void prof_update() {
   // calculate delta time
   double time = glfwGetTime();
   lastDeltaTime = stats.DeltaTime;
@@ -26,20 +26,20 @@ void Mon_Update() {
   }
 
   // calculate render stats
-  struct rhi_RenderStats r = rhi_GetStats();
+  rhi_RenderStats r = rhi_get_stats();
   stats.LastDrawCalls = r.DrawCalls;
   stats.LastTriangles = r.Triangles;
   stats.LastVertices = r.Vertices;
 }
 
-float GetDeltaTime() {
+float prof_dt() {
   return stats.DeltaTime;
 };
 
-float GetSmoothedDeltaTime() {
+float prof_smoothed_dt() {
   return stats.SmoothedDeltaTime;
 };
 
-struct MonitorStats Mon_GetStats() {
+SystemStats prof_stats() {
   return stats;
 }

@@ -2,4 +2,5 @@
 
 #include <framework/app/app.h>
 
-struct StateVTable BlueState_GetVTable();
+/// @brief get vtable of blue state
+StateVTable bs_get_vtable();

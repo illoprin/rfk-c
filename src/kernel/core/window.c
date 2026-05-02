@@ -1,6 +1,6 @@
 #include "window.h"
 #include "input.h"
-#include "log.h"
+#include <rfklib/log.h>
 
 GLFWwindow* handle;
 ivec2 wnd_Size;
@@ -22,16 +22,15 @@ void sizeCallback(GLFWwindow* _, int width, int height) {
 
 void focusCallback(GLFWwindow* _, int focused) {
   if (!focused && mouseGrabbed) {
-    Wnd_ToggleMouseGrab();
+    wnd_toggle_grab();
     grabbedBeforeFocusLoss = true;
-  }
-  else if (focused && grabbedBeforeFocusLoss) {
-    Wnd_ToggleMouseGrab();
+  } else if (focused && grabbedBeforeFocusLoss) {
+    wnd_toggle_grab();
     grabbedBeforeFocusLoss = false;
   }
 };
 
-void Wnd_Init(int width, int height, const char* title) {
+void wnd_init(int width, int height, const char* title) {
   // init glfw
   RFK_ASSERT(glfwInit(), "failed to init glfw");
 
@@ -57,10 +56,10 @@ void Wnd_Init(int width, int height, const char* title) {
   // setup callbacks
   glfwSetFramebufferSizeCallback(handle, sizeCallback);
   glfwSetWindowFocusCallback(handle, focusCallback);
-  _inputInit();
+  hid_init();
 }
 
-void Wnd_Center() {
+void wnd_center() {
   const GLFWvidmode* m = glfwGetVideoMode(glfwGetPrimaryMonitor());
   ivec2 pos = {
     m->width / 2 - wnd_Size[0] / 2,
@@ -69,38 +68,37 @@ void Wnd_Center() {
   glfwSetWindowPos(handle, pos[0], pos[1]);
 }
 
-void Wnd_SetResizeCallback(WindowFnResize c) {
+void wnd_set_resize_callback(WindowFnResize c) {
   uResizeCallback = c;
 }
 
-void Wnd_ToggleMouseGrab() {
+void wnd_toggle_grab() {
   mouseGrabbed = !mouseGrabbed;
   if (mouseGrabbed) {
     glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (rawInputSupport)
       glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-  }
-  else {
+  } else {
     glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     if (rawInputSupport)
       glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
   }
 }
 
-bool Wnd_Grabbed() {
+bool wnd_is_grabbed() {
   return mouseGrabbed;
 }
 
-void Wnd_Update() {
-  _inputUpdate();
+void wnd_update() {
+  hid_poll();
   glfwPollEvents();
 }
 
-void Wnd_SwapBuffers() {
+void wnd_swap_buffers() {
   glfwSwapBuffers(handle);
 }
 
-void Wnd_Destroy() {
+void wnd_destroy() {
   LogInfo("window destroyed");
   glfwDestroyWindow(handle);
   glfwTerminate();
@@ -108,18 +106,18 @@ void Wnd_Destroy() {
 
 // -- Getters
 
-int* Wnd_GetSize() {
+int* wnd_get_size() {
   return wnd_Size;
 }
 
-GLFWwindow* Wnd_GetHandle() {
+GLFWwindow* wnd_get_handle() {
   return handle;
 }
 
-bool Wnd_ShouldClose() {
+bool wnd_should_close() {
   return glfwWindowShouldClose(handle);
 }
 
-void Wnd_Close() {
+void wnd_close() {
   glfwSetWindowShouldClose(handle, true);
 }

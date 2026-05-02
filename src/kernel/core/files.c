@@ -5,9 +5,9 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stb/stb_image.h>
-#include "log.h"
+#include <rfklib/log.h>
 
-char* Fls_ReadFile(const char* fpath, size_t* out_size) {
+char* fls_read_file(const char* fpath, size_t* out_size) {
   FILE* file = fopen(fpath, "rb");
   if (!file) {
     LogErr("could not open file \"%s\"", fpath);

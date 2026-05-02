@@ -2,4 +2,5 @@
 
 #include <framework/app/app.h>
 
-struct StateVTable PinkState_GetVTable();
+/// @brief get vtable of pink state
+StateVTable ps_get_vtable();

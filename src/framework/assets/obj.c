@@ -1,25 +1,26 @@
 #include "obj.h"
 
-#include <vector/vector.h>
-#include <kernel/core/log.h>
+#include <rfklib/log.h>
+#include <rfklib/vector.h>
+
 #include <kernel/core/defs.h>
 #include <stdio.h>
 #include <string.h>
 
-struct ObjRawData {
+typedef struct {
   Vector Vertices;
   Vector Texcoord;
   Vector Normals;
-};
+} ObjRawData;
 
-struct FaceIndices {
+typedef struct {
   int VertexIndex;
   int TexcoordIndex;
   int NormalIndex;
-};
+} FaceIndices;
 
 // parse 'v' string
-void ObjParseVertices(int lineNum, char* line, struct ObjRawData* obj) {
+void ObjParseVertices(int lineNum, char* line, ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y, z;
@@ -27,28 +28,26 @@ void ObjParseVertices(int lineNum, char* line, struct ObjRawData* obj) {
     Vec_Push(&obj->Vertices, x);
     Vec_Push(&obj->Vertices, y);
     Vec_Push(&obj->Vertices, z);
-  }
-  else {
+  } else {
     LogWarn("failed to parse line %d");
   }
 }
 
 // parse 'vt' string
-void ObjParseTexcoords(int lineNum, char* line, struct ObjRawData* obj) {
+void ObjParseTexcoords(int lineNum, char* line, ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y;
   if (sscanf(line, "vt %f %f", &x, &y) == 2) {
     Vec_Push(&obj->Texcoord, x);
     Vec_Push(&obj->Texcoord, y);
-  }
-  else {
+  } else {
     LogWarn("failed to parse line %d");
   }
 }
 
 // parse 'vn' string
-void ObjParseNormals(int lineNum, char* line, struct ObjRawData* obj) {
+void ObjParseNormals(int lineNum, char* line, ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y, z;
@@ -56,8 +55,7 @@ void ObjParseNormals(int lineNum, char* line, struct ObjRawData* obj) {
     Vec_Push(&obj->Normals, x);
     Vec_Push(&obj->Normals, y);
     Vec_Push(&obj->Normals, z);
-  }
-  else {
+  } else {
     LogWarn("failed to parse line %d");
   }
 }
@@ -67,7 +65,7 @@ void ObjParseNormals(int lineNum, char* line, struct ObjRawData* obj) {
 int ObjParseFace(
   int line,
   char* lineStr,
-  struct ObjRawData* obj,
+  ObjRawData* obj,
   Vector* modelVertices,
   Vector* modelIndices
 ) {
@@ -76,7 +74,7 @@ int ObjParseFace(
   if (!token) return 1;
 
   // parse face entry
-  struct FaceIndices face[4];
+  FaceIndices face[4];
   int idx = 0;
   while (token != NULL) {
     if (idx >= 4) return 1;
@@ -87,7 +85,7 @@ int ObjParseFace(
       return 1;
     }
 
-    face[idx] = (struct FaceIndices){
+    face[idx] = (FaceIndices){
       .VertexIndex = vi - 1,
       .TexcoordIndex = vti - 1,
       .NormalIndex = vni - 1
@@ -103,24 +101,24 @@ int ObjParseFace(
 
   // add model vertices and indices
   for (int i = 0; i < idx; i++) {
-    struct FaceIndices f = face[i];
+    FaceIndices f = face[i];
     // get vertex
-    float vx = Vec_At(&obj->Vertices, float, f.VertexIndex * 3);
-    float vy = Vec_At(&obj->Vertices, float, f.VertexIndex * 3 + 1);
-    float vz = Vec_At(&obj->Vertices, float, f.VertexIndex * 3 + 2);
+    float vx = Vec_Get(&obj->Vertices, float, f.VertexIndex * 3);
+    float vy = Vec_Get(&obj->Vertices, float, f.VertexIndex * 3 + 1);
+    float vz = Vec_Get(&obj->Vertices, float, f.VertexIndex * 3 + 2);
 
     // get texcoord
-    float tu = Vec_At(&obj->Texcoord, float, f.TexcoordIndex * 2);
-    float tv = Vec_At(&obj->Texcoord, float, f.TexcoordIndex * 2 + 1);
+    float tu = Vec_Get(&obj->Texcoord, float, f.TexcoordIndex * 2);
+    float tv = Vec_Get(&obj->Texcoord, float, f.TexcoordIndex * 2 + 1);
 
     // get normal
-    float nx = Vec_At(&obj->Normals, float, f.NormalIndex * 3);
-    float ny = Vec_At(&obj->Normals, float, f.NormalIndex * 3 + 1);
-    float nz = Vec_At(&obj->Normals, float, f.NormalIndex * 3 + 2);
+    float nx = Vec_Get(&obj->Normals, float, f.NormalIndex * 3);
+    float ny = Vec_Get(&obj->Normals, float, f.NormalIndex * 3 + 1);
+    float nz = Vec_Get(&obj->Normals, float, f.NormalIndex * 3 + 2);
 
     // add model vertex
     int index = modelVertices->Len; // current index is len of vertices array
-    struct ModelVertex v = {
+    ModelVertex v = {
       .Position = { vx, vy, vz },
       .Texcoords = { tu, tv },
       .Normal = { nx, ny, nz }
@@ -131,19 +129,19 @@ int ObjParseFace(
   return 0;
 }
 
-void ObjAllocate(struct ObjRawData* raw) {
+void ObjAllocate(ObjRawData* raw) {
   Vec_Init(&raw->Vertices, float);
   Vec_Init(&raw->Texcoord, float);
   Vec_Init(&raw->Normals, float);
 }
 
-void ObjFree(struct ObjRawData* raw) {
+void ObjFree(ObjRawData* raw) {
   Vec_Destroy(&raw->Vertices);
   Vec_Destroy(&raw->Texcoord);
   Vec_Destroy(&raw->Normals);
 }
 
-int Mdl_InitFromObj(struct Model* mdl, const char* path) {
+int mdl_init_from_obj(Model* mdl, const char* path) {
   FILE* f = fopen(path, "r");
   if (!f) {
     LogErr("Mdl_FromObj - could not open file \"%s\"", path);
@@ -151,12 +149,12 @@ int Mdl_InitFromObj(struct Model* mdl, const char* path) {
   }
 
   // create temp obj storage
-  struct ObjRawData raw;
+  ObjRawData raw;
   ObjAllocate(&raw);
 
   // final vertices arrays
   Vector vertices;
-  Vec_Init(&vertices, struct ModelVertex);
+  Vec_Init(&vertices, ModelVertex);
 
   // final indices array
   Vector indices;
@@ -172,14 +170,11 @@ int Mdl_InitFromObj(struct Model* mdl, const char* path) {
 
     if (!strncmp(lineStr, "v ", 2)) {
       ObjParseVertices(line, lineStr, &raw);
-    }
-    else if (!strncmp(lineStr, "vt ", 3)) {
+    } else if (!strncmp(lineStr, "vt ", 3)) {
       ObjParseTexcoords(line, lineStr, &raw);
-    }
-    else if (!strncmp(lineStr, "vn ", 3)) {
+    } else if (!strncmp(lineStr, "vn ", 3)) {
       ObjParseNormals(line, lineStr, &raw);
-    }
-    else if (!strncmp(lineStr, "f ", 2)) {
+    } else if (!strncmp(lineStr, "f ", 2)) {
       if (ObjParseFace(line, lineStr, &raw, &vertices, &indices)) {
         ObjFree(&raw);
         return 1;
@@ -194,9 +189,9 @@ int Mdl_InitFromObj(struct Model* mdl, const char* path) {
   ObjFree(&raw);
 
   mdl->Vertices = vertices.Data;
-  mdl->NumVertices = vertices.Len;
+  mdl->CountVertices = vertices.Len;
   mdl->Indices = indices.Data;
-  mdl->NumIndices = indices.Len;
+  mdl->CountIndices = indices.Len;
 
   return 0;
 }

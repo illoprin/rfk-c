@@ -1,7 +1,7 @@
 #include "util.h"
 
 
-uint rhi_Util_GetDataType(rhi_TextureFormat fmt) {
+uint rhi_util_get_data_type(rhi_TextureFormat fmt) {
   // byte
   if (fmt == RHI_TEX_FORMAT_R8
     || fmt == RHI_TEX_FORMAT_RGB8
@@ -43,7 +43,7 @@ uint rhi_Util_GetDataType(rhi_TextureFormat fmt) {
   return GL_UNSIGNED_BYTE;
 }
 
-bool rhi_Util_IsDepthFormat(rhi_TextureFormat fmt) {
+bool rhi_util_is_depth_format(rhi_TextureFormat fmt) {
   // depth component
   if (fmt == RHI_TEX_FORMAT_DEPTH16
     || fmt == RHI_TEX_FORMAT_DEPTH24
@@ -56,7 +56,7 @@ bool rhi_Util_IsDepthFormat(rhi_TextureFormat fmt) {
 }
 
 
-uint rhi_Util_GetPixelFormat(rhi_TextureFormat fmt) {
+uint rhi_util_get_pix_format(rhi_TextureFormat fmt) {
   // rgba
   if (fmt == RHI_TEX_FORMAT_RGBA16F
     || fmt == RHI_TEX_FORMAT_RGBA32F

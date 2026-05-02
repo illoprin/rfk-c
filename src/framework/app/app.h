@@ -7,7 +7,7 @@ typedef void (*AppFnExit)(void** give);
 typedef void (*AppFnEnter)(void* receive);
 typedef void (*AppFnUpdate)(float deltaTime);
 
-struct StateVTable {
+typedef struct {
   AppFnVoid Init;
   AppFnUpdate Update;
   AppFnVoid DrawUI;
@@ -17,9 +17,9 @@ struct StateVTable {
   AppFnEnter OnEnter;
   WindowFnResize OnResize;
   void* Data;
-};
+} StateVTable;
 
-bool hasStateCollision(struct StateVTable a, struct StateVTable b);
-void App_Create();
-void App_Run();
-void App_SetState(struct StateVTable);
+bool app_has_state_collision(StateVTable a, StateVTable b);
+void app_create();
+void app_run();
+void app_set_state(StateVTable);

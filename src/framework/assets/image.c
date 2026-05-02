@@ -2,9 +2,7 @@
 
 #include <stb/stb_image.h>
 
-#include <kernel/core/log.h>
-
-int Img_FromFile(struct Image2D* img, const char* path) {
+int img_from_file(Image2D* img, const char* path) {
 
   int w, h, c;
 
@@ -26,23 +24,23 @@ int Img_FromFile(struct Image2D* img, const char* path) {
   return 0;
 }
 
-Vector Img_LoadImagesFromFiles(Vector files, ImageCheckFunc check) {
+Vector img_load_batch(Vector files, ImageCheckFunc check) {
   Vector images;
-  Vec_Init(&images, struct Image2D);
+  Vec_Init(&images, Image2D);
 
   for (uint i = 0; i < files.Len; ++i) {
     // get path
-    const char* path = Vec_AtRaw(&files, i);
+    const char* path = Vec_GetRaw(&files, i);
     if (path == NULL) continue;
 
     // load image
-    struct Image2D img;
-    if (Img_FromFile(&img, path)) continue;
+    Image2D img;
+    if (img_from_file(&img, path)) continue;
 
     // validate image
     if (check) {
       if (!check(img)) {
-        Img_Destroy(img);
+        img_destroy(img);
         continue;
       }
     }
@@ -54,21 +52,21 @@ Vector Img_LoadImagesFromFiles(Vector files, ImageCheckFunc check) {
   return images;
 }
 
-void Img_DestroyVector(Vector images) {
+void img_batch_destroy(Vector images) {
   for (size_t i = 0; i < images.Len; ++i) {
-    struct Image2D* img = Vec_AtRaw(&images, i);
+    Image2D* img = Vec_GetRaw(&images, i);
     if (!img) continue;
-    Img_Destroy(*img);
+    img_destroy(*img);
   }
 }
 
-void Img_Destroy(struct Image2D img) {
+void img_destroy(Image2D img) {
   if (img.Pix) {
     free(img.Pix);
   }
 }
 
-void ImgPtr_Destroy(struct Image2D* img) {
+void img_ptr_destroy(Image2D* img) {
   if (!img) return;
   if (img->Pix) {
     free(img->Pix);

@@ -3,7 +3,7 @@ OPTIMIZATION = -O2
 SANITIZE = -fsanitize=address # catching memory leak
 CPPLIB = -lstdc++ # what the fuck c++???
 FMS_EXT = -fms-extensions # nested structs
-CFLAGS = -std=c23 -Wall -ffast-math $(OPTIMIZATION) $(FMS_EXT)
+CFLAGS = -g -std=c23 -Wall -ffast-math $(OPTIMIZATION) $(FMS_EXT)
 LDFLAGS = -lcimgui -lglad -lglfw3dll $(CPPLIB)
 PKG = pkg
 INCLUDE = -I $(PKG)/include -I $(SRC_DIR)

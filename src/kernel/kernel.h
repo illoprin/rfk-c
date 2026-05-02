@@ -9,5 +9,5 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
-#define VECTOR_H_IMPLEMENTATION
-#include <vector/vector.h>
+#define RFKLIB_IMPL
+#include <rfklib/rfklib.h>

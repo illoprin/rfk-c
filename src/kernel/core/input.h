@@ -14,17 +14,22 @@ enum {
   RFK_RMB = GLFW_MOUSE_BUTTON_2,
 };
 
-void _inputInit();
-void _inputUpdate();
+// human interface device
 
-void MouseGetDelta(double* x, double* y);
-void MouseGetPos(double* x, double* y);
-void MouseGetScroll(double* x, double* y);
+// init (input manager)
+void hid_init();
 
-bool IsMouseButtonDown(int btn);
-bool IsMouseButtonPressed(int btn);
-bool IsMouseButtonReleased(int btn);
+// update statement
+void hid_poll();
 
-bool IsKeyDown(int key);
-bool IsKeyReleased(int key);
-bool IsKeyPressed(int key);
+void hid_cursor_delta(double* x, double* y);
+void hid_cursor_pos(double* x, double* y);
+
+bool hid_mouse_btn_down(int btn);
+bool hid_mouse_btn_pressed(int btn);
+bool hid_mouse_btn_released(int btn);
+void hid_mouse_scroll(double* x, double* y);
+
+bool hid_key_down(int key);
+bool hid_key_released(int key);
+bool hid_key_pressed(int key);

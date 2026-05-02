@@ -4,7 +4,7 @@
 
 // Include your library
 // Make sure the implementation macro is defined only in one place in the project
-#define VECTOR_H_IMPLEMENTATION
+#define RFKLIB_IMPL
 #include "vector.h"
 
 // Test statistics
@@ -12,14 +12,14 @@ int tests_passed = 0;
 int tests_failed = 0;
 
 #define ASSERT(cond, msg) \
-    do { \
-        if (cond) { \
-            tests_passed++; \
-        } else { \
-            fprintf(stderr, "[FAIL] %s\n", msg); \
-            tests_failed++; \
-        } \
-    } while(0)
+  do { \
+    if (cond) { \
+      tests_passed++; \
+    } else { \
+      fprintf(stderr, "[FAIL] %s\n", msg); \
+      tests_failed++; \
+    } \
+  } while(0)
 
 int main() {
   printf("--- Vector Test ---\n");
@@ -34,8 +34,8 @@ int main() {
     }
 
     ASSERT(v.Len == 100, "len must be 100");
-    ASSERT(Vec_At(&v, int, 0) == 0, "elem 0 must be 0");
-    ASSERT(Vec_At(&v, int, 99) == 99, "elem 99 must be 99");
+    ASSERT(Vec_Get(&v, int, 0) == 0, "elem 0 must be 0");
+    ASSERT(Vec_Get(&v, int, 99) == 99, "elem 99 must be 99");
 
     Vec_Destroy(&v);
   }
@@ -49,11 +49,11 @@ int main() {
 
     Vec_RemoveAt(&v, 1); // Remove 20
     ASSERT(v.Len == 3, "Length after removal must be 3");
-    ASSERT(Vec_At(&v, int, 1) == 30, "After removing 20, the second element should become 30");
+    ASSERT(Vec_Get(&v, int, 1) == 30, "After removing 20, the second element should become 30");
 
     Vec_Pop(&v); // Remove 40
     ASSERT(v.Len == 2, "Length after Pop must be 2");
-    ASSERT(Vec_At(&v, int, 1) == 30, "The last element should remain 30");
+    ASSERT(Vec_Get(&v, int, 1) == 30, "The last element should remain 30");
 
     Vec_Destroy(&v);
   }
@@ -68,8 +68,8 @@ int main() {
     Vec_Insert(&v, 1, 2); // Insert '2' at index 1
 
     ASSERT(v.Len == 3, "Length after Insert must be 3");
-    ASSERT(Vec_At(&v, int, 1) == 2, "Element at index 1 should be 2");
-    ASSERT(Vec_At(&v, int, 2) == 3, "Element 3 should shift to index 2");
+    ASSERT(Vec_Get(&v, int, 1) == 2, "Element at index 1 should be 2");
+    ASSERT(Vec_Get(&v, int, 2) == 3, "Element 3 should shift to index 2");
 
     Vec_Destroy(&v);
   }
@@ -86,7 +86,7 @@ int main() {
     Vec_AppendRaw(&v1, &v2);
 
     ASSERT(v1.Len == 10, "Length of concatenated vector must be 10");
-    ASSERT(Vec_At(&v1, int, 9) == 9, "Last element should be 9");
+    ASSERT(Vec_Get(&v1, int, 9) == 9, "Last element should be 9");
 
     // Test on Self-Append (if you've implemented it or want to check for crash)
     // Vec_AppendRaw(&v1, &v1); 
@@ -110,8 +110,8 @@ int main() {
     // Heavy operation: insert at the beginning (shift million elements)
     long val = -100;
     Vec_InsertRaw(&v, 0, &val);
-    ASSERT(Vec_At(&v, long, 0) == -100, "Insert at beginning of huge array succeeded");
-    ASSERT(Vec_At(&v, long, 1) == 0, "First element shifted");
+    ASSERT(Vec_Get(&v, long, 0) == -100, "Insert at beginning of huge array succeeded");
+    ASSERT(Vec_Get(&v, long, 1) == 0, "First element shifted");
 
     Vec_Destroy(&v);
     printf("Stress test completed.\n");

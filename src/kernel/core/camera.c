@@ -1,7 +1,7 @@
 #include "camera.h"
 #include <math.h>
 
-void Cam_Update(struct Camera* cam, ivec2 screen) {
+void cam_update(Camera* cam, ivec2 screen) {
   // compute direction vectors
   float pitch = glm_rad(cam->Rotation[0]),
     yaw = glm_rad(cam->Rotation[1]),

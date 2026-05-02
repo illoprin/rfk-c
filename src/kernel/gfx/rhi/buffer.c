@@ -1,8 +1,8 @@
 #include "buffer.h"
 
-void rhi_Buf_Init(struct rhi_Buffer* buf, rhi_BufferType type, rhi_BufferUsage usage) {
+void rhi_buf_init(rhi_Buffer* buf, rhi_BufferType type, rhi_BufferUsage usage) {
   if (buf == NULL) return;
-  *buf = (struct rhi_Buffer){ 0 };
+  *buf = (rhi_Buffer){ 0 };
 
   buf->type = type;
   buf->usage = usage;
@@ -14,7 +14,7 @@ void rhi_Buf_Init(struct rhi_Buffer* buf, rhi_BufferType type, rhi_BufferUsage u
     buf->ID, buf->type, buf->usage);
 }
 
-void rhi_Buf_Allocate(struct rhi_Buffer* buf, const void* data, size_t size) {
+void rhi_buf_allocate(rhi_Buffer* buf, const void* data, size_t size) {
   if (buf == NULL) return;
   if (buf->ID == 0) return;
 
@@ -23,7 +23,7 @@ void rhi_Buf_Allocate(struct rhi_Buffer* buf, const void* data, size_t size) {
   buf->size = size;
 }
 
-void rhi_Buf_Update(struct rhi_Buffer* buf, size_t offset, const void* data, size_t size) {
+void rhi_buf_update(rhi_Buffer* buf, size_t offset, const void* data, size_t size) {
   if (buf == NULL) return;
   if (buf->ID == 0) return;
   if (buf->usage != RHI_USAGE_DYNAMIC || buf->usage != RHI_USAGE_STREAM) {
@@ -39,14 +39,14 @@ void rhi_Buf_Update(struct rhi_Buffer* buf, size_t offset, const void* data, siz
   glBufferSubData(buf->type, offset, size, data);
 }
 
-void rhi_Buf_Clear(struct rhi_Buffer* buf, size_t size) {
+void rhi_buf_clear(rhi_Buffer* buf, size_t size) {
   if (buf == NULL) return;
   if (buf->ID == 0) return;
 
-  rhi_Buf_Allocate(buf, NULL, size);
+  rhi_buf_allocate(buf, NULL, size);
 }
 
-void rhi_Buf_Invalidate(struct rhi_Buffer* buf) {
+void rhi_buf_invalidate(rhi_Buffer* buf) {
   if (buf == NULL) return;
   if (buf->ID == 0) return;
 
@@ -54,5 +54,5 @@ void rhi_Buf_Invalidate(struct rhi_Buffer* buf) {
 
   LogInfo("buffer [ID = %d, Type = 0x%04x, Usage = 0x%04x] deleted",
     buf->ID, buf->type, buf->usage);
-  *buf = (struct rhi_Buffer){ 0 };
+  *buf = (rhi_Buffer){ 0 };
 }

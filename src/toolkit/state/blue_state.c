@@ -5,7 +5,7 @@
 #include <kernel/gfx/gfx.h>
 #include <framework/framework.h>
 
-struct Camera cam = {
+Camera cam = {
   .Position = { 0, 0, 3.f },
   .Rotation = { 0, -90.f, 0 },
   .Fov = 90.f
@@ -15,17 +15,17 @@ bool sprint = false;
 #define PLAYER_SPRINT_MUL 1.75
 #define PLAYER_SENS 0.07
 
-struct Mesh handgunMesh;
-struct Model handgunModel;
-struct rhi_Texture handgunTexture;
-struct rhi_Program geomProg;
+Mesh handgunMesh;
+Model handgunModel;
+rhi_Texture handgunTexture;
+rhi_Program geomProg;
 
 bool initialized = false;
 
 void playerMovement(float dt) {
   // sprint
-  if (IsKeyPressed(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
-  if (IsKeyReleased(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
+  if (hid_key_pressed(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
+  if (hid_key_released(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
 
   vec3 dir = { 0.f };
   vec3 move = { 0.f };
@@ -34,26 +34,26 @@ void playerMovement(float dt) {
   s *= sprint ? PLAYER_SPRINT_MUL : 1.0;
 
   // move
-  if (IsKeyDown(GLFW_KEY_W)) {
+  if (hid_key_down(GLFW_KEY_W)) {
     glm_vec3_add(dir, cam.Front, dir);
   }
-  if (IsKeyDown(GLFW_KEY_S)) {
+  if (hid_key_down(GLFW_KEY_S)) {
     glm_vec3_sub(dir, cam.Front, dir);
   }
 
   // strafe
-  if (IsKeyDown(GLFW_KEY_D)) {
+  if (hid_key_down(GLFW_KEY_D)) {
     glm_vec3_add(dir, cam.Right, dir);
   }
-  if (IsKeyDown(GLFW_KEY_A)) {
+  if (hid_key_down(GLFW_KEY_A)) {
     glm_vec3_sub(dir, cam.Right, dir);
   }
 
   // up
-  if (IsKeyDown(GLFW_KEY_SPACE)) {
+  if (hid_key_down(GLFW_KEY_SPACE)) {
     glm_vec3_add(dir, (vec3) { 0.f, 1.f, 0.f }, dir);
   }
-  if (IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+  if (hid_key_down(GLFW_KEY_LEFT_SHIFT)) {
     glm_vec3_add(dir, (vec3) { 0.f, -1.f, 0.f }, dir);
   }
 
@@ -64,12 +64,12 @@ void playerMovement(float dt) {
 
 void playerLookAround() {
   double dx, dy;
-  MouseGetDelta(&dx, &dy);
+  hid_cursor_delta(&dx, &dy);
   cam.Rotation[0] = glm_clamp(cam.Rotation[0] - dy * PLAYER_SENS, -89.0, 89.0);
   cam.Rotation[1] += dx * PLAYER_SENS;
 }
 
-void bs_drawUI() {
+void bs_draw_ui() {
   if (!initialized) return;
 
   igBegin("Camera", NULL, 0);
@@ -81,14 +81,14 @@ void bs_drawUI() {
 }
 
 void bs_update(float deltaTime) {
-  if (IsKeyPressed(GLFW_KEY_ESCAPE)) {
-    Wnd_Close();
+  if (hid_key_pressed(GLFW_KEY_ESCAPE)) {
+    wnd_close();
   }
-  if (IsKeyPressed(GLFW_KEY_R)) {
-    App_SetState(PinkState_GetVTable());
+  if (hid_key_pressed(GLFW_KEY_R)) {
+    app_set_state(ps_get_vtable());
   }
-  if (IsKeyPressed(GLFW_KEY_G)) {
-    Wnd_ToggleMouseGrab();
+  if (hid_key_pressed(GLFW_KEY_G)) {
+    wnd_toggle_grab();
   }
 
   if (!initialized) return;
@@ -96,29 +96,29 @@ void bs_update(float deltaTime) {
   ImGuiIO* io = igGetIO();
 
 
-  if (Wnd_Grabbed()) {
+  if (wnd_is_grabbed()) {
     playerMovement(deltaTime);
     playerLookAround();
     igSetNextFrameWantCaptureKeyboard(false);
     igSetNextFrameWantCaptureMouse(false);
   }
-  Cam_Update(&cam, Wnd_GetSize());
+  cam_update(&cam, wnd_get_size());
 }
 
 void bs_render() {
-  int* screen = Wnd_GetSize();
+  int* screen = wnd_get_size();
   glViewport(0, 0, screen[0], screen[1]);
   glClearColor(0.31, 0.68, 0.9, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   if (!initialized) return;
 
-  rhi_Device_UseProgram(geomProg);
-  rhi_Prog_SetMat4f(geomProg, "u_projection", cam.Proj[0]);
-  rhi_Prog_SetMat4f(geomProg, "u_view", cam.View[0]);
-  rhi_Tex_BindToUnit(handgunTexture, 0);
-  rhi_Prog_SetInt(geomProg, "u_diffuse", 0);
-  rhi_Device_Draw(handgunMesh.VAO, handgunMesh.indexNum);
+  rhi_device_use_program(geomProg);
+  rhi_prog_uniform_mat4(geomProg, "u_projection", cam.Proj[0]);
+  rhi_prog_uniform_mat4(geomProg, "u_view", cam.View[0]);
+  rhi_tex_bind_to_unit(handgunTexture, 0);
+  rhi_prog_uniform_1i(geomProg, "u_diffuse", 0);
+  rhi_device_draw(handgunMesh.VAO, handgunMesh.indexNum);
 }
 
 void bs_init() {
@@ -128,28 +128,28 @@ void bs_init() {
     FLS_SHADER_PATH("g_basic.vert"),
     FLS_SHADER_PATH("g_basic.frag")
   )) exit(EXIT_FAILURE);
-  Mdl_InitFromObj(&handgunModel, FLS_MODEL_PATH("handgun.obj"));
-  Mesh_SetupFromModel(&handgunMesh, &handgunModel);
+  mdl_init_from_obj(&handgunModel, FLS_MODEL_PATH("handgun.obj"));
+  mesh_init_from_model(&handgunMesh, &handgunModel);
 
-  struct Image2D img;
-  RFK_ASSERT(!Img_FromFile(&img, FLS_TEXTURE_PATH("handgun.png")), "failed read handgun texture");
+  Image2D img;
+  RFK_ASSERT(!img_from_file(&img, FLS_TEXTURE_PATH("handgun.png")), "failed read handgun texture");
 
-  rhi_Tex_Init(&handgunTexture, RHI_TEX_2D);
-  struct rhi_TextureConfig conf = {
-    .FilterMag = RHI_TEX_FILTER_NEAREST,
-    .FilterMin = RHI_TEX_FILTER_LINEAR_MIPMAP_LINEAR,
-    .Format = RHI_TEX_FORMAT_RGBA8,
-    .SourceType = RHI_UNSIGNED_BYTE,
+  rhi_tex_init(&handgunTexture, RHI_TEX_2D);
+  rhi_TextureConfig conf = {
+    .MagFilter = RHI_TEX_FILTER_NEAREST,
+    .MinFilter = RHI_TEX_FILTER_LINEAR_MIPMAP_LINEAR,
+    .Fmt = RHI_TEX_FORMAT_RGBA8,
+    .SrcType = RHI_UNSIGNED_BYTE,
     .Wrap = RHI_TEX_WRAP_CLAMP_TO_EDGE,
     .Width = img.Width,
     .Height = img.Height,
   };
-  rhi_Tex2D_Allocate(&handgunTexture, conf, img.Pix);
-  rhi_Tex_GenMipmaps(handgunTexture);
+  rhi_tex2d_alloc(&handgunTexture, conf, img.Pix);
+  rhi_tex_gen_mips(handgunTexture);
 
-  Img_Destroy(img);
+  img_destroy(img);
 
-  Cam_Update(&cam, Wnd_GetSize());
+  cam_update(&cam, wnd_get_size());
 
   initialized = true;
 }
@@ -157,17 +157,17 @@ void bs_init() {
 void bs_destroy() {
   // release resources
   fputc('\n', stdout);
-  Mesh_Invalidate(&handgunMesh);
-  Mdl_Free(handgunModel);
-  rhi_Tex_Invalidate(&handgunTexture);
-  rhi_Prog_Invalidate(&geomProg);
+  mesh_invalidate(&handgunMesh);
+  mdl_free(handgunModel);
+  rhi_tex_invalidate(&handgunTexture);
+  rhi_prog_invalidate(&geomProg);
 };
 
-void bs_onExit(void** _) {
+void bs_on_exit(void** _) {
   printf("state change\n");
 }
 
-void bs_onEnter(void*) {
+void bs_on_enter(void*) {
   if (!initialized) {
     bs_init();
   }
@@ -177,13 +177,13 @@ void bs_onEnter(void*) {
   glFrontFace(GL_CCW);
 }
 
-struct StateVTable BlueState_GetVTable() {
-  return (struct StateVTable) {
+StateVTable bs_get_vtable() {
+  return (StateVTable) {
     .Update = bs_update,
       .Render = bs_render,
-      .DrawUI = bs_drawUI,
-      .OnEnter = bs_onEnter,
-      .OnExit = bs_onExit,
+      .DrawUI = bs_draw_ui,
+      .OnEnter = bs_on_enter,
+      .OnExit = bs_on_exit,
       .Destroy = bs_destroy,
       .Init = bs_init,
   };

@@ -3,13 +3,13 @@
 #include <kernel/gfx/rhi/rhi.h>
 #include <framework/assets/model.h>
 
-struct Mesh {
-  struct rhi_VAO VAO;
-  struct rhi_Buffer VertexBuf;
-  struct rhi_Buffer IndexBuf;
+typedef struct {
+  rhi_VAO VAO;
+  rhi_Buffer VertexBuf;
+  rhi_Buffer IndexBuf;
   int indexNum;
-};
+} Mesh;
 
-void Mesh_SetupBasicQuad(struct Mesh*);
-void Mesh_SetupFromModel(struct Mesh* mesh, struct Model* model);
-void Mesh_Invalidate(struct Mesh*);
+void mesh_init_basic_quad(Mesh*);
+void mesh_init_from_model(Mesh* mesh, Model* model);
+void mesh_invalidate(Mesh*);

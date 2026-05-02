@@ -1,11 +1,10 @@
-#ifndef __VECTOR_H__
-#define __VECTOR_H__
+#pragma once
 
 #include <stddef.h>
 
 typedef struct {
   void* Data;
-  size_t _elemSize;
+  size_t _elem_size;
   size_t _capacity;
   size_t Len;
 } Vector;
@@ -16,7 +15,7 @@ void Vec_Destroy(Vector* vec);
 void Vec_Reserve(Vector* vec, size_t newCapacity);
 
 void Vec_PushRaw(Vector* vec, void* valuePtr);
-void* Vec_AtRaw(Vector* vec, size_t index) __attribute__((warn_unused_result));
+void* Vec_GetRaw(Vector* vec, size_t index) __attribute__((warn_unused_result));
 
 void Vec_Pop(Vector* vec);
 void Vec_Clear(Vector* vec);
@@ -32,8 +31,8 @@ void Vec_RemoveAt(Vector* vec, size_t index);
         Vec_PushRaw((vec), &tmp); \
     } while(0)
 
-#define Vec_At(vec, Type, index) \
-    (*(Type*)Vec_AtRaw((vec), (index)))
+#define Vec_Get(vec, Type, index) \
+    (*(Type*)Vec_GetRaw((vec), (index)))
 
 #define Vec_Insert(vec, index, value) \
     do { \
@@ -41,7 +40,7 @@ void Vec_RemoveAt(Vector* vec, size_t index);
         Vec_InsertRaw((vec), (index), &tmp); \
     } while(0)
 
-#ifdef VECTOR_H_IMPLEMENTATION
+#if defined(RFKLIB_IMPL)
 
 #define VEC_BASE_CAPACITY 4
 
@@ -60,7 +59,7 @@ void __vecInit(Vector* vec, size_t elemSize) {
   vec->_capacity = VEC_BASE_CAPACITY;
 
   vec->Len = 0;
-  vec->_elemSize = elemSize;
+  vec->_elem_size = elemSize;
 }
 
 void Vec_Destroy(Vector* vec) {
@@ -79,7 +78,7 @@ size_t getNewVecCapacity(Vector* vec) {
 void Vec_Reserve(Vector* vec, size_t newCapacity) {
   if (newCapacity <= vec->_capacity) return;
 
-  void* newData = realloc(vec->Data, newCapacity * vec->_elemSize);
+  void* newData = realloc(vec->Data, newCapacity * vec->_elem_size);
   if (!newData) {
     fprintf(stderr, "[Vector] Allocation failed\n");
     exit(EXIT_FAILURE);
@@ -95,8 +94,8 @@ void Vec_PushRaw(Vector* vec, void* valuePtr) {
     Vec_Reserve(vec, newCap);
   }
 
-  void* dst = (char*)vec->Data + (vec->Len * vec->_elemSize);
-  memcpy(dst, valuePtr, vec->_elemSize);
+  void* dst = (char*)vec->Data + (vec->Len * vec->_elem_size);
+  memcpy(dst, valuePtr, vec->_elem_size);
 
   vec->Len++;
 }
@@ -107,7 +106,7 @@ void* Vec_AtRaw(Vector* vec, size_t index) {
     return NULL;
   }
 
-  return (char*)vec->Data + (index * vec->_elemSize);
+  return (char*)vec->Data + (index * vec->_elem_size);
 }
 
 void Vec_Pop(Vector* vec) {
@@ -142,18 +141,18 @@ void Vec_InsertRaw(Vector* vec, size_t index, void* valuePtr) {
   vec->Len++;
 
   // move subsequent bytes
-  void* dst = (char*)vec->Data + (index * vec->_elemSize);
+  void* dst = (char*)vec->Data + (index * vec->_elem_size);
   memmove(
-    (char*)dst + vec->_elemSize,
+    (char*)dst + vec->_elem_size,
     dst,
-    (vec->Len - 1 - index) * vec->_elemSize
+    (vec->Len - 1 - index) * vec->_elem_size
   );
 
   // set value
   memcpy(
     dst,
     valuePtr,
-    vec->_elemSize
+    vec->_elem_size
   );
 }
 
@@ -163,7 +162,7 @@ void Vec_AppendRaw(Vector* dst, const Vector* src) {
     return;
   }
 
-  if (dst->_elemSize != src->_elemSize) {
+  if (dst->_elem_size != src->_elem_size) {
     fprintf(stderr, "[Vector] Append failed: element size mismatch\n");
     return;
   }
@@ -183,10 +182,10 @@ void Vec_AppendRaw(Vector* dst, const Vector* src) {
   }
 
   // take pointer to end of dst data
-  void* target = (char*)dst->Data + (dst->Len * dst->_elemSize);
+  void* target = (char*)dst->Data + (dst->Len * dst->_elem_size);
 
   // copy data
-  memcpy(target, src->Data, src->Len * src->_elemSize);
+  memcpy(target, src->Data, src->Len * src->_elem_size);
 
   dst->Len += src->Len;
 }
@@ -197,17 +196,15 @@ void Vec_RemoveAt(Vector* vec, size_t index) {
     return;
   }
 
-  void* dst = (char*)vec->Data + (index * vec->_elemSize);
+  void* dst = (char*)vec->Data + (index * vec->_elem_size);
 
   memmove(
     dst,
-    (char*)dst + vec->_elemSize,
-    (vec->Len - index - 1) * vec->_elemSize
+    (char*)dst + vec->_elem_size,
+    (vec->Len - index - 1) * vec->_elem_size
   );
 
   vec->Len--;
 }
 
 #endif
-
-#endif // __VECTOR_H__

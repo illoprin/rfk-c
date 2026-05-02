@@ -1,6 +1,6 @@
 #include "texture.h"
 
-static void rhi_Tex_setParameters(
+static void rhi_tex_set_params(
   int target,
   rhi_TextureFilter filterMin,
   rhi_TextureFilter filterMag,
@@ -14,15 +14,15 @@ static void rhi_Tex_setParameters(
 }
 
 
-void rhi_Tex_BindToUnit(struct rhi_Texture tex, int unit) {
+void rhi_tex_bind_to_unit(rhi_Texture tex, int unit) {
   if (tex.ID == 0) return;
   glActiveTexture(GL_TEXTURE0 + unit);
   glBindTexture(tex.type, tex.ID);
 }
 
-void rhi_Tex_Init(struct rhi_Texture* t, rhi_TextureType type) {
+void rhi_tex_init(rhi_Texture* t, rhi_TextureType type) {
   if (t == NULL) return;
-  *t = (struct rhi_Texture){ 0 };
+  *t = (rhi_Texture){ 0 };
 
   t->type = type;
   glGenTextures(1, &t->ID);
@@ -30,24 +30,24 @@ void rhi_Tex_Init(struct rhi_Texture* t, rhi_TextureType type) {
   LogInfo("texture [ID = %d, Type = 0x%04x] created ", t->ID, t->type);
 }
 
-void rhi_Tex_Invalidate(struct rhi_Texture* t) {
+void rhi_tex_invalidate(rhi_Texture* t) {
   if (t == NULL) return;
   if (t->ID == 0) return;
   glDeleteTextures(1, &t->ID);
   LogInfo("texture [ID = %d, Type = 0x%04x] deleted", t->ID, t->type);
-  *t = (struct rhi_Texture){ 0 };
+  *t = (rhi_Texture){ 0 };
 }
 
-void rhi_Tex_GenMipmaps(struct rhi_Texture t) {
+void rhi_tex_gen_mips(rhi_Texture t) {
   if (t.ID == 0) return;
 
   glBindTexture(t.type, t.ID);
   glGenerateMipmap(t.type);
 }
 
-void rhi_Tex2D_Allocate(
-  struct rhi_Texture* t,
-  struct rhi_TextureConfig conf,
+void rhi_tex2d_alloc(
+  rhi_Texture* t,
+  rhi_TextureConfig conf,
   void* pix
 ) {
   if (t == NULL) return;
@@ -56,32 +56,33 @@ void rhi_Tex2D_Allocate(
 
   t->width = conf.Width;
   t->height = conf.Height;
-  t->fmt = conf.Format;
-  t->sourceType = conf.SourceType;
+  t->fmt = conf.Fmt;
+  t->src_type = conf.SrcType;
 
   glBindTexture(GL_TEXTURE_2D, t->ID);
-  rhi_Tex_setParameters(t->type, conf.FilterMin, conf.FilterMag, conf.Wrap);
+  rhi_tex_set_params(t->type, conf.MinFilter, conf.MagFilter, conf.Wrap);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage2D(t->type, 0, t->fmt, conf.Width, conf.Height, 0, rhi_Util_GetPixelFormat(t->fmt), t->sourceType, pix);
+  glTexImage2D(t->type, 0, t->fmt, conf.Width, conf.Height, 0, rhi_util_get_pix_fmt(t->fmt), t->src_type, pix);
 }
 
-void rhi_Tex2D_Resize(
-  struct rhi_Texture* t,
+void rhi_tex2d_resize(
+  rhi_Texture* t,
   uint width, uint height
 ) {
   if (t == NULL) return;
   if (t->ID == 0) return;
+  if (t->type != RHI_TEX_2D) return;
 
   t->width = width;
   t->height = height;
 
   glBindTexture(GL_TEXTURE_2D, t->ID);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage2D(t->type, 0, t->fmt, t->width, t->height, 0, rhi_Util_GetPixelFormat(t->fmt), t->sourceType, NULL);
+  glTexImage2D(t->type, 0, t->fmt, t->width, t->height, 0, rhi_util_get_pix_fmt(t->fmt), t->src_type, NULL);
 }
 
-void rhi_Tex2D_Update(
-  struct rhi_Texture* t,
+void rhi_tex2d_update(
+  rhi_Texture* t,
   int x,
   int y,
   int width,
@@ -93,12 +94,12 @@ void rhi_Tex2D_Update(
   if (t->type != RHI_TEX_2D) return;
   if (x + width > t->width || y + height > t->height) return;
   glBindTexture(GL_TEXTURE_2D, t->ID);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, rhi_Util_GetPixelFormat(t->fmt), t->sourceType, data);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, rhi_util_get_pix_fmt(t->fmt), t->src_type, data);
 }
 
-void rhi_Tex3D_Allocate(
-  struct rhi_Texture* t,
-  struct rhi_TextureConfig conf,
+void rhi_tex3d_alloc(
+  rhi_Texture* t,
+  rhi_TextureConfig conf,
   uint depth,
   void* pix
 ) {
@@ -109,14 +110,14 @@ void rhi_Tex3D_Allocate(
   t->height = conf.Height;
   t->depth = depth;
 
-  t->fmt = conf.Format;
-  t->sourceType = conf.SourceType;
+  t->fmt = conf.Fmt;
+  t->src_type = conf.SrcType;
 
   glBindTexture(t->type, t->ID);
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  rhi_Tex_setParameters(t->type, conf.FilterMin, conf.FilterMag, conf.Wrap);
+  rhi_tex_set_params(t->type, conf.MinFilter, conf.MagFilter, conf.Wrap);
 
   glTexImage3D(
     t->type,
@@ -126,14 +127,14 @@ void rhi_Tex3D_Allocate(
     conf.Height,
     depth,
     0,
-    rhi_Util_GetPixelFormat(t->fmt),
-    t->sourceType,
+    rhi_util_get_pix_fmt(t->fmt),
+    t->src_type,
     pix
   );
 }
 
-void rhi_Tex3D_Update(
-  struct rhi_Texture* t,
+void rhi_tex3d_update(
+  rhi_Texture* t,
   uint x, uint y, uint z,
   uint width, uint height, uint depth,
   void* data
@@ -152,8 +153,8 @@ void rhi_Tex3D_Update(
     0,
     x, y, z,
     width, height, depth,
-    rhi_Util_GetPixelFormat(t->fmt),
-    t->sourceType,
+    rhi_util_get_pix_fmt(t->fmt),
+    t->src_type,
     data
   );
 }

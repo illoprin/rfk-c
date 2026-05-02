@@ -1,23 +1,23 @@
 #pragma once
 
-#include <kernel/core/types.h>
+#include <rfklib/log.h>
 #include <stdint.h>
 
-struct ModelVertex {
+typedef struct {
   float Position[3];
   float Texcoords[2];
   float Normal[3];
-};
+} ModelVertex;
 
-struct Model {
+typedef struct {
   // vertices
   struct ModelVertex* Vertices;
-  size_t NumVertices;
+  size_t CountVertices;
 
   // indices
   uint32_t* Indices;
-  size_t NumIndices;
-};
+  size_t CountIndices;
+} Model;
 
-void MdlPtr_Free(struct Model*);
-void Mdl_Free(struct Model);
+void mdl_ptr_free(Model*);
+void mdl_free(Model);

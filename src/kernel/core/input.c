@@ -1,5 +1,6 @@
 #include "input.h"
 #include "window.h"
+#include <string.h>
 
 struct keyboard {
   int keys[GLFW_KEY_LAST];
@@ -27,53 +28,53 @@ void windowSetupCallbacks() {
   glfwSetScrollCallback(handle, scrollCallback);
 }
 
-void _inputInit() {
+void hid_init() {
   memset(keyboard.keys, RFK_NONE, GLFW_KEY_LAST * sizeof(int));
   memset(mouse.btns, RFK_NONE, GLFW_MOUSE_BUTTON_LAST * sizeof(int));
-  handle = Wnd_GetHandle();
+  handle = wnd_get_handle();
   windowSetupCallbacks();
 }
 
-bool IsKeyDown(int key) {
+bool hid_key_down(int key) {
   return keyboard.keys[key] == RFK_DOWN || keyboard.keys[key] == RFK_PRESSED;
 }
 
-bool IsKeyReleased(int key) {
+bool hid_key_released(int key) {
   return keyboard.keys[key] == RFK_RELEASED;
 }
 
-bool IsKeyPressed(int key) {
+bool hid_key_pressed(int key) {
   return keyboard.keys[key] == RFK_PRESSED;
 }
 
-bool IsMouseButtonDown(int btn) {
+bool hid_mouse_btn_down(int btn) {
   return mouse.btns[btn] == RFK_PRESSED || mouse.btns[btn] == RFK_DOWN;
 }
 
-bool IsMouseButtonPressed(int btn) {
+bool hid_mouse_btn_pressed(int btn) {
   return mouse.btns[btn] == RFK_PRESSED;
 }
 
-bool IsMouseButtonReleased(int btn) {
+bool hid_mouse_btn_released(int btn) {
   return mouse.btns[btn] == RFK_RELEASED;
 }
 
-void MouseGetDelta(double* x, double* y) {
+void hid_cursor_delta(double* x, double* y) {
   *x = mouse.dx;
   *y = mouse.dy;
 }
 
-void MouseGetPos(double* x, double* y) {
+void hid_cursor_pos(double* x, double* y) {
   *x = mouse.x;
   *y = mouse.y;
 }
 
-void MouseGetScroll(double* x, double* y) {
+void hid_mouse_scroll(double* x, double* y) {
   *x = mouse.xscr;
   *y = mouse.yscr;
 }
 
-void _inputUpdate() {
+void hid_poll() {
   // keyboard update
   for (size_t i = 0; i < GLFW_KEY_LAST; i++) {
     if (keyboard.keys[i] == RFK_PRESSED)
@@ -106,8 +107,7 @@ void keyCallback(GLFWwindow* _w, int key, int scancode, int action, int mods) {
 
   if (action == GLFW_PRESS) {
     keyboard.keys[key] = RFK_PRESSED;
-  }
-  else if (action == GLFW_RELEASE) {
+  } else if (action == GLFW_RELEASE) {
     keyboard.keys[key] = RFK_RELEASED;
   }
 };
@@ -119,8 +119,7 @@ void mouseButtonCallback(GLFWwindow* _w, int button, int action, int mods) {
 
   if (action == GLFW_PRESS) {
     mouse.btns[button] = RFK_PRESSED;
-  }
-  else if (action == GLFW_RELEASE) {
+  } else if (action == GLFW_RELEASE) {
     mouse.btns[button] = RFK_RELEASED;
   }
 }

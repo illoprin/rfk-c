@@ -1,7 +1,6 @@
 #pragma once
 
-#include <kernel/core/types.h>
-#include <kernel/core/log.h>
+#include <rfklib/log.h>
 #include <glad/glad.h>
 
 // --- Buffer roles (usage semantics) ---
@@ -18,7 +17,7 @@ typedef enum : uint {
   RHI_USAGE_STREAM = GL_STREAM_DRAW
 } rhi_BufferUsage;
 
-// --- Format ---
+// --- fmt ---
 typedef enum : uint {
   RHI_UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
   RHI_UNSIGNED_INT = GL_UNSIGNED_INT,
@@ -95,6 +94,6 @@ typedef enum : uint {
   RHI_TEX_FORMAT_DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8
 } rhi_TextureFormat;
 
-uint rhi_Util_GetPixelFormat(rhi_TextureFormat fmt);
-uint rhi_Util_GetDataType(rhi_TextureFormat fmt);
-bool rhi_Util_IsDepthFormat(rhi_TextureFormat fmt);
+uint rhi_util_get_pix_fmt(rhi_TextureFormat fmt);
+uint rhi_util_get_data_type(rhi_TextureFormat fmt);
+bool rhi_util_is_depth_fmt(rhi_TextureFormat fmt);

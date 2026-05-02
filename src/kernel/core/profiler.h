@@ -1,11 +1,11 @@
 #pragma once
 
-#include <kernel/core/types.h>
+#include <rfklib/types.h>
 
 #define SMOOTHED_DELTA_TIME_ALPHA 0.1
 #define FPS_UPDATE_PERIOD .5 // freq fps updating (seconds)
 
-struct MonitorStats {
+typedef struct {
   double Time;
   float DeltaTime;
   float SmoothedDeltaTime;
@@ -13,9 +13,9 @@ struct MonitorStats {
   int LastDrawCalls;
   int LastVertices;
   int LastTriangles;
-};
+} SystemStats;
 
-void Mon_Update();
-float GetDeltaTime();
-float GetSmoothedDeltaTime();
-struct MonitorStats Mon_GetStats();
+void prof_update();
+float prof_dt();
+float prof_smoothed_dt();
+SystemStats prof_stats();

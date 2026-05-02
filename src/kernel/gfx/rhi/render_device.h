@@ -4,23 +4,23 @@
 #include "program.h"
 #include <cglm/cglm.h>
 
-struct rhi_RenderStats {
+typedef struct {
   int Vertices;
   int DrawCalls;
   int Triangles;
-};
+} rhi_RenderStats;
 
 /// @brief init
-void rhi_Device_Init();
+void rhi_device_init();
 
 /// @brief save current state
-void rhi_PushState();
+void rhi_push_state();
 
 /// @brief restore saved state
-void rhi_PopState();
+void rhi_pop_state();
 
-void rhi_Device_NewFrame();
-void rhi_Device_UseProgram(struct rhi_Program);
-void rhi_Device_Draw(struct rhi_VAO, int count);
-void rhi_Device_DrawInstanced(struct rhi_VAO, int count, int instances);
-struct rhi_RenderStats rhi_GetStats();
+void rhi_device_begin_frame();
+void rhi_device_use_program(rhi_Program);
+void rhi_device_draw(rhi_VAO, int count);
+void rhi_device_draw_instanced(rhi_VAO, int count, int instances);
+rhi_RenderStats rhi_get_stats();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types.h"
+#include <rfklib/types.h>
 #include <stddef.h>
 
 #define FLS_ASSETS_DIR "assets"
@@ -21,6 +21,6 @@
 /// @param fpath path to file
 /// @param out_size allocated buffer size
 /// @return buffer with bytes
-char* Fls_ReadFile(const char* fpath, size_t* out_size);
+char* fls_read_file(const char* fpath, size_t* out_size);
 
 
