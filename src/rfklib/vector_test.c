@@ -1,9 +1,9 @@
+#ifdef RFKLIB_TEST
+
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
 
-// Include your library
-// Make sure the implementation macro is defined only in one place in the project
 #define RFKLIB_IMPL
 #include "vector.h"
 
@@ -124,3 +124,5 @@ int main() {
 
   return (tests_failed > 0) ? 1 : 0;
 }
+
+#endif

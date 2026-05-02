@@ -10,6 +10,7 @@ Camera cam = {
   .Rotation = { 0, -90.f, 0 },
   .Fov = 90.f
 };
+
 bool sprint = false;
 #define PLAYER_SPEED 6.3 // unit per second
 #define PLAYER_SPRINT_MUL 1.75
@@ -22,7 +23,7 @@ rhi_Program geomProg;
 
 bool initialized = false;
 
-void playerMovement(float dt) {
+void player_update_movement(float dt) {
   // sprint
   if (hid_key_pressed(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
   if (hid_key_released(GLFW_KEY_LEFT_CONTROL)) sprint = !sprint;
@@ -62,7 +63,7 @@ void playerMovement(float dt) {
   glm_vec3_add(cam.Position, move, cam.Position);
 }
 
-void playerLookAround() {
+void player_update_look() {
   double dx, dy;
   hid_cursor_delta(&dx, &dy);
   cam.Rotation[0] = glm_clamp(cam.Rotation[0] - dy * PLAYER_SENS, -89.0, 89.0);
@@ -80,7 +81,9 @@ void bs_draw_ui() {
   igEnd();
 }
 
-void bs_update(float deltaTime) {
+void bs_update(float dt) {
+  ImGuiIO* io = igGetIO();
+
   if (hid_key_pressed(GLFW_KEY_ESCAPE)) {
     wnd_close();
   }
@@ -89,18 +92,17 @@ void bs_update(float deltaTime) {
   }
   if (hid_key_pressed(GLFW_KEY_G)) {
     wnd_toggle_grab();
+    ui_set_input(!wnd_is_grabbed());
   }
 
   if (!initialized) return;
 
-  ImGuiIO* io = igGetIO();
+  bool can_update_controller = wnd_is_grabbed()
+    || (hid_mouse_btn_down(RFK_LMB) && !io->WantCaptureMouse);
 
-
-  if (wnd_is_grabbed()) {
-    playerMovement(deltaTime);
-    playerLookAround();
-    igSetNextFrameWantCaptureKeyboard(false);
-    igSetNextFrameWantCaptureMouse(false);
+  if (can_update_controller) {
+    player_update_movement(dt);
+    player_update_look();
   }
   cam_update(&cam, wnd_get_size());
 }

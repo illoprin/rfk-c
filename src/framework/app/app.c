@@ -29,7 +29,7 @@ void app_create() {
   rhi_device_init();
 
   // init imgui
-  UI_Init(wnd_get_handle());
+  ui_init(wnd_get_handle());
 
   // configure window
   wnd_center();
@@ -41,7 +41,7 @@ void app_create() {
 void App_destroy() {
   LogInfo("game exit");
   if (currentState.Destroy) currentState.Destroy();
-  UI_Destroy();
+  ui_destroy();
   wnd_destroy();
 }
 
@@ -52,14 +52,14 @@ void app_run() {
     if (currentState.Update) currentState.Update(prof_dt());
 
     // draw
-    UI_NewFrame();
-    UI_DrawDemoWindow();
+    ui_begin_frame();
+    ui_draw_demo();
     if (currentState.DrawUI) currentState.DrawUI();
 
     // render
     rhi_device_begin_frame();
     if (currentState.Render) currentState.Render();
-    UI_EndFrame();
+    ui_end_frame();
     wnd_swap_buffers();
 
     // update monitor

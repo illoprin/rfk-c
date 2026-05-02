@@ -5,9 +5,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "framebuffer.h"
+
 // bindings
-uint vao_binding = 0u;
-uint program_binding = 0u;
+static uint vao_binding = 0u;
+static uint program_binding = 0u;
+static uint fbo_binding = 0u;
 
 // stats
 static rhi_RenderStats stats = { 0 };
@@ -37,6 +40,22 @@ void rhi_Device_Clear(vec4 color, uint bufferMask) {
 // --------------------------------------
 //            Drawing
 // --------------------------------------
+
+void rhi_device_bind_fbo(rhi_Fbo* fbo) {
+  uint id;
+  if (fbo == NULL || fbo->ID == 0) {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    id = 0;
+  } else {
+    if (fbo->ID == fbo_binding) return;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+    glViewport(0, 0, fbo->width, fbo->height);
+    id = fbo->ID;
+  }
+
+  fbo_binding = id;
+}
 
 bool vaoValidate(rhi_VAO t) {
   if (vao_binding == t.ID) return true;

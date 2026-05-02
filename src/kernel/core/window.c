@@ -2,14 +2,14 @@
 #include "input.h"
 #include <rfklib/log.h>
 
-GLFWwindow* handle;
-ivec2 wnd_Size;
-WindowFnResize uResizeCallback;
-bool rawInputSupport = false;
-bool mouseGrabbed = false;
-bool grabbedBeforeFocusLoss = false;
+static GLFWwindow* handle;
+static ivec2 wnd_Size;
+static WindowFnResize uResizeCallback;
+static bool rawInputSupport = false;
+static bool mouseGrabbed = false;
+static bool grabbedBeforeFocusLoss = false;
 
-void sizeCallback(GLFWwindow* _, int width, int height) {
+static void size_callback(GLFWwindow* _, int width, int height) {
   *wnd_Size = width;
   *(wnd_Size + 1) = height;
 
@@ -20,7 +20,7 @@ void sizeCallback(GLFWwindow* _, int width, int height) {
   printf("window resized %d %d\n", wnd_Size[0], wnd_Size[1]);
 };
 
-void focusCallback(GLFWwindow* _, int focused) {
+static void focus_callback(GLFWwindow* _, int focused) {
   if (!focused && mouseGrabbed) {
     wnd_toggle_grab();
     grabbedBeforeFocusLoss = true;
@@ -54,8 +54,8 @@ void wnd_init(int width, int height, const char* title) {
   }
 
   // setup callbacks
-  glfwSetFramebufferSizeCallback(handle, sizeCallback);
-  glfwSetWindowFocusCallback(handle, focusCallback);
+  glfwSetFramebufferSizeCallback(handle, size_callback);
+  glfwSetWindowFocusCallback(handle, focus_callback);
   hid_init();
 }
 

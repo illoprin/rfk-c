@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __RFKLIB_VECTOR_H__
+#define __RFKLIB_VECTOR_H__
 
 #include <stddef.h>
 
@@ -40,7 +41,9 @@ void Vec_RemoveAt(Vector* vec, size_t index);
         Vec_InsertRaw((vec), (index), &tmp); \
     } while(0)
 
-#if defined(RFKLIB_IMPL)
+#endif // __RFKLIB_VECTOR_H__
+
+#ifdef RFKLIB_IMPL
 
 #define VEC_BASE_CAPACITY 4
 
@@ -100,7 +103,7 @@ void Vec_PushRaw(Vector* vec, void* valuePtr) {
   vec->Len++;
 }
 
-void* Vec_AtRaw(Vector* vec, size_t index) {
+void* Vec_GetRaw(Vector* vec, size_t index) {
   if (index >= vec->Len) {
     fprintf(stderr, "[Vector] Index out of bounds (%zu >= %zu)\n", index, vec->Len);
     return NULL;
@@ -207,4 +210,4 @@ void Vec_RemoveAt(Vector* vec, size_t index) {
   vec->Len--;
 }
 
-#endif
+#endif // RFKLIB_IMPL

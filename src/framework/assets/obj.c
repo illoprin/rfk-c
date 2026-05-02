@@ -20,7 +20,7 @@ typedef struct {
 } FaceIndices;
 
 // parse 'v' string
-void ObjParseVertices(int lineNum, char* line, ObjRawData* obj) {
+void obj_parse_vertices(int lineNum, char* line, ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y, z;
@@ -34,7 +34,7 @@ void ObjParseVertices(int lineNum, char* line, ObjRawData* obj) {
 }
 
 // parse 'vt' string
-void ObjParseTexcoords(int lineNum, char* line, ObjRawData* obj) {
+void obj_parse_texcoords(int lineNum, char* line, ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y;
@@ -47,7 +47,7 @@ void ObjParseTexcoords(int lineNum, char* line, ObjRawData* obj) {
 }
 
 // parse 'vn' string
-void ObjParseNormals(int lineNum, char* line, ObjRawData* obj) {
+void obj_parse_normals(int lineNum, char* line, ObjRawData* obj) {
   if (line == NULL) return;
 
   float x, y, z;
@@ -62,7 +62,7 @@ void ObjParseNormals(int lineNum, char* line, ObjRawData* obj) {
 
 // parse 'f' string
 // adds vertices and indices to final array
-int ObjParseFace(
+int obj_parse_face(
   int line,
   char* lineStr,
   ObjRawData* obj,
@@ -129,13 +129,13 @@ int ObjParseFace(
   return 0;
 }
 
-void ObjAllocate(ObjRawData* raw) {
+void obj_init(ObjRawData* raw) {
   Vec_Init(&raw->Vertices, float);
   Vec_Init(&raw->Texcoord, float);
   Vec_Init(&raw->Normals, float);
 }
 
-void ObjFree(ObjRawData* raw) {
+void obj_destroy(ObjRawData* raw) {
   Vec_Destroy(&raw->Vertices);
   Vec_Destroy(&raw->Texcoord);
   Vec_Destroy(&raw->Normals);
@@ -150,7 +150,7 @@ int mdl_init_from_obj(Model* mdl, const char* path) {
 
   // create temp obj storage
   ObjRawData raw;
-  ObjAllocate(&raw);
+  obj_init(&raw);
 
   // final vertices arrays
   Vector vertices;
@@ -169,14 +169,14 @@ int mdl_init_from_obj(Model* mdl, const char* path) {
       continue;
 
     if (!strncmp(lineStr, "v ", 2)) {
-      ObjParseVertices(line, lineStr, &raw);
+      obj_parse_vertices(line, lineStr, &raw);
     } else if (!strncmp(lineStr, "vt ", 3)) {
-      ObjParseTexcoords(line, lineStr, &raw);
+      obj_parse_texcoords(line, lineStr, &raw);
     } else if (!strncmp(lineStr, "vn ", 3)) {
-      ObjParseNormals(line, lineStr, &raw);
+      obj_parse_normals(line, lineStr, &raw);
     } else if (!strncmp(lineStr, "f ", 2)) {
-      if (ObjParseFace(line, lineStr, &raw, &vertices, &indices)) {
-        ObjFree(&raw);
+      if (obj_parse_face(line, lineStr, &raw, &vertices, &indices)) {
+        obj_destroy(&raw);
         return 1;
       }
     }
@@ -186,7 +186,7 @@ int mdl_init_from_obj(Model* mdl, const char* path) {
 
   fclose(f);
 
-  ObjFree(&raw);
+  obj_destroy(&raw);
 
   mdl->Vertices = vertices.Data;
   mdl->CountVertices = vertices.Len;

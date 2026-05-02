@@ -85,15 +85,6 @@ void rhi_fbo_set_draw_bufs(rhi_Fbo* fbo, uint* attachments, int count) {
   free(enums);
 }
 
-void rhi_fbo_bind_for_drawing(rhi_Fbo* fbo) {
-  if (fbo == NULL || fbo->ID == 0) {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    return;
-  };
-  glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
-  glViewport(0, 0, fbo->width, fbo->height);
-}
-
 void rhi_fbo_resize(rhi_Fbo* fbo, uint width, uint height) {
   if (fbo == NULL || fbo->ID == 0) return;
   fbo->width = width;

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __RFKLIB_LOG_H__
+#define __RFKLIB_LOG_H__
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -29,29 +30,31 @@ enum LogLevel : uch {
   RFK_LOG_ERR,
 };
 
-void __log(FILE*, enum LogLevel, const char* file, int line, const char* fmt, ...);
-void __assert(bool condition, const char* condStr, const char* file, int line);
+void _rfk_log(FILE*, enum LogLevel, const char* file, int line, const char* fmt, ...);
+void _rfk_assert(bool condition, const char* condStr, const char* file, int line);
 
 #define FILE_PATH_STR(file) "\"" file "\""
 
 #define LogInfo(...) \
-  __log(stdout, RFK_LOG_INFO, __BASE_FILE__, __LINE__, __VA_ARGS__)
+  _rfk_log(stdout, RFK_LOG_INFO, __BASE_FILE__, __LINE__, __VA_ARGS__)
 
 #define LogWarn(...) \
-  __log(stdout, RFK_LOG_WARN, __BASE_FILE__, __LINE__, __VA_ARGS__)
+  _rfk_log(stdout, RFK_LOG_WARN, __BASE_FILE__, __LINE__, __VA_ARGS__)
 
 #define LogErr(...) \
-  __log(stdout, RFK_LOG_ERR, __BASE_FILE__, __LINE__, __VA_ARGS__)
+  _rfk_log(stdout, RFK_LOG_ERR, __BASE_FILE__, __LINE__, __VA_ARGS__)
 
 #define RFK_ASSERT(condition, msg) \
-  __assert((condition), (msg), __FILE__, __LINE__);
+  _rfk_assert((condition), (msg), __FILE__, __LINE__);
 
-#if defined(RFKLIB_IMPL) 
+#endif // __RFKLIB_LOG_H__
+
+#ifdef RFKLIB_IMPL 
 
 #include <time.h>
 #include <stdlib.h>
 
-void __log(
+void _rfk_log(
   FILE* f,
   enum LogLevel loglevel,
   const char* src,
@@ -101,7 +104,7 @@ void __log(
   fprintf(f, " from " RFK_BOLDWHITE FILE_PATH_STR("%s:%d") RFK_RESET "\n", src, line);
 };
 
-void __assert(bool condition, const char* str, const char* file, int line) {
+void _rfk_assert(bool condition, const char* str, const char* file, int line) {
   if (!condition) {
     printf(RFK_BOLDRED "Assertion failed: %s" RFK_RESET "\n", str);
     printf(
@@ -112,4 +115,4 @@ void __assert(bool condition, const char* str, const char* file, int line) {
   }
 }
 
-#endif
+#endif // RFKLIB_IMPL

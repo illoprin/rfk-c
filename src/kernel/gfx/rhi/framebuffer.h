@@ -36,9 +36,6 @@ void rhi_fbo_add_depth(rhi_Fbo* fbo, rhi_TextureFormat format);
 /// @param count number of attachments in array
 void rhi_fbo_set_draw_bufs(rhi_Fbo* fbo, uint* attachments, int count);
 
-/// @brief binds fbo and sets viewport
-void rhi_fbo_bind_for_drawing(rhi_Fbo* fbo);
-
 /// @brief resizes all attachments
 void rhi_fbo_resize(rhi_Fbo* fbo, uint width, uint height);
 

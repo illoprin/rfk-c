@@ -32,7 +32,7 @@ $(TARGET): $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@echo "📝 Compiling $<..."
 	@mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) -c $< -o $@ $(INCLUDE)
+	@$(CXX) $(CFLAGS) -c $< -o $@ $(INCLUDE)
 
 .PHONY:
 clear:

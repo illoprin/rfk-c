@@ -4,16 +4,19 @@
 
 /// @brief init system
 /// @param window - our glfw window
-void UI_Init(GLFWwindow* window);
+void ui_init(GLFWwindow* window);
 
 /// @brief call it before drawing imgui
-void UI_NewFrame();
+void ui_begin_frame();
+
+/// @brief allow or deny input
+void ui_set_input(bool enabled);
 
 /// @brief render
-void UI_EndFrame();
+void ui_end_frame();
 
 /// @brief draw initial ui
-void UI_DrawDemoWindow();
+void ui_draw_demo();
 
 /// @brief destroy context
-void UI_Destroy();
+void ui_destroy();
