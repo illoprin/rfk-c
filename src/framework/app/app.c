@@ -1,6 +1,8 @@
 #include "app.h"
 
-#include "ui/initial_ui.h"
+#include "ui/iui_loader.h"
+#include "ui/iui_layout.h"
+#include "initial_assets.h"
 #include <kernel/core/core.h>
 
 static StateVTable currentState = { 0 };
@@ -23,10 +25,13 @@ void app_create() {
   printf(HELLO_STR);
 
   // create window
-  wnd_init(1500, 650, "game");
+  wnd_init(1600, 850, "game");
 
   // init glad
   rhi_device_init();
+
+  // init initial assets
+  ia_init();
 
   // init imgui
   ui_init(wnd_get_handle());
@@ -38,9 +43,20 @@ void app_create() {
   LogInfo("game created");
 }
 
-void App_destroy() {
+static void app_update() {
+  if (hid_key_pressed(GLFW_KEY_F3)) {
+    iui_switch_stats_mode();
+  }
+}
+
+static void app_draw_ui() {
+  iui_draw_stats_overlay();
+}
+
+void app_destroy() {
   LogInfo("game exit");
   if (currentState.Destroy) currentState.Destroy();
+  ia_destroy();
   ui_destroy();
   wnd_destroy();
 }
@@ -49,23 +65,24 @@ void app_run() {
   while (!wnd_should_close()) {
     // update
     wnd_update();
+    app_update();
     if (currentState.Update) currentState.Update(prof_dt());
 
     // draw
     ui_begin_frame();
-    ui_draw_demo();
     if (currentState.DrawUI) currentState.DrawUI();
+    app_draw_ui();
 
     // render
     rhi_device_begin_frame();
     if (currentState.Render) currentState.Render();
-    ui_end_frame();
+    ui_render();
     wnd_swap_buffers();
 
     // update monitor
     prof_update();
   }
-  App_destroy();
+  app_destroy();
 }
 
 void onResize(int width, int height) {

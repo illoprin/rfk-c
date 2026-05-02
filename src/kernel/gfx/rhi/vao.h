@@ -21,6 +21,5 @@ typedef struct {
 void rhi_vao_init(rhi_VAO*);
 void rhi_vao_add_index_buf(rhi_VAO*, rhi_Buffer);
 void rhi_vao_add_attrs(rhi_VAO*, rhi_Buffer, rhi_Attribute*, int numAttrs);
-void rhi_vao_bind(rhi_VAO*);
 bool rhi_vao_is_valid(rhi_VAO);
 void rhi_vao_invalidate(rhi_VAO*);

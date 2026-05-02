@@ -73,10 +73,24 @@ void player_update_look() {
 void bs_draw_ui() {
   if (!initialized) return;
 
-  igBegin("Camera", NULL, 0);
+  ImGuiWindowFlags wflags =
+    ImGuiWindowFlags_NoDecoration |
+    ImGuiWindowFlags_AlwaysAutoResize |
+    ImGuiWindowFlags_NoNav |
+    ImGuiWindowFlags_NoMove;
 
-  igDragFloat3("Position", cam.Position, 0, 0, 0, "%.2f", ImGuiDragDropFlags_None);
-  igDragFloat3("Rotation", cam.Rotation, 0, 0, 0, "%.2f", ImGuiDragDropFlags_None);
+  int* size = wnd_get_size();
+  ImVec2 wpos = { UI_PADDING, size[1] - UI_PADDING };
+  ImVec2 wpivot = { 0.f, 1.f };
+
+  igSetNextWindowPos(wpos, ImGuiCond_Always, wpivot);
+
+  igBegin("##BlueState", NULL, wflags);
+
+  igText("Camera");
+
+  igDragFloat3("Position", cam.Position, 0.1f, 0, 0, "%.2f", ImGuiDragDropFlags_None);
+  igDragFloat3("Rotation", cam.Rotation, 0.1f, 0, 0, "%.2f", ImGuiDragDropFlags_None);
 
   igEnd();
 }
@@ -108,8 +122,6 @@ void bs_update(float dt) {
 }
 
 void bs_render() {
-  int* screen = wnd_get_size();
-  glViewport(0, 0, screen[0], screen[1]);
   glClearColor(0.31, 0.68, 0.9, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -118,14 +130,16 @@ void bs_render() {
   rhi_device_use_program(geomProg);
   rhi_prog_uniform_mat4(geomProg, "u_projection", cam.Proj[0]);
   rhi_prog_uniform_mat4(geomProg, "u_view", cam.View[0]);
-  rhi_tex_bind_to_unit(handgunTexture, 0);
+  rhi_device_bind_tex(handgunTexture, 0);
   rhi_prog_uniform_1i(geomProg, "u_diffuse", 0);
   rhi_device_draw(handgunMesh.VAO, handgunMesh.indexNum);
+
+  ia_render_inf_grid(&cam, .1f, 1.f, 10.f);
 }
 
 void bs_init() {
   fputc('\n', stdout);
-  if (!Prog_QuickLoad(
+  if (!rhi_prog_quick_load(
     &geomProg,
     FLS_SHADER_PATH("g_basic.vert"),
     FLS_SHADER_PATH("g_basic.frag")
@@ -179,6 +193,10 @@ void bs_on_enter(void*) {
   glFrontFace(GL_CCW);
 }
 
+void bs_on_resize(int w, int h) {
+  glViewport(0, 0, w, h);
+}
+
 StateVTable bs_get_vtable() {
   return (StateVTable) {
     .Update = bs_update,
@@ -186,6 +204,7 @@ StateVTable bs_get_vtable() {
       .DrawUI = bs_draw_ui,
       .OnEnter = bs_on_enter,
       .OnExit = bs_on_exit,
+      .OnResize = bs_on_resize,
       .Destroy = bs_destroy,
       .Init = bs_init,
   };

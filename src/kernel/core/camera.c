@@ -27,6 +27,7 @@ void cam_update(Camera* cam, ivec2 screen) {
     float rsin = sinf(roll);
 
     vec3 a, b, c;
+
     // right = normalize(right * rcos + cross(front, right) * rsin)
     glm_vec3_scale(cam->Right, rcos, a);
     glm_vec3_cross(cam->Front, cam->Right, b);
@@ -35,7 +36,7 @@ void cam_update(Camera* cam, ivec2 screen) {
     glm_vec3_normalize(cam->Right);
 
     // up = normalize(cross(right, front))
-    glm_vec3_cross(cam->Front, cam->Right, cam->Up);
+    glm_vec3_cross(cam->Right, cam->Front, cam->Up);
     glm_vec3_normalize(cam->Up);
   }
 

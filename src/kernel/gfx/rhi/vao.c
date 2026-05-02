@@ -6,6 +6,7 @@ void rhi_vao_init(rhi_VAO* o) {
 
   glGenVertexArrays(1, &o->ID);
   glBindVertexArray(o->ID);
+  glBindVertexArray(0);
   LogInfo("vao [ID = %d] created", o->ID);
 }
 
@@ -20,6 +21,7 @@ void rhi_vao_add_index_buf(rhi_VAO* o, rhi_Buffer buf) {
 
   glBindVertexArray(o->ID);
   glBindBuffer(buf.type, buf.ID);
+  glBindVertexArray(0);
   o->eboId = buf.ID;
 }
 
@@ -59,13 +61,8 @@ void rhi_vao_add_attrs(rhi_VAO* o, rhi_Buffer buf, rhi_Attribute* attrs, int num
     }
     glVertexAttribDivisor(attr.Location, attr.Divisor);
   }
+  glBindVertexArray(0);
 
-}
-
-void rhi_vao_bind(rhi_VAO* o) {
-  if (o == NULL) return;
-  if (o->ID == 0) return;
-  glBindVertexArray(o->ID);
 }
 
 bool rhi_vao_is_valid(rhi_VAO o) {

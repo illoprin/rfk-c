@@ -3,7 +3,7 @@
 #include <kernel/core/files.h>
 #include <stdlib.h>
 
-int Prog_QuickLoad(rhi_Program* prog, const char* vs_path, const char* fs_path) {
+int rhi_prog_quick_load(rhi_Program* prog, const char* vs_path, const char* fs_path) {
   rhi_prog_init(prog);
 
   size_t vs_size, fs_size;
@@ -12,7 +12,7 @@ int Prog_QuickLoad(rhi_Program* prog, const char* vs_path, const char* fs_path) 
 
   if (!vs_src || !fs_src) {
     fprintf(stderr, "failed to load shader\n");
-    return 1;
+    return 0;
   }
 
   bool res = rhi_prog_add_shader(prog, RHI_SHADER_VERTEX, vs_src) &&

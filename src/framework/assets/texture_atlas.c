@@ -69,7 +69,7 @@ static void TexAtlas_createArray(TextureAtlas* handle, Vector images) {
   memset(Pix, 0, totalBytes);
 
   for (uint i = 0; i < images.Len; ++i) {
-    Image2D* img = Vec_GetRaw(&images, i);
+    Image2D* img = vec_get_raw(&images, i);
     if (!img || !img->Pix) continue;
 
     // determine unit coordinates in the grid
@@ -96,18 +96,18 @@ static void TexAtlas_createArray(TextureAtlas* handle, Vector images) {
 int TexAtlas_InitFromImages(TextureAtlas* handle, Vector images) {
   *(handle) = (TextureAtlas){ 0 };
   Vector validated;
-  Vec_Init(&validated, Image2D);
+  vec_init(&validated, Image2D);
 
   // validation
   for (size_t i = 0; i < images.Len; ++i) {
-    Image2D* img = Vec_GetRaw(&images, i);
+    Image2D* img = vec_get_raw(&images, i);
     if (!img) continue;
 
     // check image
     TexAtlas_ValidationResult r = TexAtlas_validateImage(handle, img);
 
     if (!r) {
-      Vec_PushRaw(&validated, img);
+      vec_push_raw(&validated, img);
       continue;
     }
 
@@ -127,13 +127,13 @@ int TexAtlas_InitFromImages(TextureAtlas* handle, Vector images) {
 
   if (validated.Len == 0) {
     LogErr("empty set");
-    Vec_Destroy(&validated);
+    vec_destroy(&validated);
     return 1;
   }
 
   TexAtlas_findAtlasSize(handle, validated.Len);
   TexAtlas_createArray(handle, validated);
-  Vec_Destroy(&validated);
+  vec_destroy(&validated);
 
   LogInfo("atlas created { W: %d H: %d }",
     handle->Width * handle->UnitSize,

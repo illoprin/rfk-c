@@ -8,7 +8,7 @@ void rhi_fbo_init(rhi_Fbo* fbo, uint width, uint height) {
 
   fbo->width = width;
   fbo->height = height;
-  Vec_Init(&fbo->colorTextures, rhi_Texture);
+  vec_init(&fbo->colorTextures, rhi_Texture);
 
   glGenFramebuffers(1, &fbo->ID);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
@@ -42,7 +42,7 @@ void rhi_fbo_add_color(rhi_Fbo* fbo, rhi_TextureFormat format, rhi_TextureFilter
     0
   );
 
-  Vec_Push(&fbo->colorTextures, tex);
+  vec_push(&fbo->colorTextures, tex);
 }
 
 void rhi_fbo_add_depth(rhi_Fbo* fbo, rhi_TextureFormat format) {
@@ -92,7 +92,7 @@ void rhi_fbo_resize(rhi_Fbo* fbo, uint width, uint height) {
 
   // resize color attachments
   for (size_t i = 0; i < fbo->colorTextures.Len; i++) {
-    rhi_Texture* tex = Vec_GetRaw(&fbo->colorTextures, i);
+    rhi_Texture* tex = vec_get_raw(&fbo->colorTextures, i);
     rhi_tex2d_resize(tex, width, height);
   }
 
@@ -119,10 +119,10 @@ void rhi_fbo_invalidate(rhi_Fbo* fbo) {
 
   // invalidate color textures
   for (size_t i = 0; i < fbo->colorTextures.Len; i++) {
-    rhi_Texture* tex = Vec_GetRaw(&fbo->colorTextures, i);
+    rhi_Texture* tex = vec_get_raw(&fbo->colorTextures, i);
     rhi_tex_invalidate(tex);
   }
-  Vec_Destroy(&fbo->colorTextures);
+  vec_destroy(&fbo->colorTextures);
 
   // invalidate depth
   if (fbo->hasDepth) {

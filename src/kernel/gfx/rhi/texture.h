@@ -19,11 +19,6 @@ typedef struct {
   int width, height, depth;
 } rhi_Texture;
 
-/// @brief binds texture into sampler unit
-/// @param tex target texture object
-/// @param unit index of sampler unit
-void rhi_tex_bind_to_unit(rhi_Texture tex, int unit);
-
 /// @brief create texture object
 /// @param type sampler type (2d, array, cube)
 void rhi_tex_init(rhi_Texture* t, rhi_TextureType type);

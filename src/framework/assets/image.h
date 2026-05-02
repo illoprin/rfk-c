@@ -23,7 +23,7 @@ Vector img_load_batch(Vector files, ImageCheckFunc func);
 
 /// @brief free pixels of images
 /// !!! the vector destroying separately
-/// call Vec_Destroy() to invalidate meta data
+/// call vec_destroy() to invalidate meta data
 /// @param images Vector<Image2D>
 void img_batch_destroy(Vector images);
 

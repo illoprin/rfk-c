@@ -25,9 +25,9 @@ void obj_parse_vertices(int lineNum, char* line, ObjRawData* obj) {
 
   float x, y, z;
   if (sscanf(line, "v %f %f %f", &x, &y, &z) == 3) {
-    Vec_Push(&obj->Vertices, x);
-    Vec_Push(&obj->Vertices, y);
-    Vec_Push(&obj->Vertices, z);
+    vec_push(&obj->Vertices, x);
+    vec_push(&obj->Vertices, y);
+    vec_push(&obj->Vertices, z);
   } else {
     LogWarn("failed to parse line %d");
   }
@@ -39,8 +39,8 @@ void obj_parse_texcoords(int lineNum, char* line, ObjRawData* obj) {
 
   float x, y;
   if (sscanf(line, "vt %f %f", &x, &y) == 2) {
-    Vec_Push(&obj->Texcoord, x);
-    Vec_Push(&obj->Texcoord, y);
+    vec_push(&obj->Texcoord, x);
+    vec_push(&obj->Texcoord, y);
   } else {
     LogWarn("failed to parse line %d");
   }
@@ -52,9 +52,9 @@ void obj_parse_normals(int lineNum, char* line, ObjRawData* obj) {
 
   float x, y, z;
   if (sscanf(line, "vn %f %f %f", &x, &y, &z) == 3) {
-    Vec_Push(&obj->Normals, x);
-    Vec_Push(&obj->Normals, y);
-    Vec_Push(&obj->Normals, z);
+    vec_push(&obj->Normals, x);
+    vec_push(&obj->Normals, y);
+    vec_push(&obj->Normals, z);
   } else {
     LogWarn("failed to parse line %d");
   }
@@ -103,18 +103,18 @@ int obj_parse_face(
   for (int i = 0; i < idx; i++) {
     FaceIndices f = face[i];
     // get vertex
-    float vx = Vec_Get(&obj->Vertices, float, f.VertexIndex * 3);
-    float vy = Vec_Get(&obj->Vertices, float, f.VertexIndex * 3 + 1);
-    float vz = Vec_Get(&obj->Vertices, float, f.VertexIndex * 3 + 2);
+    float vx = vec_get(&obj->Vertices, float, f.VertexIndex * 3);
+    float vy = vec_get(&obj->Vertices, float, f.VertexIndex * 3 + 1);
+    float vz = vec_get(&obj->Vertices, float, f.VertexIndex * 3 + 2);
 
     // get texcoord
-    float tu = Vec_Get(&obj->Texcoord, float, f.TexcoordIndex * 2);
-    float tv = Vec_Get(&obj->Texcoord, float, f.TexcoordIndex * 2 + 1);
+    float tu = vec_get(&obj->Texcoord, float, f.TexcoordIndex * 2);
+    float tv = vec_get(&obj->Texcoord, float, f.TexcoordIndex * 2 + 1);
 
     // get normal
-    float nx = Vec_Get(&obj->Normals, float, f.NormalIndex * 3);
-    float ny = Vec_Get(&obj->Normals, float, f.NormalIndex * 3 + 1);
-    float nz = Vec_Get(&obj->Normals, float, f.NormalIndex * 3 + 2);
+    float nx = vec_get(&obj->Normals, float, f.NormalIndex * 3);
+    float ny = vec_get(&obj->Normals, float, f.NormalIndex * 3 + 1);
+    float nz = vec_get(&obj->Normals, float, f.NormalIndex * 3 + 2);
 
     // add model vertex
     int index = modelVertices->Len; // current index is len of vertices array
@@ -123,22 +123,22 @@ int obj_parse_face(
       .Texcoords = { tu, tv },
       .Normal = { nx, ny, nz }
     };
-    Vec_Push(modelVertices, v);
-    Vec_Push(modelIndices, index);
+    vec_push(modelVertices, v);
+    vec_push(modelIndices, index);
   }
   return 0;
 }
 
 void obj_init(ObjRawData* raw) {
-  Vec_Init(&raw->Vertices, float);
-  Vec_Init(&raw->Texcoord, float);
-  Vec_Init(&raw->Normals, float);
+  vec_init(&raw->Vertices, float);
+  vec_init(&raw->Texcoord, float);
+  vec_init(&raw->Normals, float);
 }
 
 void obj_destroy(ObjRawData* raw) {
-  Vec_Destroy(&raw->Vertices);
-  Vec_Destroy(&raw->Texcoord);
-  Vec_Destroy(&raw->Normals);
+  vec_destroy(&raw->Vertices);
+  vec_destroy(&raw->Texcoord);
+  vec_destroy(&raw->Normals);
 }
 
 int mdl_init_from_obj(Model* mdl, const char* path) {
@@ -154,11 +154,11 @@ int mdl_init_from_obj(Model* mdl, const char* path) {
 
   // final vertices arrays
   Vector vertices;
-  Vec_Init(&vertices, ModelVertex);
+  vec_init(&vertices, ModelVertex);
 
   // final indices array
   Vector indices;
-  Vec_Init(&indices, int);
+  vec_init(&indices, int);
 
   char lineStr[MAX_LINE_LEN];
   int line = 0;

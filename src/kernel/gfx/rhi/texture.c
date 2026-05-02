@@ -13,13 +13,6 @@ static void rhi_tex_set_params(
   glTexParameteri(target, GL_TEXTURE_WRAP_R, wrap);
 }
 
-
-void rhi_tex_bind_to_unit(rhi_Texture tex, int unit) {
-  if (tex.ID == 0) return;
-  glActiveTexture(GL_TEXTURE0 + unit);
-  glBindTexture(tex.type, tex.ID);
-}
-
 void rhi_tex_init(rhi_Texture* t, rhi_TextureType type) {
   if (t == NULL) return;
   *t = (rhi_Texture){ 0 };

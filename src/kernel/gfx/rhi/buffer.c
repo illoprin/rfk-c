@@ -7,6 +7,7 @@ void rhi_buf_init(rhi_Buffer* buf, rhi_BufferType type, rhi_BufferUsage usage) {
   buf->type = type;
   buf->usage = usage;
 
+  glBindVertexArray(0);
   glGenBuffers(1, &buf->ID);
   glBindBuffer(type, buf->ID);
 
@@ -18,6 +19,7 @@ void rhi_buf_allocate(rhi_Buffer* buf, const void* data, size_t size) {
   if (buf == NULL) return;
   if (buf->ID == 0) return;
 
+  glBindVertexArray(0);
   glBindBuffer(buf->type, buf->ID);
   glBufferData(buf->type, size, data, buf->usage);
   buf->size = size;
@@ -35,6 +37,7 @@ void rhi_buf_update(rhi_Buffer* buf, size_t offset, const void* data, size_t siz
     return;
   }
 
+  glBindVertexArray(0);
   glBindBuffer(buf->type, buf->ID);
   glBufferSubData(buf->type, offset, size, data);
 }

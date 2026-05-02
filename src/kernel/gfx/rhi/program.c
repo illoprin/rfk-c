@@ -11,7 +11,7 @@ void rhi_prog_init(rhi_Program* prog) {
   LogInfo("program [ID = %d] created", prog->handle);
 }
 
-int rhi_Prog_getUniformLoc(rhi_Program prog, const char* name) {
+static int get_uniform_loc(rhi_Program prog, const char* name) {
   int loc = glGetUniformLocation(prog.handle, name);
   if (loc == -1) {
     LogWarn("program [ID = %d] uniform \"%s\" not found", prog.handle, name);
@@ -64,49 +64,55 @@ bool rhi_prog_link(rhi_Program* prog) {
 // TODO cache uniform locations
 
 void rhi_prog_uniform_1i(rhi_Program prog, const char* name, int value) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniform1i(loc, value);
 }
 
 void rhi_prog_uniform_1ui(rhi_Program prog, const char* name, int value) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniform1ui(loc, value);
 }
 
+void rhi_prog_uniform_1f(rhi_Program prog, const char* name, float v) {
+  int loc = get_uniform_loc(prog, name);
+  if (loc < 0) return;
+  glUniform1f(loc, v);
+}
+
 void rhi_prog_uniform_2f(rhi_Program prog, const char* name, float* v) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniform2fv(loc, 1, v);
 }
 
 void rhi_prog_uniform_3f(rhi_Program prog, const char* name, float* v) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniform3fv(loc, 1, v);
 }
 
 void rhi_prog_uniform_4f(rhi_Program prog, const char* name, float* v) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniform4fv(loc, 1, v);
 }
 
 void rhi_prog_uniform_2i(rhi_Program prog, const char* name, int* v) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniform2iv(loc, 1, v);
 }
 
 void rhi_prog_uniform_mat4(rhi_Program prog, const char* name, float* data) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniformMatrix4fv(loc, 1, GL_FALSE, data);
 }
 
 void rhi_prog_uniform_mat2(rhi_Program prog, const char* name, float* data) {
-  int loc = rhi_Prog_getUniformLoc(prog, name);
+  int loc = get_uniform_loc(prog, name);
   if (loc < 0) return;
   glUniformMatrix2fv(loc, 1, GL_FALSE, data);
 }

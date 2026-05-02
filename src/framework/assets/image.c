@@ -26,11 +26,11 @@ int img_from_file(Image2D* img, const char* path) {
 
 Vector img_load_batch(Vector files, ImageCheckFunc check) {
   Vector images;
-  Vec_Init(&images, Image2D);
+  vec_init(&images, Image2D);
 
   for (uint i = 0; i < files.Len; ++i) {
     // get path
-    const char* path = Vec_GetRaw(&files, i);
+    const char* path = vec_get_raw(&files, i);
     if (path == NULL) continue;
 
     // load image
@@ -46,7 +46,7 @@ Vector img_load_batch(Vector files, ImageCheckFunc check) {
     }
 
     // push to array
-    Vec_Push(&images, img);
+    vec_push(&images, img);
   }
 
   return images;
@@ -54,7 +54,7 @@ Vector img_load_batch(Vector files, ImageCheckFunc check) {
 
 void img_batch_destroy(Vector images) {
   for (size_t i = 0; i < images.Len; ++i) {
-    Image2D* img = Vec_GetRaw(&images, i);
+    Image2D* img = vec_get_raw(&images, i);
     if (!img) continue;
     img_destroy(*img);
   }

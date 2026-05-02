@@ -10,35 +10,36 @@ typedef struct {
   size_t Len;
 } Vector;
 
-void __vecInit(Vector* vec, size_t elemSize);
-void Vec_Destroy(Vector* vec);
+void _vec_init(Vector* vec, size_t elemSize);
+void vec_destroy(Vector* vec);
 
-void Vec_Reserve(Vector* vec, size_t newCapacity);
+void vec_reserve(Vector* vec, size_t newCapacity);
 
-void Vec_PushRaw(Vector* vec, void* valuePtr);
-void* Vec_GetRaw(Vector* vec, size_t index) __attribute__((warn_unused_result));
+void vec_push_raw(Vector* vec, void* valuePtr);
+void* vec_get_raw(Vector* vec, size_t index) __attribute__((warn_unused_result));
+void vec_append_raw(Vector* dst, const Vector* src);
 
-void Vec_Pop(Vector* vec);
-void Vec_Clear(Vector* vec);
+void vec_pop(Vector* vec);
+void vec_clear(Vector* vec);
 
-void Vec_InsertRaw(Vector* vec, size_t index, void* valuePtr);
-void Vec_RemoveAt(Vector* vec, size_t index);
+void vec_insert_raw(Vector* vec, size_t index, void* valuePtr);
+void vec_remove(Vector* vec, size_t index);
 
-#define Vec_Init(vec, Type) __vecInit(vec, sizeof(Type))
+#define vec_init(vec, Type) _vec_init(vec, sizeof(Type))
 
-#define Vec_Push(vec, value) \
+#define vec_push(vec, value) \
     do { \
         __typeof__(value) tmp = value; \
-        Vec_PushRaw((vec), &tmp); \
+        vec_push_raw((vec), &tmp); \
     } while(0)
 
-#define Vec_Get(vec, Type, index) \
-    (*(Type*)Vec_GetRaw((vec), (index)))
+#define vec_get(vec, Type, index) \
+    (*(Type*)vec_get_raw((vec), (index)))
 
-#define Vec_Insert(vec, index, value) \
+#define vec_insert(vec, index, value) \
     do { \
         __typeof__(value) tmp = value; \
-        Vec_InsertRaw((vec), (index), &tmp); \
+        vec_insert_raw((vec), (index), &tmp); \
     } while(0)
 
 #endif // __RFKLIB_VECTOR_H__
@@ -51,7 +52,7 @@ void Vec_RemoveAt(Vector* vec, size_t index);
 #include <stdio.h>
 #include <string.h>
 
-void __vecInit(Vector* vec, size_t elemSize) {
+void _vec_init(Vector* vec, size_t elemSize) {
   // allocate some memory
   void* data = malloc(VEC_BASE_CAPACITY * elemSize);
   if (!data) {
@@ -65,7 +66,7 @@ void __vecInit(Vector* vec, size_t elemSize) {
   vec->_elem_size = elemSize;
 }
 
-void Vec_Destroy(Vector* vec) {
+void vec_destroy(Vector* vec) {
   if (vec->Data) {
     free(vec->Data);
   }
@@ -78,7 +79,7 @@ size_t getNewVecCapacity(Vector* vec) {
     : vec->_capacity * 2;
 }
 
-void Vec_Reserve(Vector* vec, size_t newCapacity) {
+void vec_reserve(Vector* vec, size_t newCapacity) {
   if (newCapacity <= vec->_capacity) return;
 
   void* newData = realloc(vec->Data, newCapacity * vec->_elem_size);
@@ -91,10 +92,10 @@ void Vec_Reserve(Vector* vec, size_t newCapacity) {
   vec->_capacity = newCapacity;
 }
 
-void Vec_PushRaw(Vector* vec, void* valuePtr) {
+void vec_push_raw(Vector* vec, void* valuePtr) {
   if (vec->Len >= vec->_capacity) {
     size_t newCap = getNewVecCapacity(vec);
-    Vec_Reserve(vec, newCap);
+    vec_reserve(vec, newCap);
   }
 
   void* dst = (char*)vec->Data + (vec->Len * vec->_elem_size);
@@ -103,7 +104,7 @@ void Vec_PushRaw(Vector* vec, void* valuePtr) {
   vec->Len++;
 }
 
-void* Vec_GetRaw(Vector* vec, size_t index) {
+void* vec_get_raw(Vector* vec, size_t index) {
   if (index >= vec->Len) {
     fprintf(stderr, "[Vector] Index out of bounds (%zu >= %zu)\n", index, vec->Len);
     return NULL;
@@ -112,7 +113,7 @@ void* Vec_GetRaw(Vector* vec, size_t index) {
   return (char*)vec->Data + (index * vec->_elem_size);
 }
 
-void Vec_Pop(Vector* vec) {
+void vec_pop(Vector* vec) {
   if (vec->Len == 0) {
     fprintf(stderr, "[Vector] Pop from empty vector\n");
     return;
@@ -120,11 +121,11 @@ void Vec_Pop(Vector* vec) {
   vec->Len--;
 }
 
-void Vec_Clear(Vector* vec) {
+void vec_clear(Vector* vec) {
   vec->Len = 0;
 }
 
-void Vec_InsertRaw(Vector* vec, size_t index, void* valuePtr) {
+void vec_insert_raw(Vector* vec, size_t index, void* valuePtr) {
 
   if (index > vec->Len) {
     fprintf(stderr, "[Vector] Insertion out of bounds not allowed");
@@ -132,14 +133,14 @@ void Vec_InsertRaw(Vector* vec, size_t index, void* valuePtr) {
   }
 
   if (index == vec->Len) {
-    Vec_PushRaw(vec, valuePtr);
+    vec_push_raw(vec, valuePtr);
     return;
   }
 
   // allocate
   if (vec->Len >= vec->_capacity) {
     size_t newCap = getNewVecCapacity(vec);
-    Vec_Reserve(vec, newCap);
+    vec_reserve(vec, newCap);
   }
   vec->Len++;
 
@@ -159,7 +160,7 @@ void Vec_InsertRaw(Vector* vec, size_t index, void* valuePtr) {
   );
 }
 
-void Vec_AppendRaw(Vector* dst, const Vector* src) {
+void vec_append_raw(Vector* dst, const Vector* src) {
   if (dst == src) {
     fprintf(stderr, "[Vector] Append failed: self append not allowed\n");
     return;
@@ -181,7 +182,7 @@ void Vec_AppendRaw(Vector* dst, const Vector* src) {
     while (newCap < neededCapacity) {
       newCap *= 2;
     }
-    Vec_Reserve(dst, newCap);
+    vec_reserve(dst, newCap);
   }
 
   // take pointer to end of dst data
@@ -193,7 +194,7 @@ void Vec_AppendRaw(Vector* dst, const Vector* src) {
   dst->Len += src->Len;
 }
 
-void Vec_RemoveAt(Vector* vec, size_t index) {
+void vec_remove(Vector* vec, size_t index) {
   if (index >= vec->Len) {
     fprintf(stderr, "[Vector] RemoveAt index out of bounds (%zu >= %zu)\n", index, vec->Len);
     return;

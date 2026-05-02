@@ -1,16 +1,21 @@
 #include "render_device.h"
 
 #include <rfklib/log.h>
+#include <kernel/core/defs.h>
+#include "framebuffer.h"
+#include <string.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-#include "framebuffer.h"
 
 // bindings
 static uint vao_binding = 0u;
 static uint program_binding = 0u;
 static uint fbo_binding = 0u;
+
+// misc
+static const char* g_renderer;
+static const char* g_api_version;
 
 // stats
 static rhi_RenderStats stats = { 0 };
@@ -22,6 +27,17 @@ static rhi_RenderStats stats = { 0 };
 void rhi_device_init() {
   // init renderer
   RFK_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "failed to init context");
+
+  g_renderer = glGetString(GL_RENDERER);
+  g_api_version = glGetString(GL_SHADING_LANGUAGE_VERSION);
+}
+
+const char* rhi_device_str_renderer() {
+  return g_renderer;
+}
+
+const char* rhi_device_str_version() {
+  return g_api_version;
 }
 
 void rhi_push_state() {
@@ -74,15 +90,22 @@ void rhi_device_begin_frame() {
   // invalidate bindings
   vao_binding = 0;
   program_binding = 0;
+  fbo_binding = 0;
   glBindVertexArray(0);
   glUseProgram(0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void rhi_device_use_program(rhi_Program p) {
-  if (p.handle != program_binding) {
-    glUseProgram(p.handle);
-    program_binding = p.handle;
-  }
+  if (p.handle == program_binding) return;
+  glUseProgram(p.handle);
+  program_binding = p.handle;
+}
+
+void rhi_device_bind_tex(rhi_Texture tex, int unit) {
+  if (tex.ID == 0) return;
+  glActiveTexture(GL_TEXTURE0 + unit);
+  glBindTexture(tex.type, tex.ID);
 }
 
 void rhi_device_draw(rhi_VAO t, int count) {

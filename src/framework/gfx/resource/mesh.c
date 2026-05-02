@@ -59,10 +59,10 @@ void mesh_init_basic_quad(Mesh* m) {
     return;
   }
   float verts[] = {
-    -.5f, -.5f,
-    .5f, -.5f,
-    .5f, .5f,
-    -.5f, .5f,
+    -1.f, -1.f,
+    1.f, -1.f,
+    1.f, 1.f,
+    -1.f, 1.f,
   };
   int indices[] = {
     0, 1, 2,

@@ -1,6 +1,9 @@
 #pragma once
 
-#include "app/ui/initial_ui.h"
+#include "app/ui/imgui.h"
+#include "app/ui/iui_layout.h"
+#include "app/ui/iui_loader.h"
+#include "app/initial_assets.h"
 #include "app/app.h"
 #include "app/ecs.h"
 

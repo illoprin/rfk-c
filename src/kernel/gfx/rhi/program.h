@@ -17,6 +17,7 @@ void rhi_prog_invalidate(rhi_Program* prog);
 // Uniform Setters
 void rhi_prog_uniform_1i(rhi_Program prog, const char* name, int value);
 void rhi_prog_uniform_1ui(rhi_Program prog, const char* name, int value);
+void rhi_prog_uniform_1f(rhi_Program prog, const char* name, float);
 void rhi_prog_uniform_2f(rhi_Program prog, const char* name, float*);
 void rhi_prog_uniform_3f(rhi_Program prog, const char* name, float*);
 void rhi_prog_uniform_4f(rhi_Program prog, const char* name, float*);
