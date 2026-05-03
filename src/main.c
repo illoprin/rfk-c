@@ -1,6 +1,6 @@
 #include <framework/framework.h>
-#include <toolkit/toolkit.h>
 #include <kernel/kernel.h>
+#include <toolkit/toolkit.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>

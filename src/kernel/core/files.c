@@ -1,11 +1,11 @@
 #include "files.h"
 
+#include <limits.h>
+#include <rfklib/log.h>
+#include <stb/stb_image.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <limits.h>
-#include <stb/stb_image.h>
-#include <rfklib/log.h>
 
 char* fls_read_file(const char* fpath, size_t* out_size) {
   FILE* file = fopen(fpath, "rb");
@@ -62,8 +62,7 @@ char* fls_read_file(const char* fpath, size_t* out_size) {
 
   fclose(file);
 
-  if (out_size)
-    *out_size = byte_size;
+  if (out_size) *out_size = byte_size;
 
   LogInfo("file \"%s\" read", fpath);
 

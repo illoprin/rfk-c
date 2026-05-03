@@ -21,7 +21,7 @@ typedef struct {
 
 // parse 'v' string
 void obj_parse_vertices(int lineNum, char* line, ObjRawData* obj) {
-  if (line == NULL) return;
+  if (line == NULL) { return; }
 
   float x, y, z;
   if (sscanf(line, "v %f %f %f", &x, &y, &z) == 3) {
@@ -35,7 +35,7 @@ void obj_parse_vertices(int lineNum, char* line, ObjRawData* obj) {
 
 // parse 'vt' string
 void obj_parse_texcoords(int lineNum, char* line, ObjRawData* obj) {
-  if (line == NULL) return;
+  if (line == NULL) { return; }
 
   float x, y;
   if (sscanf(line, "vt %f %f", &x, &y) == 2) {
@@ -48,7 +48,7 @@ void obj_parse_texcoords(int lineNum, char* line, ObjRawData* obj) {
 
 // parse 'vn' string
 void obj_parse_normals(int lineNum, char* line, ObjRawData* obj) {
-  if (line == NULL) return;
+  if (line == NULL) { return; }
 
   float x, y, z;
   if (sscanf(line, "vn %f %f %f", &x, &y, &z) == 3) {
@@ -63,21 +63,18 @@ void obj_parse_normals(int lineNum, char* line, ObjRawData* obj) {
 // parse 'f' string
 // adds vertices and indices to final array
 int obj_parse_face(
-  int line,
-  char* lineStr,
-  ObjRawData* obj,
-  Vector* modelVertices,
+  int line, char* lineStr, ObjRawData* obj, Vector* modelVertices,
   Vector* modelIndices
 ) {
   // skip 'f ' token
   char* token = strtok(lineStr + 2, " ");
-  if (!token) return 1;
+  if (!token) { return 1; }
 
   // parse face entry
   FaceIndices face[4];
-  int idx = 0;
+  int         idx = 0;
   while (token != NULL) {
-    if (idx >= 4) return 1;
+    if (idx >= 4) { return 1; }
 
     int vi, vti, vni;
     if (sscanf(token, "%u/%u/%u", &vi, &vti, &vni) != 3) {
@@ -85,13 +82,11 @@ int obj_parse_face(
       return 1;
     }
 
-    face[idx] = (FaceIndices){
-      .VertexIndex = vi - 1,
-      .TexcoordIndex = vti - 1,
-      .NormalIndex = vni - 1
-    };
+    face[idx] = (FaceIndices){.VertexIndex   = vi - 1,
+                              .TexcoordIndex = vti - 1,
+                              .NormalIndex   = vni - 1};
     idx++;
-    token = strtok(NULL, " "); // goto next entry
+    token = strtok(NULL, " ");  // goto next entry
   }
 
   if (idx < 3) {
@@ -109,7 +104,8 @@ int obj_parse_face(
 
     // get texcoord
     float tu = vec_get(&obj->Texcoord, float, f.TexcoordIndex * 2);
-    float tv = vec_get(&obj->Texcoord, float, f.TexcoordIndex * 2 + 1);
+    float tv =
+      vec_get(&obj->Texcoord, float, f.TexcoordIndex * 2 + 1);
 
     // get normal
     float nx = vec_get(&obj->Normals, float, f.NormalIndex * 3);
@@ -117,11 +113,12 @@ int obj_parse_face(
     float nz = vec_get(&obj->Normals, float, f.NormalIndex * 3 + 2);
 
     // add model vertex
-    int index = modelVertices->Len; // current index is len of vertices array
+    int index =
+      modelVertices->Len;  // current index is len of vertices array
     ModelVertex v = {
-      .Position = { vx, vy, vz },
-      .Texcoords = { tu, tv },
-      .Normal = { nx, ny, nz }
+      .Position  = {vx, vy, vz},
+      .Texcoords = {tu, tv},
+      .Normal    = {nx, ny, nz}
     };
     vec_push(modelVertices, v);
     vec_push(modelIndices, index);
@@ -161,12 +158,14 @@ int mdl_init_from_obj(Model* mdl, const char* path) {
   vec_init(&indices, int);
 
   char lineStr[MAX_LINE_LEN];
-  int line = 0;
+  int  line = 0;
 
   while (fgets(lineStr, sizeof(lineStr), f)) {
     // skip spaces and comments
-    if (lineStr[0] == '\n' || lineStr[0] == '#' || lineStr[0] == '\0')
+    if (lineStr[0] == '\n' || lineStr[0] == '#'
+        || lineStr[0] == '\0') {
       continue;
+    }
 
     if (!strncmp(lineStr, "v ", 2)) {
       obj_parse_vertices(line, lineStr, &raw);
@@ -188,10 +187,10 @@ int mdl_init_from_obj(Model* mdl, const char* path) {
 
   obj_destroy(&raw);
 
-  mdl->Vertices = vertices.Data;
+  mdl->Vertices      = vertices.Data;
   mdl->CountVertices = vertices.Len;
-  mdl->Indices = indices.Data;
-  mdl->CountIndices = indices.Len;
+  mdl->Indices       = indices.Data;
+  mdl->CountIndices  = indices.Len;
 
   return 0;
 }

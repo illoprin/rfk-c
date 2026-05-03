@@ -8,15 +8,15 @@ typedef void (*AppFnEnter)(void* receive);
 typedef void (*AppFnUpdate)(float deltaTime);
 
 typedef struct {
-  AppFnVoid Init;
-  AppFnUpdate Update;
-  AppFnVoid DrawUI;
-  AppFnVoid Render;
-  AppFnVoid Destroy;
-  AppFnExit OnExit;
-  AppFnEnter OnEnter;
+  AppFnVoid      Init;
+  AppFnUpdate    Update;
+  AppFnVoid      DrawUI;
+  AppFnVoid      Render;
+  AppFnVoid      Destroy;
+  AppFnExit      OnExit;
+  AppFnEnter     OnEnter;
   WindowFnResize OnResize;
-  void* Data;
+  void*          Data;
 } StateVTable;
 
 bool app_has_state_collision(StateVTable a, StateVTable b);

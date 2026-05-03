@@ -3,12 +3,10 @@
 #include <stddef.h>
 
 void mesh_init_from_model(Mesh* mesh, Model* model) {
-  if (mesh->VAO.ID > 0) {
-    return;
-  }
+  if (mesh->VAO.ID > 0) { return; }
 
   size_t sizeOfVertices = sizeof(ModelVertex) * model->CountVertices;
-  size_t sizeOfIndices = sizeof(int) * model->CountIndices;
+  size_t sizeOfIndices  = sizeof(int) * model->CountIndices;
 
   // allocate vertices
   rhi_buf_init(&mesh->VertexBuf, RHI_BUF_VERTEX, RHI_USAGE_STATIC);
@@ -19,32 +17,32 @@ void mesh_init_from_model(Mesh* mesh, Model* model) {
   rhi_buf_allocate(&mesh->IndexBuf, model->Indices, sizeOfIndices);
 
   // init attributes
-  rhi_Attribute pos = { 0 };
-  rhi_Attribute tex = { 0 };
-  rhi_Attribute nrm = { 0 };
+  rhi_Attribute pos = {0};
+  rhi_Attribute tex = {0};
+  rhi_Attribute nrm = {0};
 
   // position
-  pos.Location = 0;
-  pos.Type = RHI_FLOAT;
+  pos.Location   = 0;
+  pos.Type       = RHI_FLOAT;
   pos.Components = 3;
-  pos.Offset = 0;
-  pos.Stride = sizeof(ModelVertex);
+  pos.Offset     = 0;
+  pos.Stride     = sizeof(ModelVertex);
 
   // texcoord
-  tex.Location = 1;
+  tex.Location   = 1;
   tex.Components = 2;
-  tex.Type = RHI_FLOAT;
-  tex.Offset = offsetof(ModelVertex, Texcoords[0]);
-  tex.Stride = sizeof(ModelVertex);
+  tex.Type       = RHI_FLOAT;
+  tex.Offset     = offsetof(ModelVertex, Texcoords[0]);
+  tex.Stride     = sizeof(ModelVertex);
 
   // normal
-  nrm.Location = 2;
+  nrm.Location   = 2;
   nrm.Components = 3;
-  nrm.Type = RHI_FLOAT;
-  nrm.Offset = offsetof(ModelVertex, Normal[0]);
-  nrm.Stride = sizeof(ModelVertex);
+  nrm.Type       = RHI_FLOAT;
+  nrm.Offset     = offsetof(ModelVertex, Normal[0]);
+  nrm.Stride     = sizeof(ModelVertex);
 
-  rhi_Attribute attrs[] = { pos, tex, nrm };
+  rhi_Attribute attrs[] = {pos, tex, nrm};
 
   // create vao
   rhi_vao_init(&mesh->VAO);
@@ -54,19 +52,26 @@ void mesh_init_from_model(Mesh* mesh, Model* model) {
 
   mesh->indexNum = model->CountIndices;
 }
+
 void mesh_init_basic_quad(Mesh* m) {
-  if (m->VAO.ID > 0) {
-    return;
-  }
+  if (m->VAO.ID > 0) { return; }
   float verts[] = {
-    -1.f, -1.f,
-    1.f, -1.f,
-    1.f, 1.f,
-    -1.f, 1.f,
+    -1.f,
+    -1.f,
+    1.f,
+    -1.f,
+    1.f,
+    1.f,
+    -1.f,
+    1.f,
   };
   int indices[] = {
-    0, 1, 2,
-    2, 3, 0,
+    0,
+    1,
+    2,
+    2,
+    3,
+    0,
   };
 
   // allocate vertices
@@ -77,12 +82,12 @@ void mesh_init_basic_quad(Mesh* m) {
   rhi_buf_init(&m->IndexBuf, RHI_BUF_INDEX, RHI_USAGE_STATIC);
   rhi_buf_allocate(&m->IndexBuf, indices, sizeof(indices));
 
-  rhi_Attribute position = { 0 };
-  position.Location = 0;
-  position.Components = 2;
-  position.Offset = 0;
-  position.Stride = 2 * sizeof(float);
-  position.Type = RHI_FLOAT;
+  rhi_Attribute position = {0};
+  position.Location      = 0;
+  position.Components    = 2;
+  position.Offset        = 0;
+  position.Stride        = 2 * sizeof(float);
+  position.Type          = RHI_FLOAT;
 
   // create vao
   rhi_vao_init(&m->VAO);

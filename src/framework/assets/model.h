@@ -12,11 +12,11 @@ typedef struct {
 typedef struct {
   // vertices
   struct ModelVertex* Vertices;
-  size_t CountVertices;
+  size_t              CountVertices;
 
   // indices
   uint32_t* Indices;
-  size_t CountIndices;
+  size_t    CountIndices;
 } Model;
 
 void mdl_ptr_free(Model*);

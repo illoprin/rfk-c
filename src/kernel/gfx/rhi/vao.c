@@ -1,8 +1,8 @@
 #include "vao.h"
 
 void rhi_vao_init(rhi_VAO* o) {
-  if (o == NULL) return;
-  *o = (rhi_VAO){ 0 };
+  if (o == NULL) { return; }
+  *o = (rhi_VAO){0};
 
   glGenVertexArrays(1, &o->ID);
   glBindVertexArray(o->ID);
@@ -11,11 +11,14 @@ void rhi_vao_init(rhi_VAO* o) {
 }
 
 void rhi_vao_add_index_buf(rhi_VAO* o, rhi_Buffer buf) {
-  if (o == NULL) return;
-  if (o->ID == 0) return;
+  if (o == NULL) { return; }
+  if (o->ID == 0) { return; }
 
   if (buf.type != RHI_BUF_INDEX) {
-    LogErr("vao [ID = %d] AddIndexBuffer - you cannot assign non index buffer");
+    LogErr(
+      "vao [ID = %d] AddIndexBuffer - you cannot assign non index "
+      "buffer"
+    );
     return;
   }
 
@@ -25,12 +28,17 @@ void rhi_vao_add_index_buf(rhi_VAO* o, rhi_Buffer buf) {
   o->eboId = buf.ID;
 }
 
-void rhi_vao_add_attrs(rhi_VAO* o, rhi_Buffer buf, rhi_Attribute* attrs, int numAttrs) {
-  if (o == NULL) return;
-  if (o->ID == 0) return;
+void rhi_vao_add_attrs(
+  rhi_VAO* o, rhi_Buffer buf, rhi_Attribute* attrs, int numAttrs
+) {
+  if (o == NULL) { return; }
+  if (o->ID == 0) { return; }
 
   if (buf.type != RHI_BUF_VERTEX) {
-    LogErr("vao [ID = %d] AddVertexAttribute - you cannot assign non vertex buffer");
+    LogErr(
+      "vao [ID = %d] AddVertexAttribute - you cannot assign non "
+      "vertex buffer"
+    );
     return;
   }
 
@@ -62,7 +70,6 @@ void rhi_vao_add_attrs(rhi_VAO* o, rhi_Buffer buf, rhi_Attribute* attrs, int num
     glVertexAttribDivisor(attr.Location, attr.Divisor);
   }
   glBindVertexArray(0);
-
 }
 
 bool rhi_vao_is_valid(rhi_VAO o) {
@@ -70,9 +77,9 @@ bool rhi_vao_is_valid(rhi_VAO o) {
 }
 
 void rhi_vao_invalidate(rhi_VAO* o) {
-  if (o == NULL) return;
-  if (o->ID == 0) return;
+  if (o == NULL) { return; }
+  if (o->ID == 0) { return; }
   glDeleteVertexArrays(1, &o->ID);
   LogInfo("vao [ID = %d] deleted", o->ID);
-  *o = (rhi_VAO){ 0 };
+  *o = (rhi_VAO){0};
 }

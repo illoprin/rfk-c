@@ -1,16 +1,17 @@
 #pragma once
 
-#include <rfklib/log.h>
-#include <rfklib/vector.h>
 #include <framework/assets/image.h>
 #include <kernel/core/files.h>
+#include <rfklib/log.h>
+#include <rfklib/vector.h>
 
-/// @brief represents a 2d grid of square texture units combined into a single buffer
+/// @brief represents a 2d grid of square texture units combined into
+/// a single buffer
 typedef struct {
-  uch* Pix;      // raw pixel data buffer
-  uint Width;    // atlas width in units
-  uint Height;   // atlas height in units
-  uint UnitSize; // size of a single square unit in pixels
+  uch* Pix;       // raw pixel data buffer
+  uint Width;     // atlas width in units
+  uint Height;    // atlas height in units
+  uint UnitSize;  // size of a single square unit in pixels
 } TextureAtlas;
 
 /// @brief initializes atlas by loading and packing multiple images
@@ -23,7 +24,9 @@ int TexAtlas_InitFromImages(TextureAtlas* handle, Vector images);
 /// @param handle pointer to the atlas structure
 /// @param path destination file path
 /// @returns 0 on success, 1 on write failure
-int TexAtlas_WriteToFile(const TextureAtlas* handle, const char* path);
+int TexAtlas_WriteToFile(
+  const TextureAtlas* handle, const char* path
+);
 
 /// @brief deallocates the pixel buffer of the texture atlas
 /// @param handle atlas structure containing the buffer to free

@@ -7,17 +7,21 @@ struct keyboard {
 };
 
 struct mouse {
-  int btns[GLFW_MOUSE_BUTTON_LAST];
+  int    btns[GLFW_MOUSE_BUTTON_LAST];
   double xscr, yscr;
   double x, y, dx, dy;
 };
 
-static struct mouse mouse;
+static struct mouse    mouse;
 static struct keyboard keyboard;
-static GLFWwindow* handle;
+static GLFWwindow*     handle;
 
-void keyCallback(GLFWwindow* _w, int key, int scancode, int action, int mods);
-void mouseButtonCallback(GLFWwindow* _w, int button, int action, int mods);
+void keyCallback(
+  GLFWwindow* _w, int key, int scancode, int action, int mods
+);
+void mouseButtonCallback(
+  GLFWwindow* _w, int button, int action, int mods
+);
 void cursorPosCallback(GLFWwindow* _w, double x, double y);
 void scrollCallback(GLFWwindow* _w, double x, double y);
 
@@ -36,7 +40,8 @@ void hid_init() {
 }
 
 bool hid_key_down(int key) {
-  return keyboard.keys[key] == RFK_DOWN || keyboard.keys[key] == RFK_PRESSED;
+  return keyboard.keys[key] == RFK_DOWN
+         || keyboard.keys[key] == RFK_PRESSED;
 }
 
 bool hid_key_released(int key) {
@@ -48,7 +53,8 @@ bool hid_key_pressed(int key) {
 }
 
 bool hid_mouse_btn_down(int btn) {
-  return mouse.btns[btn] == RFK_PRESSED || mouse.btns[btn] == RFK_DOWN;
+  return mouse.btns[btn] == RFK_PRESSED
+         || mouse.btns[btn] == RFK_DOWN;
 }
 
 bool hid_mouse_btn_pressed(int btn) {
@@ -77,18 +83,20 @@ void hid_mouse_scroll(double* x, double* y) {
 void hid_poll() {
   // keyboard update
   for (size_t i = 0; i < GLFW_KEY_LAST; i++) {
-    if (keyboard.keys[i] == RFK_PRESSED)
+    if (keyboard.keys[i] == RFK_PRESSED) {
       keyboard.keys[i] = RFK_DOWN;
-    else if (keyboard.keys[i] == RFK_RELEASED)
+    } else if (keyboard.keys[i] == RFK_RELEASED) {
       keyboard.keys[i] = RFK_NONE;
+    }
   }
 
   // mouse button update
   for (size_t i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++) {
-    if (mouse.btns[i] == RFK_PRESSED)
+    if (mouse.btns[i] == RFK_PRESSED) {
       mouse.btns[i] = RFK_DOWN;
-    else if (mouse.btns[i] == RFK_RELEASED)
+    } else if (mouse.btns[i] == RFK_RELEASED) {
       mouse.btns[i] = RFK_NONE;
+    }
   }
 
   // mouse delta update
@@ -100,22 +108,22 @@ void hid_poll() {
   mouse.yscr = 0;
 }
 
-void keyCallback(GLFWwindow* _w, int key, int scancode, int action, int mods) {
-  if (key < 0) {
-    return;
-  }
+void keyCallback(
+  GLFWwindow* _w, int key, int scancode, int action, int mods
+) {
+  if (key < 0) { return; }
 
   if (action == GLFW_PRESS) {
     keyboard.keys[key] = RFK_PRESSED;
   } else if (action == GLFW_RELEASE) {
     keyboard.keys[key] = RFK_RELEASED;
   }
-};
+}
 
-void mouseButtonCallback(GLFWwindow* _w, int button, int action, int mods) {
-  if (button < 0) {
-    return;
-  }
+void mouseButtonCallback(
+  GLFWwindow* _w, int button, int action, int mods
+) {
+  if (button < 0) { return; }
 
   if (action == GLFW_PRESS) {
     mouse.btns[button] = RFK_PRESSED;
@@ -127,9 +135,9 @@ void mouseButtonCallback(GLFWwindow* _w, int button, int action, int mods) {
 void cursorPosCallback(GLFWwindow* _w, double x, double y) {
   mouse.dx = x - mouse.x;
   mouse.dy = y - mouse.y;
-  mouse.x = x;
-  mouse.y = y;
-};
+  mouse.x  = x;
+  mouse.y  = y;
+}
 
 void scrollCallback(GLFWwindow* _w, double x, double y) {
   mouse.xscr = x;

@@ -4,19 +4,19 @@
 
 typedef struct {
   rhi_TextureFormat Fmt;
-  rhi_DataType SrcType;
+  rhi_DataType      SrcType;
   rhi_TextureFilter MinFilter;
   rhi_TextureFilter MagFilter;
-  rhi_TextureWrap Wrap;
-  int Width, Height;
+  rhi_TextureWrap   Wrap;
+  int               Width, Height;
 } rhi_TextureConfig;
 
 typedef struct {
-  GLuint ID;
-  rhi_TextureType type;
+  GLuint            ID;
+  rhi_TextureType   type;
   rhi_TextureFormat fmt;
-  rhi_DataType src_type;
-  int width, height, depth;
+  rhi_DataType      src_type;
+  int               width, height, depth;
 } rhi_Texture;
 
 /// @brief create texture object
@@ -35,9 +35,7 @@ void rhi_tex_invalidate(rhi_Texture* t);
 /// @param sourceType source data type (e. g. RHI_UNSIGNED_BYTE)
 /// @param data source data (if null - only allocate)
 void rhi_tex2d_alloc(
-  rhi_Texture* t,
-  rhi_TextureConfig conf,
-  void* data
+  rhi_Texture* t, rhi_TextureConfig conf, void* data
 );
 
 /// @brief updates data in texture 2d storage
@@ -49,12 +47,7 @@ void rhi_tex2d_alloc(
 /// @param sourceType source data type (e. g. RHI_UNSIGNED_BYTE)
 /// @param data source data (cannot be null)
 void rhi_tex2d_update(
-  rhi_Texture* t,
-  int x,
-  int y,
-  int width,
-  int height,
-  void* data
+  rhi_Texture* t, int x, int y, int width, int height, void* data
 );
 
 /// @brief allocates new memory for texture 2d
@@ -63,16 +56,11 @@ void rhi_tex2d_resize(rhi_Texture* t, uint width, uint height);
 
 /// @brief allocates memory for 3D texture or 2D Array
 void rhi_tex3d_alloc(
-  rhi_Texture* t,
-  rhi_TextureConfig conf,
-  uint depth,
-  void* pix
+  rhi_Texture* t, rhi_TextureConfig conf, uint depth, void* pix
 );
 
 /// @brief updates data in 3D/Array texture storage
 void rhi_tex3d_update(
-  rhi_Texture* t,
-  uint x, uint y, uint z,
-  uint width, uint height, uint depth,
-  void* data
+  rhi_Texture* t, uint x, uint y, uint z, uint width, uint height,
+  uint depth, void* data
 );

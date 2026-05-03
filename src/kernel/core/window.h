@@ -1,9 +1,9 @@
 #pragma once
 
-#include <kernel/gfx/gfx.h>
 #include "input.h"
+#include <kernel/gfx/gfx.h>
 
-typedef void(*WindowFnResize)(int width, int height);
+typedef void (*WindowFnResize)(int width, int height);
 
 void wnd_init(int width, int height, const char* title);
 void wnd_center();
@@ -16,5 +16,5 @@ void wnd_toggle_grab();
 bool wnd_is_grabbed();
 
 GLFWwindow* wnd_get_handle();
-bool wnd_should_close();
-int* wnd_get_size();
+bool        wnd_should_close();
+int*        wnd_get_size();

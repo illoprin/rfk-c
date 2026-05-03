@@ -14,22 +14,18 @@ typedef enum : uch {
 // fixed component count (rgba)
 const uch comp = 4u;
 
-TexAtlas_ValidationResult TexAtlas_validateImage(
-  TextureAtlas* handle, Image2D* img
-) {
+TexAtlas_ValidationResult
+  TexAtlas_validateImage(TextureAtlas* handle, Image2D* img) {
 
-  if (img->Width != img->Height) {
-    return ATLAS_IMG_NOT_SQUARE;
-  }
+  if (img->Width != img->Height) { return ATLAS_IMG_NOT_SQUARE; }
 
-  if (img->Channels != comp) {
-    return ATLAS_IMG_INVALID_COMPS;
-  }
+  if (img->Channels != comp) { return ATLAS_IMG_INVALID_COMPS; }
 
   if (handle->UnitSize == 0) {
     handle->UnitSize = img->Width;
   } else {
-    if (img->Width != handle->UnitSize || img->Height != handle->UnitSize) {
+    if (img->Width != handle->UnitSize
+        || img->Height != handle->UnitSize) {
       return ATLAS_IMG_BASE_MISMATCH;
     }
   }
@@ -38,30 +34,33 @@ TexAtlas_ValidationResult TexAtlas_validateImage(
 }
 
 static void TexAtlas_findAtlasSize(TextureAtlas* handle, size_t len) {
-  uint arrayWidth = 2;
+  uint arrayWidth  = 2;
   uint arrayHeight = 2;
-  bool horizontal = true;
+  bool horizontal  = true;
 
   // expand grid dimensions until all images fit
   while (arrayWidth * arrayHeight < len) {
-    if (horizontal)
+    if (horizontal) {
       arrayWidth <<= 1;
-    else
+    } else {
       arrayHeight <<= 1;
+    }
 
     horizontal = !horizontal;
   }
 
-  handle->Width = arrayWidth;
+  handle->Width  = arrayWidth;
   handle->Height = arrayHeight;
 }
 
-static void TexAtlas_createArray(TextureAtlas* handle, Vector images) {
-  uint totalPixelWidth = handle->Width * handle->UnitSize;
+static void
+  TexAtlas_createArray(TextureAtlas* handle, Vector images) {
+  uint totalPixelWidth  = handle->Width * handle->UnitSize;
   uint totalPixelHeight = handle->Height * handle->UnitSize;
 
   // allocate memory for the entire atlas
-  size_t totalBytes = (size_t)totalPixelWidth * totalPixelHeight * comp;
+  size_t totalBytes =
+    (size_t)totalPixelWidth * totalPixelHeight * comp;
   uch* Pix = (uch*)malloc(totalBytes);
   RFK_ASSERT(Pix != NULL, "failed to allocate atlas buffer");
 
@@ -70,7 +69,7 @@ static void TexAtlas_createArray(TextureAtlas* handle, Vector images) {
 
   for (uint i = 0; i < images.Len; ++i) {
     Image2D* img = vec_get_raw(&images, i);
-    if (!img || !img->Pix) continue;
+    if (!img || !img->Pix) { continue; }
 
     // determine unit coordinates in the grid
     uint gridX = i % handle->Width;
@@ -82,8 +81,9 @@ static void TexAtlas_createArray(TextureAtlas* handle, Vector images) {
 
     // copy image rows into atlas buffer
     for (uint row = 0; row < handle->UnitSize; ++row) {
-      uch* srcRow = &img->Pix[row * handle->UnitSize * comp];
-      size_t atlasRowIndex = (size_t)(startOffsetY + row) * totalPixelWidth;
+      uch*   srcRow = &img->Pix[row * handle->UnitSize * comp];
+      size_t atlasRowIndex =
+        (size_t)(startOffsetY + row) * totalPixelWidth;
       uch* dstRow = &Pix[(atlasRowIndex + startOffsetX) * comp];
 
       memcpy(dstRow, srcRow, handle->UnitSize * comp);
@@ -94,14 +94,14 @@ static void TexAtlas_createArray(TextureAtlas* handle, Vector images) {
 }
 
 int TexAtlas_InitFromImages(TextureAtlas* handle, Vector images) {
-  *(handle) = (TextureAtlas){ 0 };
+  *(handle) = (TextureAtlas){0};
   Vector validated;
   vec_init(&validated, Image2D);
 
   // validation
   for (size_t i = 0; i < images.Len; ++i) {
     Image2D* img = vec_get_raw(&images, i);
-    if (!img) continue;
+    if (!img) { continue; }
 
     // check image
     TexAtlas_ValidationResult r = TexAtlas_validateImage(handle, img);
@@ -135,19 +135,29 @@ int TexAtlas_InitFromImages(TextureAtlas* handle, Vector images) {
   TexAtlas_createArray(handle, validated);
   vec_destroy(&validated);
 
-  LogInfo("atlas created { W: %d H: %d }",
+  LogInfo(
+    "atlas created { W: %d H: %d }",
     handle->Width * handle->UnitSize,
     handle->Height * handle->UnitSize
   );
   return 0;
 }
 
-int TexAtlas_WriteToFile(const TextureAtlas* handle, const char* path) {
+int TexAtlas_WriteToFile(
+  const TextureAtlas* handle, const char* path
+) {
   size_t W = (size_t)handle->Width * handle->UnitSize;
   size_t H = (size_t)handle->Height * handle->UnitSize;
 
   // export buffer to png via stb_image_write
-  if (!stbi_write_png(path, (int)W, (int)H, 4, handle->Pix, (int)(W * comp))) {
+  if (!stbi_write_png(
+        path,
+        (int)W,
+        (int)H,
+        4,
+        handle->Pix,
+        (int)(W * comp)
+      )) {
     LogErr("failed to write atlas to file: \"%s\"", path);
     return 1;
   };
@@ -157,7 +167,5 @@ int TexAtlas_WriteToFile(const TextureAtlas* handle, const char* path) {
 }
 
 void TexAtlas_Free(TextureAtlas* handle) {
-  if (handle->Pix) {
-    free(handle->Pix);
-  }
+  if (handle->Pix) { free(handle->Pix); }
 }

@@ -3,8 +3,8 @@
 // Initial Assets (prefix 'ia') - is module, that represents build-in
 // assets supplied with the engine and can be used immediately
 
-#include <kernel/core/camera.h>
 #include <framework/gfx/resource/mesh.h>
+#include <kernel/core/camera.h>
 
 typedef enum {
   IA_SPHERE_8,
@@ -14,7 +14,8 @@ typedef enum {
 
 void ia_init();
 
-/// @brief basic quad vao (by default uses for screen or simple planes)
+/// @brief basic quad vao (by default uses for screen or simple
+/// planes)
 /// @return quad mesh
 /// single attr - vec2 position xy - [-1..1]
 const Mesh* ia_mesh_quad();
@@ -27,9 +28,13 @@ const Mesh* ia_mesh_quad();
 /// @param bc_size big cell size (units)
 /// @param sc_lwidth small cell line width
 /// @param bc_lwidth big cell line width
-void ia_render_inf_grid(Camera* cam, float y, float sc_size, float bc_size);
+void ia_render_inf_grid(
+  Camera* cam, float y, float sc_size, float bc_size
+);
 
-void ia_render_sphere(Camera* cam, ia_SphereType t, float* mat_model, float* color);
+void ia_render_sphere(
+  Camera* cam, ia_SphereType t, float* mat_model, float* color
+);
 
 void ia_render_cube(Camera* cam, float* mat_model, float* color);
 

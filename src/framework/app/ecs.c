@@ -8,11 +8,12 @@ EntityID ECS_EntityCreate(struct ECSContext* ctx) {
   return 0;
 }
 
-ComponentMask ECS_RegisterComponent(struct ECSContext* ctx, uint8_t comp_id, size_t size) {
-  return 0;
+ComponentMask ECS_RegisterComponent(struct ECSContext* ctx, uint8_t
+comp_id, size_t size) { return 0;
 }
 
-void* ECS_GetComponent(struct ECSContext* ctx, EntityID entity, uint8_t comp_id) {
+void* ECS_GetComponent(struct ECSContext* ctx, EntityID entity,
+uint8_t comp_id) {
 
 }
 

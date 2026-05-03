@@ -1,20 +1,19 @@
 #include "app.h"
 
-#include "ui/iui_loader.h"
-#include "ui/iui_layout.h"
 #include "initial_assets.h"
+#include "ui/iui_layout.h"
+#include "ui/iui_loader.h"
+#include <framework/gfx/pipeline/deferred.h>
+#include <framework/gfx/pipeline/pipeline.h>
 #include <kernel/core/core.h>
 
-static StateVTable currentState = { 0 };
+static StateVTable currentState = {0};
 
 void onResize(int width, int height);
 
-bool app_has_state_collision(
-  StateVTable a,
-  StateVTable b
-) {
+bool app_has_state_collision(StateVTable a, StateVTable b) {
   return (a.OnExit == b.OnExit && a.OnExit != NULL)
-    || (a.OnEnter == b.OnEnter && a.OnEnter != NULL);
+         || (a.OnEnter == b.OnEnter && a.OnEnter != NULL);
 }
 
 void app_create() {
@@ -33,6 +32,12 @@ void app_create() {
   // init initial assets
   ia_init();
 
+  // init deferred framebuffer
+  drt_init();
+
+  // init post processing pipeline
+  rpl_init();
+
   // init imgui
   ui_init(wnd_get_handle());
 
@@ -44,9 +49,7 @@ void app_create() {
 }
 
 static void app_update() {
-  if (hid_key_pressed(GLFW_KEY_F3)) {
-    iui_switch_stats_mode();
-  }
+  if (hid_key_pressed(GLFW_KEY_F3)) { iui_switch_stats_mode(); }
 }
 
 static void app_draw_ui() {
@@ -54,9 +57,11 @@ static void app_draw_ui() {
 }
 
 void app_destroy() {
-  LogInfo("game exit");
+  LogInfo("game destroy");
   if (currentState.Destroy) currentState.Destroy();
   ia_destroy();
+  drt_destroy();
+  rpl_destroy();
   ui_destroy();
   wnd_destroy();
 }
@@ -75,6 +80,7 @@ void app_run() {
 
     // render
     rhi_device_begin_frame();
+    drt_begin_frame();
     if (currentState.Render) currentState.Render();
     ui_render();
     wnd_swap_buffers();
@@ -92,7 +98,10 @@ void onResize(int width, int height) {
 void app_set_state(StateVTable nextState) {
 
   // check collision
-  RFK_ASSERT(!app_has_state_collision(currentState, nextState), "state collision not allowed");
+  RFK_ASSERT(
+    !app_has_state_collision(currentState, nextState),
+    "state collision not allowed"
+  );
 
   // invalidate current state
   void* prevStateReturn = NULL;

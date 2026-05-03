@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.h"
-#include "math.h"
-#include "log.h"
-#include "vector.h"
 #include "hash_map.h"
+#include "log.h"
+#include "math.h"
+#include "types.h"
+#include "vector.h"

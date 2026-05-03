@@ -1,9 +1,9 @@
 #pragma once
 
-#include "vao.h"
 #include "framebuffer.h"
-#include "texture.h"
 #include "program.h"
+#include "texture.h"
+#include "vao.h"
 #include <cglm/cglm.h>
 
 typedef struct {
@@ -12,8 +12,29 @@ typedef struct {
   int Triangles;
 } rhi_RenderStats;
 
+typedef enum {
+  RHI_COLOR_BIT   = GL_COLOR_BUFFER_BIT,
+  RHI_DEPTH_BIT   = GL_DEPTH_BUFFER_BIT,
+  RHI_STENCIL_BIT = GL_STENCIL_BUFFER_BIT,
+} rhi_ClearBuffers;
+
 /// @brief init
 void rhi_device_init();
+
+/// @brief clear buffers
+void rhi_device_clear(vec4 color, uint bufferMask);
+
+/// @brief transfer bits from one framebuffer to another
+/// @param src source framebuffer id
+/// @param dst destination framebuffer id
+/// @param w0 width of source blitting area
+/// @param h0 height of source blitting area
+/// @param w1 width of destination blitting area
+/// @param h1 height of destination blitting area
+/// @param mask what we will blit (RHI_COLOR_BIT / RHI_DEPTH_BIT)
+void rhi_device_blit(
+  uint src, uint dst, uint w0, uint h0, uint w1, uint h1, uint mask
+);
 
 /// @brief get graphics card name string ptr
 /// @return graphics card name string ptr

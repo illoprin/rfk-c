@@ -14,9 +14,9 @@ int img_from_file(Image2D* img, const char* path) {
     return 1;
   }
 
-  img->Pix = data;
-  img->Width = (uint)w;
-  img->Height = (uint)h;
+  img->Pix      = data;
+  img->Width    = (uint)w;
+  img->Height   = (uint)h;
   img->Channels = (uint)c;
 
   LogInfo("image \"%s\" loaded (%dx%d, %d channels)", path, w, h, c);
@@ -31,11 +31,11 @@ Vector img_load_batch(Vector files, ImageCheckFunc check) {
   for (uint i = 0; i < files.Len; ++i) {
     // get path
     const char* path = vec_get_raw(&files, i);
-    if (path == NULL) continue;
+    if (path == NULL) { continue; }
 
     // load image
     Image2D img;
-    if (img_from_file(&img, path)) continue;
+    if (img_from_file(&img, path)) { continue; }
 
     // validate image
     if (check) {
@@ -55,21 +55,17 @@ Vector img_load_batch(Vector files, ImageCheckFunc check) {
 void img_batch_destroy(Vector images) {
   for (size_t i = 0; i < images.Len; ++i) {
     Image2D* img = vec_get_raw(&images, i);
-    if (!img) continue;
+    if (!img) { continue; }
     img_destroy(*img);
   }
 }
 
 void img_destroy(Image2D img) {
-  if (img.Pix) {
-    free(img.Pix);
-  }
+  if (img.Pix) { free(img.Pix); }
 }
 
 void img_ptr_destroy(Image2D* img) {
-  if (!img) return;
-  if (img->Pix) {
-    free(img->Pix);
-  }
+  if (!img) { return; }
+  if (img->Pix) { free(img->Pix); }
   free(img);
 }

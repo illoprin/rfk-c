@@ -4,8 +4,8 @@
 void cam_update(Camera* cam, ivec2 screen) {
   // compute direction vectors
   float pitch = glm_rad(cam->Rotation[0]),
-    yaw = glm_rad(cam->Rotation[1]),
-    roll = glm_rad(cam->Rotation[2]);
+        yaw   = glm_rad(cam->Rotation[1]),
+        roll  = glm_rad(cam->Rotation[2]);
   vec3 front;
   front[0] = cosf(pitch) * cosf(yaw);
   front[1] = sinf(pitch);
@@ -13,7 +13,7 @@ void cam_update(Camera* cam, ivec2 screen) {
   glm_vec3_copy(front, cam->Front);
   glm_vec3_normalize(cam->Front);
 
-  vec3 worldUp = { 0.0f, 1.0f, 0.0f };
+  vec3 worldUp = {0.0f, 1.0f, 0.0f};
   glm_vec3_cross(cam->Front, worldUp, cam->Right);
   glm_vec3_normalize(cam->Right);
 
@@ -46,5 +46,11 @@ void cam_update(Camera* cam, ivec2 screen) {
   glm_lookat(cam->Position, center, cam->Up, cam->View);
 
   float aspect = (float)screen[0] / (float)screen[1];
-  glm_perspective(glm_rad(cam->Fov), aspect, CAM_NEAR, CAM_FAR, cam->Proj);
+  glm_perspective(
+    glm_rad(cam->Fov),
+    aspect,
+    CAM_NEAR,
+    CAM_FAR,
+    cam->Proj
+  );
 }

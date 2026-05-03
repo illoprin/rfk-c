@@ -2,9 +2,9 @@
 
 typedef enum {
   STATS_MODE_HIDDEN,
-  STATS_MODE_COMPACT,  // only fps
-  STATS_MODE_DETAILED, // drawcalls, memory, frametime
-  STATS_MODE_COUNT     // helper element for cycle switch
+  STATS_MODE_COMPACT,   // only fps
+  STATS_MODE_DETAILED,  // drawcalls, memory, frametime
+  STATS_MODE_COUNT      // helper element for cycle switch
 } iui_StatsOverlayMode;
 
 #define UI_PADDING 24

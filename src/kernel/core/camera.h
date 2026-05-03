@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cglm/cglm.h> 
+#include <cglm/cglm.h>
 
 #define CAM_NEAR (.01f)
-#define CAM_FAR (100.f)
-#define CAM_FOV (90.f)
+#define CAM_FAR  (100.f)
+#define CAM_FOV  (90.f)
 
 #define DIR_UP (vec3){0.f, 1.f, 0.f}
 
@@ -20,8 +20,8 @@ typedef struct {
 
   // matrices
   float Fov;
-  mat4 Proj;
-  mat4 View;
+  mat4  Proj;
+  mat4  View;
 } Camera;
 
 void cam_update(Camera*, ivec2 screen);

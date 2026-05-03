@@ -1,13 +1,13 @@
 #pragma once
 
-#include <kernel/gfx/rhi/rhi.h>
 #include <framework/assets/model.h>
+#include <kernel/gfx/rhi/rhi.h>
 
 typedef struct {
-  rhi_VAO VAO;
+  rhi_VAO    VAO;
   rhi_Buffer VertexBuf;
   rhi_Buffer IndexBuf;
-  int indexNum;
+  int        indexNum;
 } Mesh;
 
 void mesh_init_basic_quad(Mesh*);
