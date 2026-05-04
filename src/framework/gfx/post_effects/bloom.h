@@ -1,8 +1,8 @@
-#ifndef __COLOR_GRADING_H__
-#define __COLOR_GRADING_H__
+#ifndef __BLOOM_H__
+#define __BLOOM_H__
 
-#endif  // __COLOR_GRADING_H__
+#endif  // __BLOOM_H__
 
-#ifdef __RFK_COLOR_GRADING_IMPL__
+#ifdef __RFK_BLOOM_IMPL__
 
 #endif

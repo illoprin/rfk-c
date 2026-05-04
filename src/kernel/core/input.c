@@ -32,55 +32,55 @@ void windowSetupCallbacks() {
   glfwSetScrollCallback(handle, scrollCallback);
 }
 
-void hid_init() {
+void inp_init() {
   memset(keyboard.keys, RFK_NONE, GLFW_KEY_LAST * sizeof(int));
   memset(mouse.btns, RFK_NONE, GLFW_MOUSE_BUTTON_LAST * sizeof(int));
   handle = wnd_get_handle();
   windowSetupCallbacks();
 }
 
-bool hid_key_down(int key) {
+bool inp_key_down(int key) {
   return keyboard.keys[key] == RFK_DOWN
          || keyboard.keys[key] == RFK_PRESSED;
 }
 
-bool hid_key_released(int key) {
+bool inp_key_released(int key) {
   return keyboard.keys[key] == RFK_RELEASED;
 }
 
-bool hid_key_pressed(int key) {
+bool inp_key_pressed(int key) {
   return keyboard.keys[key] == RFK_PRESSED;
 }
 
-bool hid_mouse_btn_down(int btn) {
+bool inp_mouse_btn_down(int btn) {
   return mouse.btns[btn] == RFK_PRESSED
          || mouse.btns[btn] == RFK_DOWN;
 }
 
-bool hid_mouse_btn_pressed(int btn) {
+bool inp_mouse_btn_pressed(int btn) {
   return mouse.btns[btn] == RFK_PRESSED;
 }
 
-bool hid_mouse_btn_released(int btn) {
+bool inp_mouse_btn_released(int btn) {
   return mouse.btns[btn] == RFK_RELEASED;
 }
 
-void hid_cursor_delta(double* x, double* y) {
+void inp_cursor_delta(double* x, double* y) {
   *x = mouse.dx;
   *y = mouse.dy;
 }
 
-void hid_cursor_pos(double* x, double* y) {
+void inp_cursor_pos(double* x, double* y) {
   *x = mouse.x;
   *y = mouse.y;
 }
 
-void hid_mouse_scroll(double* x, double* y) {
+void inp_mouse_scroll(double* x, double* y) {
   *x = mouse.xscr;
   *y = mouse.yscr;
 }
 
-void hid_poll() {
+void inp_poll() {
   // keyboard update
   for (size_t i = 0; i < GLFW_KEY_LAST; i++) {
     if (keyboard.keys[i] == RFK_PRESSED) {

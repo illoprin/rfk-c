@@ -51,7 +51,7 @@ void app_create() {
 }
 
 static void app_update() {
-  if (hid_key_pressed(GLFW_KEY_F3)) { iuil_switch_stats_mode(); }
+  if (inp_key_pressed(GLFW_KEY_F3)) { iuil_switch_stats_mode(); }
 }
 
 static void app_draw_ui() {

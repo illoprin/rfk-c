@@ -1,8 +1,8 @@
-#ifndef __COLOR_GRADING_H__
-#define __COLOR_GRADING_H__
+#ifndef __EYE_ADAPTION_H__
+#define __EYE_ADAPTION_H__
 
-#endif  // __COLOR_GRADING_H__
+#endif  // __EYE_ADAPTION_H__
 
-#ifdef __RFK_COLOR_GRADING_IMPL__
+#ifdef __RFK_EYE_ADAPTION_IMPL__
 
 #endif

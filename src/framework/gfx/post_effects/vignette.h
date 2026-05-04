@@ -1,8 +1,8 @@
-#ifndef __COLOR_GRADING_H__
-#define __COLOR_GRADING_H__
+#ifndef __VIGNETTE_H__
+#define __VIGNETTE_H__
 
-#endif  // __COLOR_GRADING_H__
+#endif  // __VIGNETTE_H__
 
-#ifdef __RFK_COLOR_GRADING_IMPL__
+#ifdef __RFK_VIGNETTE_IMPL__
 
 #endif

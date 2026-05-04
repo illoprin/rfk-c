@@ -1,0 +1,3 @@
+-Isrc
+-Ipkg/include
+-std=c23

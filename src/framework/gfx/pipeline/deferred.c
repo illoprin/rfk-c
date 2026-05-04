@@ -10,7 +10,7 @@ static const rhi_Texture* tex_normal  = NULL;
 static const rhi_Texture* tex_depth   = NULL;
 
 void drt_init() {
-  uint* size = wnd_get_size();
+  int* size = wnd_get_size();
   rhi_fbo_init(&deferred_fbo, size[0], size[1]);
 
   // diffuse

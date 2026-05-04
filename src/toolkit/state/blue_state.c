@@ -1,4 +1,5 @@
 #include "blue_state.h"
+#include "framework/gfx/pipeline/rendering_pipeline.h"
 
 #include <framework/framework.h>
 #include <kernel/gfx/gfx.h>
@@ -24,8 +25,8 @@ bool initialized = false;
 
 void player_update_movement(float dt) {
   // sprint
-  if (hid_key_pressed(GLFW_KEY_LEFT_CONTROL)) { sprint = !sprint; }
-  if (hid_key_released(GLFW_KEY_LEFT_CONTROL)) { sprint = !sprint; }
+  if (inp_key_pressed(GLFW_KEY_LEFT_CONTROL)) { sprint = !sprint; }
+  if (inp_key_released(GLFW_KEY_LEFT_CONTROL)) { sprint = !sprint; }
 
   vec3 dir  = {0.f};
   vec3 move = {0.f};
@@ -34,18 +35,18 @@ void player_update_movement(float dt) {
   s       *= sprint ? PLAYER_SPRINT_MUL : 1.0;
 
   // move
-  if (hid_key_down(GLFW_KEY_W)) { glm_vec3_add(dir, cam.Front, dir); }
-  if (hid_key_down(GLFW_KEY_S)) { glm_vec3_sub(dir, cam.Front, dir); }
+  if (inp_key_down(GLFW_KEY_W)) { glm_vec3_add(dir, cam.Front, dir); }
+  if (inp_key_down(GLFW_KEY_S)) { glm_vec3_sub(dir, cam.Front, dir); }
 
   // strafe
-  if (hid_key_down(GLFW_KEY_D)) { glm_vec3_add(dir, cam.Right, dir); }
-  if (hid_key_down(GLFW_KEY_A)) { glm_vec3_sub(dir, cam.Right, dir); }
+  if (inp_key_down(GLFW_KEY_D)) { glm_vec3_add(dir, cam.Right, dir); }
+  if (inp_key_down(GLFW_KEY_A)) { glm_vec3_sub(dir, cam.Right, dir); }
 
   // up
-  if (hid_key_down(GLFW_KEY_SPACE)) {
+  if (inp_key_down(GLFW_KEY_SPACE)) {
     glm_vec3_add(dir, (vec3){0.f, 1.f, 0.f}, dir);
   }
-  if (hid_key_down(GLFW_KEY_LEFT_SHIFT)) {
+  if (inp_key_down(GLFW_KEY_LEFT_SHIFT)) {
     glm_vec3_add(dir, (vec3){0.f, -1.f, 0.f}, dir);
   }
 
@@ -56,7 +57,7 @@ void player_update_movement(float dt) {
 
 void player_update_look() {
   double dx, dy;
-  hid_cursor_delta(&dx, &dy);
+  inp_cursor_delta(&dx, &dy);
   cam.Rotation[0] =
     glm_clamp(cam.Rotation[0] - dy * PLAYER_SENS, -89.0, 89.0);
   cam.Rotation[1] += dx * PLAYER_SENS;
@@ -104,9 +105,9 @@ void bs_draw_ui() {
 void bs_update(float dt) {
   ImGuiIO* io = igGetIO();
 
-  if (hid_key_pressed(GLFW_KEY_ESCAPE)) { wnd_close(); }
-  if (hid_key_pressed(GLFW_KEY_R)) { app_set_state(ps_get_vtable()); }
-  if (hid_key_pressed(GLFW_KEY_G)) {
+  if (inp_key_pressed(GLFW_KEY_ESCAPE)) { wnd_close(); }
+  if (inp_key_pressed(GLFW_KEY_R)) { app_set_state(ps_get_vtable()); }
+  if (inp_key_pressed(GLFW_KEY_G)) {
     wnd_toggle_grab();
     ui_set_input(!wnd_is_grabbed());
   }
@@ -115,7 +116,7 @@ void bs_update(float dt) {
 
   bool can_update_controller =
     wnd_is_grabbed()
-    || (hid_mouse_btn_down(RFK_LMB) && !io->WantCaptureMouse);
+    || (inp_mouse_btn_down(RFK_LMB) && !io->WantCaptureMouse);
 
   if (can_update_controller) {
     player_update_movement(dt);
@@ -181,6 +182,7 @@ void bs_init() {
   cam_update(&cam, wnd_get_size());
 
   initialized = true;
+
 }
 
 void bs_destroy() {
@@ -202,6 +204,8 @@ void bs_on_enter(void*) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glFrontFace(GL_CCW);
+  
+  rpl_push_camera(&cam);
 }
 
 void bs_on_resize(int w, int h) {

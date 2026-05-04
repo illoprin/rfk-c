@@ -22,7 +22,7 @@ typedef enum {
 void rhi_device_init();
 
 /// @brief clear buffers
-void rhi_device_clear(vec4 color, uint bufferMask);
+void rhi_device_clear(uint bufferMask);
 
 /// @brief transfer bits from one framebuffer to another
 /// @param src source framebuffer id
@@ -36,11 +36,11 @@ void rhi_device_clear(vec4 color, uint bufferMask);
 /// @param src_ca destination color attachment index
 void rhi_device_blit(
   uint src, uint dst, uint w0, uint h0, uint w1, uint h1, uint mask,
-  uint src_ca, uint dst_ca
+  uint src_ca
 );
 
 /// @brief blit fbo to initial fbo
-void rhi_device_blit_to_screen(rhi_Fbo* src, uint sw, uint sh);
+void rhi_device_blit_to_screen(const rhi_Fbo* src, uint sw, uint sh);
 
 /// @brief get graphics card name string ptr
 /// @return graphics card name string ptr
@@ -70,7 +70,7 @@ void rhi_device_bind_tex(rhi_Texture tex, int unit);
 /// @brief binds fbo for drawing
 /// @param fbo framebuffer handle
 /// (NULL - if you wand to bind initial fbo)
-void rhi_device_bind_fbo(rhi_Fbo* fbo);
+void rhi_device_bind_fbo(const rhi_Fbo* fbo);
 
 /// @brief draw call
 void rhi_device_draw(rhi_VAO, int count);

@@ -33,6 +33,7 @@ void rhi_device_init() {
 
   g_renderer    = glGetString(GL_RENDERER);
   g_api_version = glGetString(GL_SHADING_LANGUAGE_VERSION);
+  glClearColor(0.f, 0.f, 0.f, 0.f);
 }
 
 const char* rhi_device_str_renderer() {
@@ -49,23 +50,21 @@ void rhi_push_state() {
 void rhi_pop_state() {
 }
 
-void rhi_device_clear(vec4 color, uint bufferMask) {
-  glClearColor(color[0], color[1], color[2], color[3]);
+void rhi_device_clear(uint bufferMask) {
   glClear(bufferMask);
 }
 
 void rhi_device_blit(
   uint src, uint dst, uint w0, uint h0, uint w1, uint h1, uint mask,
-  uint src_ca, uint dst_ca
+  uint src_ca
 ) {
   glBindFramebuffer(GL_READ_FRAMEBUFFER, src);
   glReadBuffer(GL_COLOR_ATTACHMENT0 + src_ca);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst);
-  glDrawBuffer(GL_COLOR_ATTACHMENT0 + dst_ca);
   glBlitFramebuffer(0, 0, w0, h0, 0, 0, w1, h1, mask, GL_NEAREST);
 }
 
-void rhi_device_blit_to_screen(rhi_Fbo* src, uint sw, uint sh) {
+void rhi_device_blit_to_screen(const rhi_Fbo* src, uint sw, uint sh) {
   if (!src) return;
 
   uint src_id = src->ID;
@@ -74,24 +73,14 @@ void rhi_device_blit_to_screen(rhi_Fbo* src, uint sw, uint sh) {
 
   if (src_id == 0) return;
 
-  rhi_device_blit(
-    src_id,
-    0,
-    src_w,
-    src_h,
-    sw,
-    sh,
-    RHI_COLOR_BIT,
-    0,
-    0
-  );
+  rhi_device_blit(src_id, 0, src_w, src_h, sw, sh, RHI_COLOR_BIT, 0);
 }
 
 // --------------------------------------
 //            Drawing
 // --------------------------------------
 
-void rhi_device_bind_fbo(rhi_Fbo* fbo) {
+void rhi_device_bind_fbo(const rhi_Fbo* fbo) {
   uint id;
   if (fbo == NULL || fbo->ID == 0) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

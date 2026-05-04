@@ -53,7 +53,7 @@ void wnd_init(int width, int height, const char* title) {
   // setup callbacks
   glfwSetFramebufferSizeCallback(handle, size_callback);
   glfwSetWindowFocusCallback(handle, focus_callback);
-  hid_init();
+  inp_init();
 }
 
 void wnd_center() {
@@ -89,7 +89,7 @@ bool wnd_is_grabbed() {
 }
 
 void wnd_update() {
-  hid_poll();
+  inp_poll();
   glfwPollEvents();
 }
 

@@ -17,19 +17,19 @@ enum {
 // human interface device
 
 // init (input manager)
-void hid_init();
+void inp_init();
 
 // update statement
-void hid_poll();
+void inp_poll();
 
-void hid_cursor_delta(double* x, double* y);
-void hid_cursor_pos(double* x, double* y);
+void inp_cursor_delta(double* x, double* y);
+void inp_cursor_pos(double* x, double* y);
 
-bool hid_mouse_btn_down(int btn);
-bool hid_mouse_btn_pressed(int btn);
-bool hid_mouse_btn_released(int btn);
-void hid_mouse_scroll(double* x, double* y);
+bool inp_mouse_btn_down(int btn);
+bool inp_mouse_btn_pressed(int btn);
+bool inp_mouse_btn_released(int btn);
+void inp_mouse_scroll(double* x, double* y);
 
-bool hid_key_down(int key);
-bool hid_key_released(int key);
-bool hid_key_pressed(int key);
+bool inp_key_down(int key);
+bool inp_key_released(int key);
+bool inp_key_pressed(int key);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "camera.h"
 #include "defs.h"
 #include "files.h"
 #include "input.h"
