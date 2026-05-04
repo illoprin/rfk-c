@@ -1,7 +1,6 @@
 #include "blue_state.h"
 
 #include <framework/framework.h>
-#include <kernel/core/core.h>
 #include <kernel/gfx/gfx.h>
 #include <toolkit/state/pink_state.h>
 
@@ -211,13 +210,13 @@ void bs_on_resize(int w, int h) {
 
 StateVTable bs_get_vtable() {
   return (StateVTable){
-    .Update   = bs_update,
-    .Render   = bs_render,
-    .DrawUI   = bs_draw_ui,
-    .OnEnter  = bs_on_enter,
-    .OnExit   = bs_on_exit,
-    .OnResize = bs_on_resize,
-    .Destroy  = bs_destroy,
-    .Init     = bs_init,
+    .Update         = bs_update,
+    .RenderGeometry = bs_render,
+    .DrawUI         = bs_draw_ui,
+    .OnEnter        = bs_on_enter,
+    .OnExit         = bs_on_exit,
+    .OnResize       = bs_on_resize,
+    .Destroy        = bs_destroy,
+    .Init           = bs_init,
   };
 }

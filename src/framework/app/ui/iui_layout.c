@@ -1,13 +1,14 @@
 #include "iui_layout.h"
 
 #include "imgui.h"
+#include <framework/config.h>
 #include <kernel/core/profiler.h>
 #include <kernel/gfx/rhi/render_device.h>
 
 static iui_StatsOverlayMode g_stats_mode = STATS_MODE_COMPACT;
 static const float          PAD          = (float)UI_PADDING;
 
-void iui_draw_stats_overlay() {
+void iuil_draw_stats_overlay() {
   if (g_stats_mode == STATS_MODE_HIDDEN) { return; }
 
   ImGuiWindowFlags window_flags =
@@ -39,7 +40,7 @@ void iui_draw_stats_overlay() {
   igEnd();
 }
 
-void iui_switch_stats_mode() {
+void iuil_switch_stats_mode() {
   g_stats_mode =
     (iui_StatsOverlayMode)((g_stats_mode + 1) % STATS_MODE_COUNT);
 }

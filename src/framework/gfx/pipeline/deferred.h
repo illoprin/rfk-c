@@ -1,13 +1,6 @@
 #pragma once
 
-/**
- *
- * --------------------------------
- * *   Deferred Render Target     *
- * --------------------------------
- *
- *
- */
+// Deferred Render Target (drt) module
 
 typedef struct {
   const rhi_Texture* Diffuse;
@@ -17,7 +10,7 @@ typedef struct {
 
 void drt_init();
 
-void drt_begin_frame();
+const rhi_Fbo* drt_get_fbo();
 
 DeferredRenderResult drt_results();
 

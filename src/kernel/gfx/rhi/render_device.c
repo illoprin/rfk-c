@@ -55,11 +55,36 @@ void rhi_device_clear(vec4 color, uint bufferMask) {
 }
 
 void rhi_device_blit(
-  uint src, uint dst, uint w0, uint h0, uint w1, uint h1, uint mask
+  uint src, uint dst, uint w0, uint h0, uint w1, uint h1, uint mask,
+  uint src_ca, uint dst_ca
 ) {
   glBindFramebuffer(GL_READ_FRAMEBUFFER, src);
+  glReadBuffer(GL_COLOR_ATTACHMENT0 + src_ca);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst);
+  glDrawBuffer(GL_COLOR_ATTACHMENT0 + dst_ca);
   glBlitFramebuffer(0, 0, w0, h0, 0, 0, w1, h1, mask, GL_NEAREST);
+}
+
+void rhi_device_blit_to_screen(rhi_Fbo* src, uint sw, uint sh) {
+  if (!src) return;
+
+  uint src_id = src->ID;
+  uint src_w  = src->width;
+  uint src_h  = src->height;
+
+  if (src_id == 0) return;
+
+  rhi_device_blit(
+    src_id,
+    0,
+    src_w,
+    src_h,
+    sw,
+    sh,
+    RHI_COLOR_BIT,
+    0,
+    0
+  );
 }
 
 // --------------------------------------

@@ -3,11 +3,14 @@
 #include "initial_assets.h"
 #include "ui/iui_layout.h"
 #include "ui/iui_loader.h"
+#include <framework/config.h>
 #include <framework/gfx/pipeline/deferred.h>
-#include <framework/gfx/pipeline/pipeline.h>
+#include <framework/gfx/pipeline/rendering_pipeline.h>
 #include <kernel/core/core.h>
 
 static StateVTable currentState = {0};
+
+static ivec2 screen_size = {0};
 
 void onResize(int width, int height);
 
@@ -24,7 +27,9 @@ void app_create() {
   printf(HELLO_STR);
 
   // create window
-  wnd_init(1600, 850, "game");
+  wnd_init(WINDOW_WIDTH, WINDOW_HEIGHT, "game");
+  screen_size[0] = (int)((float)WINDOW_WIDTH * SCREEN_SIZE_RATIO);
+  screen_size[1] = (int)((float)WINDOW_HEIGHT * SCREEN_SIZE_RATIO);
 
   // init glad
   rhi_device_init();
@@ -32,14 +37,11 @@ void app_create() {
   // init initial assets
   ia_init();
 
-  // init deferred framebuffer
-  drt_init();
-
-  // init post processing pipeline
+  // init rendering pipeline
   rpl_init();
 
   // init imgui
-  ui_init(wnd_get_handle());
+  iui_init(wnd_get_handle());
 
   // configure window
   wnd_center();
@@ -49,18 +51,17 @@ void app_create() {
 }
 
 static void app_update() {
-  if (hid_key_pressed(GLFW_KEY_F3)) { iui_switch_stats_mode(); }
+  if (hid_key_pressed(GLFW_KEY_F3)) { iuil_switch_stats_mode(); }
 }
 
 static void app_draw_ui() {
-  iui_draw_stats_overlay();
+  iuil_draw_stats_overlay();
 }
 
 void app_destroy() {
   LogInfo("game destroy");
   if (currentState.Destroy) currentState.Destroy();
   ia_destroy();
-  drt_destroy();
   rpl_destroy();
   ui_destroy();
   wnd_destroy();
@@ -80,8 +81,9 @@ void app_run() {
 
     // render
     rhi_device_begin_frame();
-    drt_begin_frame();
-    if (currentState.Render) currentState.Render();
+    if (currentState.RenderGeometry) {
+      rpl_render(currentState.RenderGeometry);
+    }
     ui_render();
     wnd_swap_buffers();
 
@@ -92,6 +94,10 @@ void app_run() {
 }
 
 void onResize(int width, int height) {
+  screen_size[0] = (float)screen_size[0] * SCREEN_SIZE_RATIO;
+  screen_size[1] = (float)screen_size[1] * SCREEN_SIZE_RATIO;
+
+  rpl_resize(width, height);
   if (currentState.OnResize) currentState.OnResize(width, height);
 }
 
@@ -112,4 +118,8 @@ void app_set_state(StateVTable nextState) {
 
   // call state on_enter func
   if (currentState.OnEnter) currentState.OnEnter(prevStateReturn);
+}
+
+int* app_get_screen_size() {
+  return screen_size;
 }

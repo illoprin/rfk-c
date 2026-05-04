@@ -3,8 +3,8 @@
 // Initial Assets (prefix 'ia') - is module, that represents build-in
 // assets supplied with the engine and can be used immediately
 
+#include <framework/gfx/camera.h>
 #include <framework/gfx/resource/mesh.h>
-#include <kernel/core/camera.h>
 
 typedef enum {
   IA_SPHERE_8,

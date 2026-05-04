@@ -79,7 +79,7 @@ static void ui_init_style() {
     (ImVec4){0.98f, 0.63f, 0.26f, 1.00f};
 }
 
-void ui_init(GLFWwindow* window) {
+void iui_init(GLFWwindow* window) {
   igCreateContext(NULL);
 
   ui_configure();

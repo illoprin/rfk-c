@@ -52,12 +52,12 @@ void drt_on_resize(int w, int h) {
   rhi_fbo_resize(&deferred_fbo, w, h);
 }
 
-void drt_begin_frame() {
-  rhi_device_bind_fbo(&deferred_fbo);
+const rhi_Fbo* drt_get_fbo() {
+  return &deferred_fbo;
 }
 
 DeferredRenderResult drt_results() {
   return (DeferredRenderResult){.Diffuse = tex_diffuse,
-                          .Normal  = tex_normal,
-                          .Depth   = tex_depth};
+                                .Normal  = tex_normal,
+                                .Depth   = tex_depth};
 }
