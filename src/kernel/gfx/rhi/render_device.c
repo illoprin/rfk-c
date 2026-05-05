@@ -11,7 +11,6 @@
 // bindings
 static uint vao_binding     = 0u;
 static uint program_binding = 0u;
-static uint fbo_binding     = 0u;
 
 // misc
 static const char* g_renderer;
@@ -55,7 +54,13 @@ void rhi_device_clear(uint bufferMask) {
 }
 
 void rhi_device_blit(
-  uint src, uint dst, uint w0, uint h0, uint w1, uint h1, uint mask,
+  uint src,
+  uint dst,
+  uint w0,
+  uint h0,
+  uint w1,
+  uint h1,
+  uint mask,
   uint src_ca
 ) {
   glBindFramebuffer(GL_READ_FRAMEBUFFER, src);
@@ -81,19 +86,12 @@ void rhi_device_blit_to_screen(const rhi_Fbo* src, uint sw, uint sh) {
 // --------------------------------------
 
 void rhi_device_bind_fbo(const rhi_Fbo* fbo) {
-  uint id;
   if (fbo == NULL || fbo->ID == 0) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    id = 0;
-  } else {
-    if (fbo->ID == fbo_binding) { return; }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
-    glViewport(0, 0, fbo->width, fbo->height);
-    id = fbo->ID;
+    return;
   }
-
-  fbo_binding = id;
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+  glViewport(0, 0, fbo->width, fbo->height);
 }
 
 bool vaoValidate(rhi_VAO t) {
@@ -113,7 +111,6 @@ void rhi_device_begin_frame() {
   // invalidate bindings
   vao_binding     = 0;
   program_binding = 0;
-  fbo_binding     = 0;
   glBindVertexArray(0);
   glUseProgram(0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -125,10 +122,10 @@ void rhi_device_use_program(rhi_Program p) {
   program_binding = p.handle;
 }
 
-void rhi_device_bind_tex(rhi_Texture tex, int unit) {
-  if (tex.ID == 0) { return; }
+void rhi_device_bind_tex(const rhi_Texture* tex, int unit) {
+  if (tex->ID == 0) return;
   glActiveTexture(GL_TEXTURE0 + unit);
-  glBindTexture(tex.type, tex.ID);
+  glBindTexture(tex->type, tex->ID);
 }
 
 void rhi_device_draw(rhi_VAO t, int count) {

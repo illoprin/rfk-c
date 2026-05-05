@@ -1,6 +1,6 @@
 #include "deferred.h"
+#include "framework/app/app.h"
 
-#include <kernel/core/window.h>
 #include <kernel/gfx/rhi/framebuffer.h>
 
 static rhi_Fbo deferred_fbo;
@@ -10,7 +10,7 @@ static const rhi_Texture* tex_normal  = NULL;
 static const rhi_Texture* tex_depth   = NULL;
 
 void drt_init() {
-  int* size = wnd_get_size();
+  int* size = app_get_screen_size();
   rhi_fbo_init(&deferred_fbo, size[0], size[1]);
 
   // diffuse
@@ -28,13 +28,12 @@ void drt_init() {
   );
 
   // depth
-  rhi_fbo_add_color(
+  rhi_fbo_add_depth(
     &deferred_fbo,
-    RHI_TEX_FORMAT_DEPTH24,
-    RHI_TEX_FILTER_NEAREST
+    RHI_TEX_FORMAT_DEPTH24
   );
 
-  rhi_fbo_set_draw_bufs(&deferred_fbo, (uint[3]){0, 1, 2}, 3);
+  rhi_fbo_set_draw_bufs(&deferred_fbo, (uint[2]){0, 1}, 2);
 
   RFK_ASSERT(
     rhi_fbo_check(&deferred_fbo),
@@ -54,6 +53,10 @@ void drt_on_resize(int w, int h) {
 
 const rhi_Fbo* drt_get_fbo() {
   return &deferred_fbo;
+}
+
+void drt_destroy() {
+  rhi_fbo_invalidate(&deferred_fbo);
 }
 
 DeferredRenderResult drt_results() {

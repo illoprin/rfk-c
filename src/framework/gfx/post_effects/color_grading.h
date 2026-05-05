@@ -8,6 +8,22 @@
 #include "kernel/gfx/rhi/program.h"
 #include "kernel/gfx/rhi/render_device.h"
 #include "kernel/gfx/rhi/util.h"
+#include <cglm/cglm.h>
+
+struct ColorGradingConfig {
+  bool Use;
+
+  // Basic adjustments 
+  float Contrast;
+  float Saturation;
+  float Brightness;
+
+  // Color balance
+  vec3 ShadowsColor;
+  vec3 MidColor;
+  vec3 HighlightColor;
+  float ColorStrength;
+};
 
 // PostEffects (pe) module
 // Color Grading sub-module
@@ -30,6 +46,15 @@ void pe_cg_destroy();
 static rhi_Program cg_prog;
 
 static bool cg_initialized = false;
+
+static struct ColorGradingConfig conf = {
+  .Brightness = 1.57,
+  .Contrast = 2.28,
+  .Saturation = 0.85,
+  .ShadowsColor = {0.16, 0.18, 0.3},
+  .MidColor = {0.68, 0.518, 0.33},
+  .HighlightColor = {0.938, 0.641, 0.438},
+};
 
 void pe_cg_init() {
   // init program
@@ -55,7 +80,19 @@ void pe_cg_render_pass(PostProcessingContext ctx) {
   rhi_device_clear(RHI_COLOR_BIT);
   rhi_device_use_program(cg_prog);
 
-  // TODO: send config
+  // send color
+  rhi_device_bind_tex(ctx.InColor, 0);
+  rhi_prog_uniform_1i(cg_prog, "u_color", 0);
+
+  // set uniforms
+  rhi_prog_uniform_1f(cg_prog, "u_brightness", conf.Brightness);
+  rhi_prog_uniform_1f(cg_prog, "u_contrast", conf.Contrast);
+  rhi_prog_uniform_1f(cg_prog, "u_saturation", conf.Saturation);
+
+  rhi_prog_uniform_3f(cg_prog, "u_shadow_color", conf.ShadowsColor);
+  rhi_prog_uniform_3f(cg_prog, "u_mid_color", conf.MidColor);
+  rhi_prog_uniform_3f(cg_prog, "u_highlight_color", conf.HighlightColor);
+  rhi_prog_uniform_1f(cg_prog, "u_color_strength", conf.ColorStrength);
 
   Mesh* quad = ia_mesh_quad();
   rhi_device_draw(quad->VAO, quad->indexNum);

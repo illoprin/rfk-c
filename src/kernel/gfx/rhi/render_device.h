@@ -65,7 +65,7 @@ void rhi_device_use_program(rhi_Program);
 /// @brief binds texture into sampler unit
 /// @param tex target texture object
 /// @param unit index of sampler unit
-void rhi_device_bind_tex(rhi_Texture tex, int unit);
+void rhi_device_bind_tex(const rhi_Texture* tex, int unit);
 
 /// @brief binds fbo for drawing
 /// @param fbo framebuffer handle

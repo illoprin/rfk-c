@@ -58,17 +58,16 @@ void player_update_movement(float dt) {
 void player_update_look() {
   double dx, dy;
   inp_cursor_delta(&dx, &dy);
-  cam.Rotation[0] =
-    glm_clamp(cam.Rotation[0] - dy * PLAYER_SENS, -89.0, 89.0);
+  cam.Rotation[0]  = glm_clamp(cam.Rotation[0] - dy * PLAYER_SENS, -89.0, 89.0);
   cam.Rotation[1] += dx * PLAYER_SENS;
 }
 
 void bs_draw_ui() {
   if (!initialized) { return; }
 
-  ImGuiWindowFlags wflags =
-    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize
-    | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+  ImGuiWindowFlags wflags = ImGuiWindowFlags_NoDecoration
+                            | ImGuiWindowFlags_AlwaysAutoResize
+                            | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
 
   int*   size   = wnd_get_size();
   ImVec2 wpos   = {UI_PADDING, size[1] - UI_PADDING};
@@ -115,8 +114,7 @@ void bs_update(float dt) {
   if (!initialized) { return; }
 
   bool can_update_controller =
-    wnd_is_grabbed()
-    || (inp_mouse_btn_down(RFK_LMB) && !io->WantCaptureMouse);
+    wnd_is_grabbed() || (inp_mouse_btn_down(RFK_LMB) && !io->WantCaptureMouse);
 
   if (can_update_controller) {
     player_update_movement(dt);
@@ -126,17 +124,14 @@ void bs_update(float dt) {
 }
 
 void bs_render() {
-  rhi_device_clear(
-    (vec4){0.31, 0.68, 0.9, 1.0},
-    RHI_COLOR_BIT | RHI_DEPTH_BIT
-  );
+  rhi_device_clear(RHI_COLOR_BIT | RHI_DEPTH_BIT);
 
   if (!initialized) return;
 
   rhi_device_use_program(geomProg);
   rhi_prog_uniform_mat4(geomProg, "u_projection", cam.Proj[0]);
   rhi_prog_uniform_mat4(geomProg, "u_view", cam.View[0]);
-  rhi_device_bind_tex(handgunTexture, 0);
+  rhi_device_bind_tex(&handgunTexture, 0);
   rhi_prog_uniform_1i(geomProg, "u_diffuse", 0);
   rhi_device_draw(handgunMesh.VAO, handgunMesh.indexNum);
 
@@ -182,7 +177,6 @@ void bs_init() {
   cam_update(&cam, wnd_get_size());
 
   initialized = true;
-
 }
 
 void bs_destroy() {
@@ -204,7 +198,7 @@ void bs_on_enter(void*) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glFrontFace(GL_CCW);
-  
+
   rpl_push_camera(&cam);
 }
 

@@ -1,4 +1,5 @@
 #include "framebuffer.h"
+#include "kernel/gfx/rhi/util.h"
 
 #include <kernel/core/defs.h>
 #include <stdlib.h>
@@ -15,11 +16,18 @@ void rhi_fbo_init(rhi_Fbo* fbo, uint width, uint height) {
   glGenFramebuffers(1, &fbo->ID);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 
-  LogInfo("fbo [ID = %d] initialized", fbo->ID);
+  LogInfo(
+    "fbo [ID = %d] initialized with size { W: %u H: %u }",
+    fbo->ID,
+    width,
+    height
+  );
 }
 
 void rhi_fbo_add_color(
-  rhi_Fbo* fbo, rhi_TextureFormat format, rhi_TextureFilter filtering
+  rhi_Fbo*          fbo,
+  rhi_TextureFormat format,
+  rhi_TextureFilter filtering
 ) {
   if (fbo == NULL || fbo->ID == 0) { return; }
 
@@ -83,9 +91,7 @@ void rhi_fbo_add_depth(rhi_Fbo* fbo, rhi_TextureFormat format) {
   fbo->hasDepth = true;
 }
 
-void rhi_fbo_set_draw_bufs(
-  rhi_Fbo* fbo, uint* attachments, int count
-) {
+void rhi_fbo_set_draw_bufs(rhi_Fbo* fbo, uint* attachments, int count) {
   if (fbo == NULL || fbo->ID == 0) { return; }
 
   GLenum* enums = malloc(sizeof(GLenum) * count);
@@ -102,36 +108,30 @@ void rhi_fbo_set_draw_bufs(
 bool rhi_fbo_check(rhi_Fbo* t) {
   glBindFramebuffer(GL_FRAMEBUFFER, t->ID);
   uint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
   char status_str[MID_STR_LEN];
+
+  if (status == GL_FRAMEBUFFER_COMPLETE) return true;
+
   switch (status) {
-    case GL_FRAMEBUFFER_COMPLETE:
-      strcpy(status_str, "FRAMEBUFFER_COMPLETE");
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
       strcpy(status_str, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+      break;
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-      strcpy(
-        status_str,
-        "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"
-      );
+      strcpy(status_str, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+      break;
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
       strcpy(status_str, "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+      break;
     case GL_FRAMEBUFFER_UNSUPPORTED:
       strcpy(status_str, "GL_FRAMEBUFFER_UNSUPPORTED");
+      break;
     default:
       strcpy(status_str, "UNKNOWN_ERROR");
+      break;
   }
 
-  if (status != GL_FRAMEBUFFER_COMPLETE) {
-    LogWarn(
-      "fbo [ID = %d] is broken, current status is %s",
-      t->ID,
-      status_str
-    );
-    return false;
-  }
-
-  return true;
+  LogWarn("fbo [ID = %d] is broken, current status is %s", t->ID, status_str);
+  return false;
 }
 
 void rhi_fbo_resize(rhi_Fbo* fbo, uint width, uint height) {
@@ -147,9 +147,7 @@ void rhi_fbo_resize(rhi_Fbo* fbo, uint width, uint height) {
   }
 
   // resize depth
-  if (fbo->hasDepth) {
-    rhi_tex2d_resize(&fbo->depthTexture, width, height);
-  }
+  if (fbo->hasDepth) { rhi_tex2d_resize(&fbo->depthTexture, width, height); }
 }
 
 void rhi_fbo_invalidate(rhi_Fbo* fbo) {

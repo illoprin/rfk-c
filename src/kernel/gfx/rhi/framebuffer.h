@@ -42,7 +42,7 @@ void rhi_fbo_set_draw_bufs(
 
 /// @brief validate framebuffer
 /// @param fbo handle
-/// @return 0 - if completed; 1 - if not complete
+/// @return complete status
 bool rhi_fbo_check(rhi_Fbo*);
 
 /// @brief resizes all attachments

@@ -2,7 +2,7 @@
 
 #define HELLO_STR "🩷 - rfk - with love\n🇷🇺 сделано в России 🇷🇺\n"
 
-#define SCREEN_SIZE_RATIO .75
+#define SCREEN_SIZE_RATIO .75f
 #define WINDOW_WIDTH      1600
 #define WINDOW_HEIGHT     900
 

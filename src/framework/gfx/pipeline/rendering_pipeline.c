@@ -2,15 +2,17 @@
 
 #include "deferred.h"
 #include "framework/config.h"
+#include "kernel/gfx/rhi/render_device.h"
+#include "kernel/gfx/rhi/util.h"
 #include <framework/app/app.h>
 #include <framework/gfx/post_effects/post_effects.h>
 #include <kernel/core/window.h>
 #include <kernel/gfx/gfx.h>
 
 // ~512 bytes
-static uch      active_post_effects = 0u;
-static rhi_Fbo* drt_fbo             = NULL;
-static DeferredRenderResult drt_res = { 0 };
+static uch                  active_post_effects = 0u;
+static const rhi_Fbo*       drt_fbo             = NULL;
+static DeferredRenderResult drt_res             = {0};
 
 static Camera* active_camera = NULL;
 
@@ -26,7 +28,8 @@ void rpl_init() {
 }
 
 void rpl_render(RplRenderFunc renderFunc) {
-  int* size = app_get_screen_size();
+  int* size  = app_get_screen_size();
+  int* wsize = wnd_get_size();
 
   // geometry pass
   rhi_device_bind_fbo(drt_fbo);
@@ -36,7 +39,7 @@ void rpl_render(RplRenderFunc renderFunc) {
   rhi_Fbo* result = post_effects_perform(active_camera);
 
   // blit to screen
-  rhi_device_blit_to_screen(result, size[0], size[1]);
+  rhi_device_blit_to_screen(result, wsize[0], wsize[1]);
 }
 
 void rpl_resize(int w, int h) {
